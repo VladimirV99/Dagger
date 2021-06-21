@@ -25,7 +25,7 @@ Release
 ipch
 *sdf
 .vs
-
+.vscode
 # imgui
 *imgui.ini
 

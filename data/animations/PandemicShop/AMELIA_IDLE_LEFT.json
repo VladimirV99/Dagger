@@ -1,0 +1,13 @@
+{
+	"animation-name": "PandemicShop:AMELIA_IDLE_LEFT",
+	"animation-length-ms": 600,
+	"animation-frames": 
+	[
+		{ "texture-name": "PandemicShop:AMELIA_IDLE:LEFT:amelia_idle1" },
+		{ "texture-name": "PandemicShop:AMELIA_IDLE:LEFT:amelia_idle2" },
+		{ "texture-name": "PandemicShop:AMELIA_IDLE:LEFT:amelia_idle3" },
+		{ "texture-name": "PandemicShop:AMELIA_IDLE:LEFT:amelia_idle4" },
+		{ "texture-name": "PandemicShop:AMELIA_IDLE:LEFT:amelia_idle5" },
+		{ "texture-name": "PandemicShop:AMELIA_IDLE:LEFT:amelia_idle6" }
+	]  
+} 

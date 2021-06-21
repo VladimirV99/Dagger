@@ -1,0 +1,13 @@
+{
+	"animation-name": "PandemicShop:AMELIA_RUN_RIGHT",
+	"animation-length-ms": 600,
+	"animation-frames": 
+	[
+		{ "texture-name": "PandemicShop:AMELIA_RUN:RIGHT:amelia_run1" },
+		{ "texture-name": "PandemicShop:AMELIA_RUN:RIGHT:amelia_run2" },
+		{ "texture-name": "PandemicShop:AMELIA_RUN:RIGHT:amelia_run3" },
+		{ "texture-name": "PandemicShop:AMELIA_RUN:RIGHT:amelia_run4" },
+		{ "texture-name": "PandemicShop:AMELIA_RUN:RIGHT:amelia_run5" },
+		{ "texture-name": "PandemicShop:AMELIA_RUN:RIGHT:amelia_run6" }
+	]
+} 

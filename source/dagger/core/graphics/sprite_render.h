@@ -1,6 +1,5 @@
 #pragma once
 
-#include "core/core.h"
 #include "core/system.h"
 #include "core/graphics/window.h"
 #include "core/graphics/shaders.h"
@@ -41,7 +40,7 @@ public:
 
 	constexpr static UInt64 s_VertexCount = 24;
 	constexpr static UInt64 m_SizeOfMesh = sizeof(Float32) * s_VertexCount;
-	constexpr static UInt64 s_MaxNumberOfMeshes = 10000;
+	constexpr static UInt64 s_MaxNumberOfMeshes = 100000;
 	constexpr static UInt64 s_BufferSize = sizeof(Float32) * s_VertexCount * s_MaxNumberOfMeshes;
 
 	void OnRequestSpritesheet(AssetLoadRequest<SpriteFrame> spritesheet_);

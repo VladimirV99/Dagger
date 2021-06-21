@@ -1,0 +1,11 @@
+{
+	"animation-name": "PandemicShop:RUN_FRONT",
+	"animation-length-ms": 500,
+	"animation-frames": [
+		{ "texture-name": "PandemicShop:BOB_RUN:FRONT:bob_run1" },
+		{ "texture-name": "PandemicShop:BOB_RUN:FRONT:bob_run2" },
+		{ "texture-name": "PandemicShop:BOB_RUN:FRONT:bob_run3" },
+		{ "texture-name": "PandemicShop:BOB_RUN:FRONT:bob_run4" },
+		{ "texture-name": "PandemicShop:BOB_RUN:FRONT:bob_run5" }
+	]
+} 

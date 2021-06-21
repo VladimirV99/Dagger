@@ -1,0 +1,19 @@
+{
+	"context-name": "Pandemic",
+	"commands": [
+		{ "command-name": "horizontal", 
+		  "actions": [
+			{ "trigger": "KeyA", "value": -1 },
+			{ "trigger": "KeyD", "value": 1 } 
+		] }, 
+		{ "command-name": "vertical", 
+		  "actions": [
+			{ "trigger": "KeyW", "value": 1 },
+			{ "trigger": "KeyS", "value": -1 } 
+		] },
+		{ "command-name": "pickup", 
+			"actions": [
+			  { "trigger": "KeySpace"}
+		  ] }
+	]
+}

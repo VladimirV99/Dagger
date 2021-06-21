@@ -1,8 +1,16 @@
 #pragma once
 #include "core/system.h"
 #include "core/core.h"
-
+#include "core/game/transforms.h"
+#include "gameplay/PandemicShop/ai_system.h"
 using namespace dagger;
+
+
+namespace CollisionType{
+    struct Wall{};
+    struct Item{};
+    struct Char{};
+}
 
 struct SimpleCollision
 {
@@ -18,12 +26,23 @@ struct SimpleCollision
     Vector2 GetCollisionSides(const Vector3& pos_, const SimpleCollision& other_, const Vector3& posOther_);
 
     Vector3 GetCollisionCenter(const Vector3& pos_, const SimpleCollision& other_, const Vector3& posOther_);
+
 };
 
 class SimpleCollisionsSystem : public System
 {
+
 public:
     inline String SystemName() { return "Simple Collisions System"; }
 
     void Run() override;
+
+    void resolveDirection(SimpleCollision &collision, Transform& col_transform, 
+                          SimpleCollision& other, Transform &other_transform);
+    void resolveItem(SimpleCollision &collision, Transform &col_transform, 
+                                            SimpleCollision &other, Transform& other_transform,
+                                            AICommand& command);
+    void resolveWalls(SimpleCollision &collision, Transform &col_transform, 
+                                            SimpleCollision &other, Transform& other_transform,
+                                            AICommand& command);
 };

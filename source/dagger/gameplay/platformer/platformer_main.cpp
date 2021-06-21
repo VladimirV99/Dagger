@@ -70,7 +70,7 @@ struct Character
         auto& reg = Engine::Registry();
         auto entity = reg.create();
 
-        ATTACH_TO_FSM(CharacterControllerFSM, entity);
+        ATTACH_TO_FSM(PlatformerCharacterControllerFSM, entity);
 
         auto chr = Character::Get(entity);
 

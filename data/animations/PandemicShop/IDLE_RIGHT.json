@@ -1,0 +1,13 @@
+{
+	"animation-name": "PandemicShop:IDLE_RIGHT",
+	"animation-length-ms": 600,
+	"animation-frames": 
+	[
+		{ "texture-name": "PandemicShop:BOB_IDLE:RIGHT:bob_idle1" },
+		{ "texture-name": "PandemicShop:BOB_IDLE:RIGHT:bob_idle2" },
+		{ "texture-name": "PandemicShop:BOB_IDLE:RIGHT:bob_idle3" },
+		{ "texture-name": "PandemicShop:BOB_IDLE:RIGHT:bob_idle4" },
+		{ "texture-name": "PandemicShop:BOB_IDLE:RIGHT:bob_idle5" },
+		{ "texture-name": "PandemicShop:BOB_IDLE:RIGHT:bob_idle6" }
+	]  
+} 

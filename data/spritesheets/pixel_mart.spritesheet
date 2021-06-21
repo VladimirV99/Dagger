@@ -1,0 +1,167 @@
+american_cheese_p 0 0 32 32
+aluminum_foil 32 0 32 32
+bacon 64 0 32 32
+baking_powder 96 0 32 32
+ball_pen 128 0 32 32
+banana 160 0 32 32
+bandage_box 196 0 32 32
+barbeque_sauce 224 0 32 32
+basket_metal 256 0 32 32
+basket_yellow 288 0 32 32
+bathroom_cleaner 320 0 32 32
+batteries 352 0 32 32
+
+
+
+bell_pepper   0   32 32 32
+bell_pepper_p 32  32 32 32
+body_lotion 64  32 32 32
+bowl 96  32 32 32
+bubble_gum 128 32 32 32
+butter 160 32 32 32
+butter2 196 32 32 32
+cabbage 224 32 32 32
+cabbage_p 256 32 32 32
+candy_bar 288 32 32 32
+cereal1 320 32 32 32
+cereal2 352 32 32 32
+    
+chopping_board 0   64 32 32
+cleaning_brush 32  64 32 32
+cleaning_gloves 64  64 32 32
+cleaning_gloves_p 96  64 32 32
+coffee_bag  128 64 32 32
+cookies   160 64 32 32
+cooking_oil  196 64 32 32
+credit_card_1  224 64 32 32
+credit_card_2  256 64 32 32
+credit_card_3  288 64 32 32
+detergent  320 64 32 32
+dry_dog_food 352 64 32 32
+
+egg_box 0   96 32 32
+egg_brown 32  96 32 32
+egg_brown_p 64  96 32 32
+egg_white 96  96 32 32
+egg_white_p 128 96 32 32
+energy_bar 160 96 32 32
+eraser 196 96 32 32
+eraser_p 224 96 32 32
+fish   256 96 32 32
+fish_p      288 96 32 32
+flour 320 96 32 32
+fruit_cocktail_can 352 96 32 32
+
+frying_pan 0   128 32 32
+frying_pan_p 32  128 32 32
+glue 64  128 32 32
+glue_p 96  128 32 32
+glue_stick 128 128 32 32
+grape_soda 160 128 32 32
+green_apple 196 128 32 32
+green_apple_p 224 128 32 32
+green_grape 256 128 32 32
+green_grape_p  288 128 32 32
+hand_sanitiser 320 128 32 32
+hot_cocoa_mix  352 128 32 32
+
+
+
+jam_strawberry   0   160 32 32
+ketchup 32  160 32 32
+kitchen_knife_s0 64  160 32 32
+kitchen_knife_s1 96  160 32 32
+kitchen_soap 128 160 32 32
+light_bulb 160 160 32 32
+light_bulb_box 196 160 32 32
+marshmallows 224 160 32 32
+meat1 256 160 32 32
+meat1_p 288 160 32 32
+meat2 320 160 32 32
+meat2_p 352 160 32 32
+
+milk_bottle      0   196 32 32
+milk_chocolate  32  196 32 32
+milk_gallon  64  196 32 32
+milk_pack  96  196 32 32
+milk_plastic  128 196 32 32
+mushroom_white  160 196 32 32
+mushroom_white_p 196 196 32 32
+mustard 224 196 32 32
+olive_oil 256 196 32 32
+orange_juice 288 196 32 32
+paper_bag 320 196 32 32
+peanut_butter 352 196 32 32
+
+pencil_box        0   224 32 32
+plain_yogurt 32  224 32 32
+potato 64  224 32 32
+potato_p 96  224 32 32
+potatochip_blue 128 224 32 32
+potatochip_green 160 224 32 32
+potatochip_yellow  196 224 32 32
+power_strip_typeA  224 224 32 32
+power_strip_typeF  256 224 32 32
+receipt 288 224 32 32
+red_apple 320 224 32 32
+red_apple_p 352 224 32 32
+
+red_grape       0   256 32 32
+red_grape_p 32  256 32 32
+rolling_pin 64  256 32 32
+rubber_duck 96  256 32 32
+rubber_ducktopus 128 256 32 32
+salmon 160 256 32 32
+salmon_p 196 256 32 32
+salt 224 256 32 32
+sausage_p 256 256 32 32
+scissors 288 256 32 32
+scissors_p 320 256 32 32
+scrub_brush 352 256 32 32
+
+scrub_sponge 0   288 32 32
+shampoo 32  288 32 32
+sliced_bread_p 64  288 32 32
+snack1 96  288 32 32
+snack2 128 288 32 32
+soap 160 288 32 32
+soap_box 196 288 32 32
+soft_drink_blue 224 288 32 32
+soft_drink_green 256 288 32 32
+soft_drink_red 288 288 32 32
+soft_drink_yellow 320 288 32 32
+spatula 352 288 32 32
+
+
+spatula_p 0   320 32 32
+strawberry 32  320 32 32
+strawberry_ice_cream 64  320 32 32
+strawberry_jam 96  320 32 32
+strawberry_p 128 320 32 32
+sugar 160 320 32 32
+sun_cream_tube 196 320 32 32
+teakettle 224 320 32 32
+toilet_paper 256 320 32 32
+toothbrush 288 320 32 32
+toothbrush_set 320 320 32 32
+toothpaste 352 320 32 32
+
+toothpaste_box 0   352 32 32
+tuna_can 32  352 32 32
+vanilla_or_lemon_ice_cream 64  352 32 32
+water 96  352 32 32
+watermelon1 128 352 32 32
+watermelon2 160 352 32 32
+wax 196 352 32 32
+wet_wipe 224 352 32 32
+whisk 256 352 32 32
+whisk_p 288 352 32 32
+white_cheese 320 352 32 32
+white_cheese_p 352 352 32 32
+
+white_cheese_piece 0   384 32 32
+white_cheese_piece_p 32  384 32 32
+wine_red 64  384 32 32
+wine_white 96  384 32 32
+wine_white2 128 384 32 32
+wine_white3 160 384 32 32

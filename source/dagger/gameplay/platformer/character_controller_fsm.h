@@ -2,20 +2,20 @@
 #include "core/core.h"
 #include "core/game/finite_state_machine.h"
 
-enum struct ECharacterStates
+enum struct EPandemicCharacterStates
 {
 	Idle,
 	Running
 };
 
-struct CharacterControllerFSM : public FSM<ECharacterStates>
+struct PlatformerCharacterControllerFSM : public FSM<EPandemicCharacterStates>
 {
-	DEFINE_STATE(CharacterControllerFSM, ECharacterStates, Idle);
-	DEFINE_STATE(CharacterControllerFSM, ECharacterStates, Running);
+	DEFINE_STATE(PlatformerCharacterControllerFSM, EPandemicCharacterStates, Idle);
+	DEFINE_STATE(PlatformerCharacterControllerFSM, EPandemicCharacterStates, Running);
 
-	CharacterControllerFSM()
+	PlatformerCharacterControllerFSM()
 	{
-		CONNECT_STATE(ECharacterStates, Idle);
-		CONNECT_STATE(ECharacterStates, Running);
+		CONNECT_STATE(EPandemicCharacterStates, Idle);
+		CONNECT_STATE(EPandemicCharacterStates, Running);
 	}
 };
