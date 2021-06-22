@@ -40,40 +40,44 @@ using namespace pandemic_shop;
 using namespace pandemic;
 
 
-void PandemicShopGame::CoreSystemsSetup(Engine& engine_)
+void PandemicShopGame::CoreSystemsSetup()
 {
-    engine_.AddSystem<WindowSystem>();
-    engine_.AddSystem<InputSystem>();
-    engine_.AddSystem<ShaderSystem>();
-    engine_.AddSystem<TextureSystem>();
-    engine_.AddSystem<SpriteRenderSystem>();
-    engine_.AddPausableSystem<TransformSystem>();
-    engine_.AddPausableSystem<AnimationSystem>();
+    auto& engine = Engine::Instance();
+
+    engine.AddSystem<WindowSystem>();
+    engine.AddSystem<InputSystem>();
+    engine.AddSystem<ShaderSystem>();
+    engine.AddSystem<TextureSystem>();
+    engine.AddSystem<SpriteRenderSystem>();
+    engine.AddPausableSystem<TransformSystem>();
+    engine.AddPausableSystem<AnimationSystem>();
 #if !defined(NDEBUG)
-    engine_.AddSystem<DiagnosticSystem>();
-    // engine_.AddSystem<CollisionDetectionSystem>();
-    // engine_.AddSystem<GUISystem>();
-    // engine_.AddSystem<ToolMenuSystem>();
+    engine.AddSystem<DiagnosticSystem>();
+    // engine.AddSystem<CollisionDetectionSystem>();
+    // engine.AddSystem<GUISystem>();
+    // engine.AddSystem<ToolMenuSystem>();
 #endif //!defined(NDEBUG)
 }
 
-void PandemicShopGame::GameplaySystemsSetup(Engine& engine_)
+void PandemicShopGame::GameplaySystemsSetup()
 {
-    engine_.AddPausableSystem<SimpleCollisionsSystem>();
-    engine_.AddPausableSystem<PandemicControllerSystem>();
-    engine_.AddPausableSystem<KarenControllerSystem>();
-    engine_.AddPausableSystem<CollisionDetectionSystem>();
-    engine_.AddPausableSystem<Pickable>();
-    engine_.AddPausableSystem<AISystem>();
+    auto& engine = Engine::Instance();
 
-    engine_.AddSystem<LevelSystem>();
-    engine_.AddPausableSystem<GameMenuSystem>();
+    engine.AddPausableSystem<SimpleCollisionsSystem>();
+    engine.AddPausableSystem<PandemicControllerSystem>();
+    engine.AddPausableSystem<KarenControllerSystem>();
+    engine.AddPausableSystem<CollisionDetectionSystem>();
+    engine.AddPausableSystem<Pickable>();
+    engine.AddPausableSystem<AISystem>();
+
+    engine.AddSystem<LevelSystem>();
+    engine.AddPausableSystem<GameMenuSystem>();
 #if defined(DAGGER_DEBUG)
   
 #endif // defined(DAGGER_DEBUG)
 }
 
-void PandemicShopGame::WorldSetup(Engine& engine_)
+void PandemicShopGame::WorldSetup()
 {
     auto* camera = Engine::GetDefaultResource<Camera>();
     camera->mode = ECameraMode::FixedResolution;
@@ -82,20 +86,22 @@ void PandemicShopGame::WorldSetup(Engine& engine_)
     camera->zoom = 1.5;
     camera->position = { 0, 0, 0 };
     camera->Update();
-    pandemic_shop::SetupStartScreen(engine_);
+    pandemic_shop::SetupStartScreen();
 }
 
-void pandemic_shop::SetupWorld(Engine& engine_, std::string level)
+void pandemic_shop::SetupWorld(std::string level)
 {
 
-    auto& reg = engine_.Registry();
+    auto& engine = Engine::Instance();
+    auto& reg = engine.Registry();
     Level::Load(level);
 
 }
 
 //-------------------------------------------pocetni ekran i restartekran-------------------------------------
-void pandemic_shop::SetupStartScreen(Engine &engine_) {
-  auto &reg = engine_.Registry();
+void pandemic_shop::SetupStartScreen() {
+  auto& engine = Engine::Instance();
+  auto& reg = engine.Registry();
 
   auto entity = reg.create();
   auto &sprite = reg.emplace<Sprite>(entity);
@@ -135,12 +141,12 @@ void pandemic_shop::SetupStartScreen(Engine &engine_) {
   text4.Set("pixel-font", "as many groceries as possible !", {10, -150, 98});
 }
 
-void pandemic_shop::SetupRestartScreen(Engine &engine_,
-                                       int number_of_collected_items_,
+void pandemic_shop::SetupRestartScreen(int number_of_collected_items_,
                                        int number_of_items_,
                                        bool victory) {
-    Engine::Registry().clear();
-    auto &reg = engine_.Registry();
+    auto& engine = Engine::Instance();
+    auto &reg = engine.Registry();
+    reg.clear();
 
     auto entity = reg.create();
     auto &sprite = reg.emplace<Sprite>(entity);

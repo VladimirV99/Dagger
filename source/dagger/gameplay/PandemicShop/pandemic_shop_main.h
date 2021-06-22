@@ -9,9 +9,9 @@ using namespace dagger;
 
 namespace pandemic_shop {
 
-void SetupWorld(Engine &engine_, std::string level);
-void SetupStartScreen(Engine &engine_);
-void SetupRestartScreen(Engine &engine_, int number_of_collected_items_, int number_of_items_, bool victory);
+void SetupWorld(std::string level);
+void SetupStartScreen();
+void SetupRestartScreen(int number_of_collected_items_, int number_of_items_, bool victory);
 
     class PandemicShopGame : public Game
     {
@@ -20,8 +20,8 @@ void SetupRestartScreen(Engine &engine_, int number_of_collected_items_, int num
             return "pandemic.ini";
         };
 
-  void CoreSystemsSetup(Engine &engine_) override;
-  void GameplaySystemsSetup(Engine &engine_) override;
-  void WorldSetup(Engine &engine_) override;
+  void CoreSystemsSetup() override;
+  void GameplaySystemsSetup() override;
+  void WorldSetup() override;
 };
 } // namespace pandemic_shop

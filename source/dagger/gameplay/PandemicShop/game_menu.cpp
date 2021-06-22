@@ -51,10 +51,10 @@ void GameMenuSystem::OnEndOfFrame() {
     m_LoadGame = false;
     Engine::Registry().clear();
     if(level == 1){
-      pandemic_shop::SetupWorld(Engine::Instance(), "next");
+      pandemic_shop::SetupWorld("next");
     }
     else{
-      pandemic_shop::SetupWorld(Engine::Instance(), "default");
+      pandemic_shop::SetupWorld("default");
     }
     
   }
@@ -70,10 +70,10 @@ void GameMenuSystem::OnEndOfFrame() {
         
         Logger::info("collected items {}", collected_items);
         if(collected_items < 18){
-          pandemic_shop::SetupRestartScreen(Engine::Instance(), collected_items, 36, false);
+          pandemic_shop::SetupRestartScreen(collected_items, 36, false);
         }
         else{
-          pandemic_shop::SetupRestartScreen(Engine::Instance(), collected_items, 36, true);
+          pandemic_shop::SetupRestartScreen(collected_items, 36, true);
           level++;
         }
         restarted = true;
