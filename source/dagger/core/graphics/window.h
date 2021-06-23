@@ -35,6 +35,7 @@ struct RenderConfig
 {
 	Bool fullscreen;
 	Bool resizable;
+	Bool vsync;
 	GLsizei windowWidth;
 	GLsizei windowHeight;
 	GLFWwindow* window;

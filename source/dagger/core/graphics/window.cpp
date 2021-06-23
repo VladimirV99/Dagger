@@ -138,6 +138,7 @@ void WindowSystem::SpinUp()
 	m_Config.windowHeight = atoi(Engine::GetIniFile().GetValue("window", "height", "600"));
 	m_Config.fullscreen = strcmp(Engine::GetIniFile().GetValue("window", "fullscreen", "false"), "true") == 0;
 	m_Config.resizable = strcmp(Engine::GetIniFile().GetValue("window", "resizable", "false"), "true") == 0;
+	m_Config.vsync = strcmp(Engine::GetIniFile().GetValue("window", "vsync", "false"), "true") == 0;
 
 	assert(m_Config.windowWidth > 0 && m_Config.windowHeight > 0);
 
@@ -179,7 +180,14 @@ void WindowSystem::SpinUp()
 	}
 
 	glfwMakeContextCurrent(window);
-    glfwSwapInterval(0);
+	if (m_Config.vsync)
+	{
+		glfwSwapInterval(1);
+	}
+	else
+	{
+		glfwSwapInterval(0);
+	}
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
