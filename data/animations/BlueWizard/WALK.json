@@ -1,0 +1,27 @@
+{
+	"animation-name": "BlueWizard:WALK",
+	"animation-length-ms": 600,
+	"animation-frames": 
+	[
+		{ "texture-name": "BlueWizard:WALK:walk1" },
+		{ "texture-name": "BlueWizard:WALK:walk2" },
+		{ "texture-name": "BlueWizard:WALK:walk3" },
+		{ "texture-name": "BlueWizard:WALK:walk4" },
+		{ "texture-name": "BlueWizard:WALK:walk5" },
+		{ "texture-name": "BlueWizard:WALK:walk6" },
+		{ "texture-name": "BlueWizard:WALK:walk7" },
+		{ "texture-name": "BlueWizard:WALK:walk8" },
+		{ "texture-name": "BlueWizard:WALK:walk9" },
+		{ "texture-name": "BlueWizard:WALK:walk10" },
+		{ "texture-name": "BlueWizard:WALK:walk11" },
+		{ "texture-name": "BlueWizard:WALK:walk12" },
+		{ "texture-name": "BlueWizard:WALK:walk13" },
+		{ "texture-name": "BlueWizard:WALK:walk14" },
+		{ "texture-name": "BlueWizard:WALK:walk15" },
+		{ "texture-name": "BlueWizard:WALK:walk16" },
+		{ "texture-name": "BlueWizard:WALK:walk17" },
+		{ "texture-name": "BlueWizard:WALK:walk18" },
+		{ "texture-name": "BlueWizard:WALK:walk19" },
+		{ "texture-name": "BlueWizard:WALK:walk20" }
+	]
+}

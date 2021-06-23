@@ -16,6 +16,8 @@
 #include "gameplay/common/simple_collisions.h"
 #include "tools/diagnostics.h"
 
+#include "gameplay/atonement/components/marker_components.h"
+
 #include "core/savegame.h"
 #include "gameplay/editor/savegame_system.h"
 #include <iostream>
@@ -54,6 +56,24 @@ ECommonSaveArchetype EditorTestGame::Save(Entity entity_, JSON::json& saveTo_)
         archetype = archetype | ECommonSaveArchetype::Physics;
     }
 
+    if (registry.has<BouncyComponent>(entity_))
+    {
+        saveTo_["bouncy_component"] = SerializeComponent<BouncyComponent>(registry.get<BouncyComponent>(entity_));
+        archetype = archetype | ECommonSaveArchetype::Bouncy;
+    }
+
+    if (registry.has<DeadlyComponent>(entity_))
+    {
+        saveTo_["deadly_component"] = SerializeComponent<DeadlyComponent>(registry.get<DeadlyComponent>(entity_));
+        archetype = archetype | ECommonSaveArchetype::Deadly;
+    }
+
+    if (registry.has<InteractableComponent>(entity_))
+    {
+        saveTo_["interactable_component"] = SerializeComponent<InteractableComponent>(registry.get<InteractableComponent>(entity_));
+        archetype = archetype | ECommonSaveArchetype::Interactable;
+    }
+
     // todo: add new if-block here and don't forget to change archetype
 
     return archetype;
@@ -74,6 +94,15 @@ void EditorTestGame::Load(ECommonSaveArchetype archetype_, Entity entity_, JSON:
 
     if (IS_ARCHETYPE_SET(archetype_, ECommonSaveArchetype::Physics))
         DeserializeComponent<SimpleCollision>(loadFrom_["simple_collision"], registry.emplace<SimpleCollision>(entity_));
+
+    if (IS_ARCHETYPE_SET(archetype_, ECommonSaveArchetype::Bouncy))
+        DeserializeComponent<BouncyComponent>(loadFrom_["bouncy_component"], registry.emplace<BouncyComponent>(entity_));
+
+    if (IS_ARCHETYPE_SET(archetype_, ECommonSaveArchetype::Deadly))
+        DeserializeComponent<DeadlyComponent>(loadFrom_["deadly_component"], registry.emplace<DeadlyComponent>(entity_));
+
+    if (IS_ARCHETYPE_SET(archetype_, ECommonSaveArchetype::Interactable))
+        DeserializeComponent<InteractableComponent>(loadFrom_["interactable_component"], registry.emplace<InteractableComponent>(entity_));
 
     // todo: add new if-block here and don't forget to change archetype
 }
@@ -122,9 +151,34 @@ void EditorToolSystem::OnToolMenuRender()
 
 void EditorToolSystem::OnKeyboardEvent(KeyboardEvent event_)
 {
-    if (event_.key == EDaggerKeyboard::KeyTab && event_.action == EDaggerInputState::Released)
-        if (Input::IsInputDown(EDaggerKeyboard::KeyLeftControl))
+    auto* camera = Engine::GetDefaultResource<Camera>();
+
+    if (event_.key == EDaggerKeyboard::KeyTab && event_.action == EDaggerInputState::Released) {
+        if (Input::IsInputDown(EDaggerKeyboard::KeyLeftControl)) {
             m_IsInEditor = !m_IsInEditor;
+        }
+    }
+    else if (event_.key == EDaggerKeyboard::KeyUp) {
+        //std::cout << "up" << std::endl;
+        camera->position.y += 200;
+        camera->Update();
+    }
+    else if (event_.key == EDaggerKeyboard::KeyDown) {
+        //std::cout << "down" << std::endl;
+        camera->position.y -= 200;
+        camera->Update();
+    }
+    else if (event_.key == EDaggerKeyboard::KeyRight) {
+        //std::cout << "right" << std::endl;
+        camera->position.x += 200;
+        camera->Update();
+    }
+    else if (event_.key == EDaggerKeyboard::KeyLeft) {
+        //std::cout << "left" << std::endl;
+        camera->position.x -= 200;
+        camera->Update();
+    }
+
 }
 
 void EditorToolSystem::Run()
@@ -136,7 +190,7 @@ void EditorToolSystem::Run()
         auto& focus = m_Registry.get<EditorFocus>(m_Focus);
 
         if (Input::IsInputDown(EDaggerMouse::MouseButton3))
-        {
+        {   
             knob.position = Vector3{ Input::CursorPositionInWorld(), 0 };
             focus.dirty = true;
         }
@@ -146,9 +200,12 @@ void EditorToolSystem::Run()
             auto& reg = Engine::Registry();
             if (reg.valid(m_Selected.entity))
             {
-                auto& sprite = reg.get<Sprite>(m_Selected.entity);
-                knob.position = Vector3{ Input::CursorPositionInWorld(), 0 };
-                sprite.position = knob.position;
+                if (reg.has<Transform>(m_Selected.entity))
+                {
+                    auto& transform = reg.get<Transform>(m_Selected.entity);
+                    knob.position = Vector3{ Input::CursorPositionInWorld(), transform.position.z };
+                    transform.position = knob.position;
+                }
             }
         }
 
@@ -185,7 +242,10 @@ void EditorToolSystem::GUIExecuteCreateEntity()
     auto& reg = Engine::Registry();
     auto newEntity = reg.create();
     auto& newSprite = reg.emplace<Sprite>(newEntity);
-    AssignSprite(newSprite, "tools:knob2");
+    AssignSprite(newSprite, "tools:knob2"); 
+    auto& transf = reg.emplace<Transform>(newEntity);
+    transf.position = Vector3{ Input::CursorPositionInWorld(), 0 } - Vector3 { 300.f, 300.f, 0.f  };
+    //newSprite.UseAsUI();                //Sta radi ovo?
     auto& newSavegame = reg.emplace<SaveGame<ECommonSaveArchetype>>(newEntity);
 }
 
@@ -240,26 +300,26 @@ void EditorToolSystem::GUIDrawSpriteEditor()
 
         /* Position values */ {
             float pos[]{ compSprite.position.x, compSprite.position.y, compSprite.position.z };
-            ImGui::InputFloat3("Position", pos, "%f", 1);
+            ImGui::InputFloat3("Sprite Position", pos, "%f", 1);
             compSprite.position.x = pos[0];
             compSprite.position.y = pos[1];
             compSprite.position.z = pos[2];
         }
 
         /* Rotation value */ {
-            ImGui::SliderFloat("Rotation", &compSprite.rotation, 0, 360, "%f", 1);
+            ImGui::SliderFloat("Sprite Rotation", &compSprite.rotation, 0, 360, "%f", 1);
         }
 
         /* Scale values */ {
             float size[]{ compSprite.scale.x, compSprite.scale.y };
-            ImGui::DragFloat2("Scale", size, 1, -10, 10, "%f", 1);
+            ImGui::DragFloat2("Sprite Scale", size, 1, -10, 10, "%f", 1);
             compSprite.scale.x = size[0];
             compSprite.scale.y = size[1];
         }
 
         /* Pivot values */ {
             float pivot[]{ compSprite.pivot.x, compSprite.pivot.y };
-            ImGui::DragFloat2("Pivot", pivot, 1, -0.5f, 0.5f, "%f", 1);
+            ImGui::DragFloat2("Sprite Pivot", pivot, 1, -0.5f, 0.5f, "%f", 1);
             compSprite.pivot.x = pivot[0];
             compSprite.pivot.y = pivot[1];
         }
@@ -273,12 +333,42 @@ void EditorToolSystem::GUIDrawSpriteEditor()
     }
 }
 
+
+void EditorToolSystem::GUIDrawTransformEditor()
+{
+    auto& reg = Engine::Registry();
+    if (reg.has<Transform>(m_Selected.entity) && ImGui::CollapsingHeader("Transform"))
+    {
+        Transform& compTransform = reg.get<Transform>(m_Selected.entity);
+        /* Transform position value */ {
+            float pos[]{ compTransform.position.x, compTransform.position.y, compTransform.position.z };
+            ImGui::InputFloat3("Transform Position", pos, "%f", 1);
+            compTransform.position.x = pos[0];
+            compTransform.position.y = pos[1];
+            compTransform.position.z = pos[2];
+        }
+    }
+    else if (!reg.has<Transform>(m_Selected.entity))
+    {
+        if (ImGui::Button("Attach Transform"))
+        {
+            reg.emplace<Transform>(m_Selected.entity);
+        }
+    }
+}
+
+
 void EditorToolSystem::GUIDrawAnimationEditor()
 {
+    static String animFilter;
+
+
     auto& reg = Engine::Registry();
 
     if (reg.has<Animator>(m_Selected.entity) && ImGui::CollapsingHeader("Animator"))
-    {
+    {   
+        ImGui::InputText("Filter", animFilter.data(), 80);
+
         Animator& compAnim = reg.get<Animator>(m_Selected.entity);
         /* Animation */ {
             static int selectedAnim = 0;
@@ -286,8 +376,10 @@ void EditorToolSystem::GUIDrawAnimationEditor()
             int i = 0;
             int currentSelected = 0;
             for (auto& [k, n] : Engine::Res<Animation>())
-            {
-                animations.push_back(k.c_str());
+            {   
+                if (strstr(k.data(), animFilter.data()) != nullptr)
+                    animations.push_back(k.c_str());
+
                 if (k == compAnim.currentAnimation)
                 {
                     selectedAnim = i;
@@ -296,7 +388,10 @@ void EditorToolSystem::GUIDrawAnimationEditor()
             }
 
             currentSelected = selectedAnim;
-            if (ImGui::Combo("Animation", &selectedAnim, animations.data(), animations.size()))
+            String title{};
+            title.reserve(100);
+            sprintf(title.data(), "Animation (%d)", animations.size());
+            if (ImGui::Combo(title.data(), &selectedAnim, animations.data(), animations.size()))
             {
                 if (currentSelected != selectedAnim)
                 {
@@ -328,14 +423,14 @@ void EditorToolSystem::GUIDrawPhysicsEditor()
 
         /* Pivot values */ {
             float pivot[]{ compCol.pivot.x, compCol.pivot.y };
-            ImGui::DragFloat2("Pivot", pivot, 1, -0.5f, 0.5f, "%f", 1);
+            ImGui::DragFloat2("Collision Pivot", pivot, 1, -0.5f, 0.5f, "%f", 1);
             compCol.pivot.x = pivot[0];
             compCol.pivot.y = pivot[1];
         }
 
         /* Size values */ {
             float size[]{ compCol.size.x, compCol.size.y };
-            ImGui::DragFloat2("Size", size, 1, -0.5f, 0.5f, "%f", 1);
+            ImGui::DragFloat2("Collision Size", size, 1, -0.5f, 0.5f, "%f", 1);
             compCol.size.x = size[0];
             compCol.size.y = size[1];
         }
@@ -345,6 +440,59 @@ void EditorToolSystem::GUIDrawPhysicsEditor()
         if (ImGui::Button("Attach Collision"))
         {
             reg.emplace<SimpleCollision>(m_Selected.entity);
+        }
+    }
+}
+
+void EditorToolSystem::GUIDrawBouncyEditor()
+{
+    auto& reg = Engine::Registry();
+    if (reg.has<BouncyComponent>(m_Selected.entity) && ImGui::CollapsingHeader("Bouncy"))
+    {   
+        auto& compBouncy = reg.get<BouncyComponent>(m_Selected.entity);
+        ImGui::Checkbox("Is bouncy?", &compBouncy.isBouncy);
+    }
+    else if (!reg.has<BouncyComponent>(m_Selected.entity))
+    {
+        if (ImGui::Button("Mark As Bouncy"))
+        {
+            reg.emplace<BouncyComponent>(m_Selected.entity);
+        }
+    }
+}
+
+void EditorToolSystem::GUIDrawDeadlyEditor()
+{
+    auto& reg = Engine::Registry();
+    if (reg.has<DeadlyComponent>(m_Selected.entity) && ImGui::CollapsingHeader("Deadly"))
+    {
+        auto& compDeadly = reg.get<DeadlyComponent>(m_Selected.entity);
+        ImGui::Checkbox("Is Deadly?", &compDeadly.isDeadly);
+    }
+    else if (!reg.has<DeadlyComponent>(m_Selected.entity))
+    {
+        if (ImGui::Button("Mark As Deadly"))
+        {
+            reg.emplace<DeadlyComponent>(m_Selected.entity);
+        }
+    }
+}
+
+void EditorToolSystem::GUIDrawInteractableEditor()
+{
+    auto& reg = Engine::Registry();
+    if (reg.has<InteractableComponent>(m_Selected.entity) && ImGui::CollapsingHeader("Interactable"))
+    {
+        auto& compInteractable = reg.get<InteractableComponent>(m_Selected.entity);
+
+        ImGui::InputInt("ID", &compInteractable.id);
+
+    }
+    else if (!reg.has<InteractableComponent>(m_Selected.entity))
+    {
+        if (ImGui::Button("Mark As Interactable"))
+        {
+            reg.emplace<InteractableComponent>(m_Selected.entity);
         }
     }
 }
@@ -376,7 +524,7 @@ bool EditorToolSystem::GUIDrawEntityFocusSelection(int& selectedItem)
 
         if (!reg.valid(m_Selected.entity))
         {
-            ImGui::End();
+            //ImGui::End();         //zasto je ova linija izbrisana u novoj verziji?
             return false;
         }
 
@@ -409,8 +557,12 @@ void EditorToolSystem::OnRenderGUI()
         if (GUIDrawEntityFocusSelection(selectedItem))
         {
             GUIDrawSpriteEditor();
+            GUIDrawTransformEditor();
             GUIDrawAnimationEditor();
             GUIDrawPhysicsEditor();
+            GUIDrawBouncyEditor();
+            GUIDrawDeadlyEditor();
+            GUIDrawInteractableEditor();
 
             // to add more components, replicate the above functions carefully
             // if you're lost, ping Mika on discord :)

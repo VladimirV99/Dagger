@@ -1,0 +1,28 @@
+{
+	"animation-name": "MossyPlants:JumpPlant1:JUMP",
+	"animation-length-ms": 1000,
+	"animation-frames": 
+	[	
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00000" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00001" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00002" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00003" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00004" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00005" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00006" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00007" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00008" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00009" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00010" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00011" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00012" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00013" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00014" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00015" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00016" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00017" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00018" },
+		{ "texture-name": "MossyPlants:JumpPlant1:JUMP:JumpPlant_00019" }
+		
+	]
+}

@@ -1,0 +1,8 @@
+{
+	"animation-name": "BlueWizard:JUMPING",
+	"animation-length-ms": 100,
+	"animation-frames": 
+	[
+		{ "texture-name": "BlueWizard:JUMP:jump4" }
+	]
+}

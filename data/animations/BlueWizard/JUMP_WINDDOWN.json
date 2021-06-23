@@ -1,0 +1,11 @@
+{
+	"animation-name": "BlueWizard:JUMP_WINDDOWN",
+	"animation-length-ms": 250,
+	"animation-frames": 
+	[
+		{ "texture-name": "BlueWizard:JUMP:jump5" },
+		{ "texture-name": "BlueWizard:JUMP:jump6" },
+		{ "texture-name": "BlueWizard:JUMP:jump7" },
+		{ "texture-name": "BlueWizard:JUMP:jump8" }
+	]
+}

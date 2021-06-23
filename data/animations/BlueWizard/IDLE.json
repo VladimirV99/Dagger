@@ -1,0 +1,27 @@
+{
+	"animation-name": "BlueWizard:IDLE",
+	"animation-length-ms": 900,
+	"animation-frames": 
+	[
+		{ "texture-name": "BlueWizard:IDLE:idle1" },
+		{ "texture-name": "BlueWizard:IDLE:idle2" },
+		{ "texture-name": "BlueWizard:IDLE:idle3" },
+		{ "texture-name": "BlueWizard:IDLE:idle4" },
+		{ "texture-name": "BlueWizard:IDLE:idle5" },
+		{ "texture-name": "BlueWizard:IDLE:idle6" },
+		{ "texture-name": "BlueWizard:IDLE:idle7" },
+		{ "texture-name": "BlueWizard:IDLE:idle8" },
+		{ "texture-name": "BlueWizard:IDLE:idle9" },
+		{ "texture-name": "BlueWizard:IDLE:idle10" },
+		{ "texture-name": "BlueWizard:IDLE:idle11" },
+		{ "texture-name": "BlueWizard:IDLE:idle12" },
+		{ "texture-name": "BlueWizard:IDLE:idle13" },
+		{ "texture-name": "BlueWizard:IDLE:idle14" },
+		{ "texture-name": "BlueWizard:IDLE:idle15" },
+		{ "texture-name": "BlueWizard:IDLE:idle16" },
+		{ "texture-name": "BlueWizard:IDLE:idle17" },
+		{ "texture-name": "BlueWizard:IDLE:idle18" },
+		{ "texture-name": "BlueWizard:IDLE:idle19" },
+		{ "texture-name": "BlueWizard:IDLE:idle20" }
+	]
+}

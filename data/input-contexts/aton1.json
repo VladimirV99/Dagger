@@ -1,0 +1,12 @@
+{
+	"context-name": "ATON1",
+	"commands": [
+		{ "command-name": "walk", 
+		  "actions": [
+			{ "trigger": "KeyA", "value": -1 },
+			{ "trigger": "KeyD", "value": 1 } 
+		] }, 
+		{ "command-name": "jump", "trigger": "KeyW" },
+		{ "command-name": "dash", "trigger": "KeyLeftShift" }
+	]
+}

@@ -1,0 +1,38 @@
+{
+	"animation-name": "CavePlants:Plant3:IDLE",
+	"animation-length-ms": 2000,
+	"animation-frames": 
+	[	
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00000" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00001" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00002" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00003" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00004" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00005" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00006" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00007" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00008" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00009" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00010" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00011" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00012" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00013" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00014" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00015" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00016" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00017" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00018" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00019" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00020" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00021" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00022" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00023" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00024" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00025" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00026" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00027" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00028" },
+		{ "texture-name": "CavePlants:Plant3:IDLE:Comp1_00029" }
+		
+	]
+}

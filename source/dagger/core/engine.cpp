@@ -1,5 +1,6 @@
 #include "core/engine.h"
 #include "core/game.h"
+#include "core/input/inputs.h"
 
 #include <SimpleIni.h>
 
@@ -38,7 +39,7 @@ void Engine::EngineInit()
 	this->m_EventDispatcher.reset(new entt::dispatcher{});
 	this->m_Registry.reset(new entt::registry{});
 
-	this->Dispatcher().sink<Error>().connect<&Engine::EngineError>(*this);
+	this->Dispatcher().sink<Error>().template connect<&Engine::EngineError>(*this);
 
 	for (auto& system : this->m_Systems)
 	{
@@ -49,7 +50,7 @@ void Engine::EngineInit()
 			break;
 		}
 	}
-	this->Dispatcher().sink<Exit>().connect<&Engine::EngineShutdown>(*this);
+	this->Dispatcher().sink<Exit>().template connect<&Engine::EngineShutdown>(*this);
 }
 
 void Engine::EngineLoop()
@@ -100,8 +101,8 @@ void Engine::EngineStop()
 
 	this->m_Systems.clear();
 
-	this->Dispatcher().sink<Error>().disconnect<&Engine::EngineError>(*this);
-	this->Dispatcher().sink<Error>().connect<&Engine::EngineError>(*this);
+	this->Dispatcher().sink<Error>().template disconnect<&Engine::EngineError>(*this);
+	this->Dispatcher().sink<Error>().template connect<&Engine::EngineError>(*this);
 
 	this->m_EventDispatcher.reset();
 	this->m_Registry.reset();

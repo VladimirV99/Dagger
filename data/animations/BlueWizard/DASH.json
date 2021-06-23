@@ -1,0 +1,23 @@
+{
+	"animation-name": "BlueWizard:DASH",
+	"animation-length-ms": 450,
+	"animation-frames": 
+	[
+		{ "texture-name": "BlueWizard:DASH:dash1" },
+		{ "texture-name": "BlueWizard:DASH:dash2" },
+		{ "texture-name": "BlueWizard:DASH:dash3" },
+		{ "texture-name": "BlueWizard:DASH:dash4" },
+		{ "texture-name": "BlueWizard:DASH:dash5" },
+		{ "texture-name": "BlueWizard:DASH:dash6" },
+		{ "texture-name": "BlueWizard:DASH:dash7" },
+		{ "texture-name": "BlueWizard:DASH:dash8" },
+		{ "texture-name": "BlueWizard:DASH:dash9" },
+		{ "texture-name": "BlueWizard:DASH:dash10" },
+		{ "texture-name": "BlueWizard:DASH:dash11" },
+		{ "texture-name": "BlueWizard:DASH:dash12" },
+		{ "texture-name": "BlueWizard:DASH:dash13" },
+		{ "texture-name": "BlueWizard:DASH:dash14" },
+		{ "texture-name": "BlueWizard:DASH:dash15" },
+		{ "texture-name": "BlueWizard:DASH:dash16" }
+	]
+}

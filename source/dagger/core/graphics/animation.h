@@ -30,8 +30,12 @@ namespace dagger
 		Bool animationPlaying{ false };
 		UInt32 currentFrame{ 0 };
 		Float64 currentFrameTime{ 0 };
+
+		Bool isLooping;
+		entt::delegate<void(ViewPtr<Animation>)> onAnimationEnded;
 	};
 
+	void AnimatorPlayOnce(Animator& animator_, String animationName_);
 	void AnimatorPlay(Animator& animator_, String animationName_);
 	void AnimatorStop(Animator& animator_);
 }

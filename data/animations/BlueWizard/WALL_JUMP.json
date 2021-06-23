@@ -1,0 +1,15 @@
+{
+	"animation-name": "BlueWizard:WALL_JUMP",
+	"animation-length-ms": 200,
+	"animation-frames": 
+	[
+		{ "texture-name": "BlueWizard:WALL:wall1" },
+		{ "texture-name": "BlueWizard:WALL:wall2" },
+		{ "texture-name": "BlueWizard:WALL:wall3" },
+		{ "texture-name": "BlueWizard:WALL:wall4" },
+		{ "texture-name": "BlueWizard:WALL:wall5" },
+		{ "texture-name": "BlueWizard:WALL:wall6" },
+		{ "texture-name": "BlueWizard:WALL:wall7" },
+		{ "texture-name": "BlueWizard:WALL:wall8" }
+	]
+}

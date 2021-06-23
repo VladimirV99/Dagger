@@ -26,7 +26,7 @@ void AnimationSystem::Run()
     const auto& entities = Engine::Registry().view<Animator, Sprite>();
     entities.each([](Animator& animator_, Sprite& sprite_) 
         {
-            if (animator_.animationPlaying)
+            if (animator_.animationPlaying && animator_.currentAnimation != "")
             {
                 const auto currentAnimation = AnimationSystem::Get(animator_.currentAnimation);
                 const auto& frame = currentAnimation->frames[animator_.currentFrame];
@@ -36,6 +36,19 @@ void AnimationSystem::Run()
                 {
                     UInt32 count = currentAnimation->frames.size();
                     animator_.currentFrame = (animator_.currentFrame + 1) % count;
+                    if (animator_.currentFrame == 0)
+                    {
+                        if (animator_.onAnimationEnded) {
+                            animator_.onAnimationEnded(currentAnimation);
+                        }
+                        if (!animator_.isLooping)
+                        {
+                            animator_.animationPlaying = false;
+                            animator_.currentAnimation = "";
+                            return;
+                        }
+                    }
+
                     animator_.currentFrameTime = 0.0;
                     
                     AssignSprite(sprite_, currentAnimation->frames[animator_.currentFrame].textureName);

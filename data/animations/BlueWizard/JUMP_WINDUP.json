@@ -1,0 +1,11 @@
+{
+	"animation-name": "BlueWizard:JUMP_WINDUP",
+	"animation-length-ms": 200,
+	"animation-frames": 
+	[
+		{ "texture-name": "BlueWizard:JUMP:jump1" },
+		{ "texture-name": "BlueWizard:JUMP:jump2" },
+		{ "texture-name": "BlueWizard:JUMP:jump3" },
+		{ "texture-name": "BlueWizard:JUMP:jump4" }
+	]
+}
