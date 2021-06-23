@@ -28,39 +28,40 @@ using namespace dagger;
 using namespace tanks;
 
 
-void TanksGame::CoreSystemsSetup(Engine& engine_)
+void TanksGame::CoreSystemsSetup()
 {
-    engine_.AddSystem<WindowSystem>();
-    engine_.AddSystem<InputSystem>();
-    engine_.AddSystem<ShaderSystem>();
-    engine_.AddSystem<TextureSystem>();
-    engine_.AddSystem<SpriteRenderSystem>();
-    engine_.AddPausableSystem<TransformSystem>();
-    engine_.AddPausableSystem<AnimationSystem>();
+    auto& engine = Engine::Instance(); 
+    engine.AddSystem<WindowSystem>();
+    engine.AddSystem<InputSystem>();
+    engine.AddSystem<ShaderSystem>();
+    engine.AddSystem<TextureSystem>();
+    engine.AddSystem<SpriteRenderSystem>();
+    engine.AddPausableSystem<TransformSystem>();
+    engine.AddPausableSystem<AnimationSystem>();
 #if !defined(NDEBUG)
-    engine_.AddSystem<DiagnosticSystem>();
-    engine_.AddSystem<GUISystem>();
-    engine_.AddSystem<ToolMenuSystem>();
+    engine.AddSystem<DiagnosticSystem>();
+    engine.AddSystem<GUISystem>();
+    engine.AddSystem<ToolMenuSystem>();
    
 #endif //!defined(NDEBUG)
 }
 
-void TanksGame::GameplaySystemsSetup(Engine& engine_)
+void TanksGame::GameplaySystemsSetup()
 {
-
-    engine_.AddPausableSystem<SimpleCollisionsSystem>();
-    engine_.AddSystem<common_res::ParticleSystem>();
-    engine_.AddSystem<TilemapSystem>();
-    engine_.AddPausableSystem<TankMovement>();
-    engine_.AddPausableSystem<TankBulletSystem>();
-    engine_.AddSystem<ScoreSystem>();
+    auto& engine = Engine::Instance();
+    engine.AddPausableSystem<SimpleCollisionsSystem>();
+    engine.AddSystem<common_res::ParticleSystem>();
+    engine.AddSystem<TilemapSystem>();
+    engine.AddPausableSystem<TankMovement>();
+    engine.AddPausableSystem<TankBulletSystem>();
+    engine.AddSystem<ScoreSystem>();
     
 #if defined(DAGGER_DEBUG)
     
 #endif //defined(DAGGER_DEBUG)
 }
 
-void TanksGame::WorldSetup(Engine& engine_)
+void TanksGame::WorldSetup()
 {
    
     auto* camera = Engine::GetDefaultResource<Camera>();
@@ -70,7 +71,7 @@ void TanksGame::WorldSetup(Engine& engine_)
     camera->position = { 420, 410, 0 };
     camera->Update();
 
-    SetupWorld(engine_);
+    SetupWorld();
 }
 
 Entity CreateFloor(Registry& reg_, UInt32 x_, UInt32 y_)
@@ -133,16 +134,17 @@ Entity CreateStartPlatform(Registry& reg_, UInt32 x_, UInt32 y_)
 
 }
     
-void tanks::SetupWorld(Engine& engine_)
+void tanks::SetupWorld()
 {
+    auto& engine = Engine::Instance();
+    auto& reg = engine.Registry();
+
     TilemapLegend legend;
     legend['#'] = &CreateOuterWall;
     legend['.'] = &CreateFloor;
     legend['*'] = &CreateStartPlatform;
     legend['$'] = &CreateInnerWall;
     Engine::Dispatcher().trigger<TilemapLoadRequest>(TilemapLoadRequest{ "my-file.map.txt", &legend });
-
-	auto& reg = Engine::Registry();
 	
     // player 1
     {

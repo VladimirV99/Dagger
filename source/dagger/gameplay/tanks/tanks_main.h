@@ -9,7 +9,7 @@ using namespace dagger;
 
 namespace tanks
 {
-    void SetupWorld(Engine& engine_);
+    void SetupWorld();
 
     class TanksGame : public Game
     {
@@ -18,8 +18,8 @@ namespace tanks
             return "tanks.ini";
         };
 
-        void CoreSystemsSetup(Engine& engine_) override;
-        void GameplaySystemsSetup(Engine& engine_) override;
-        void WorldSetup(Engine& engine_) override;
+        void CoreSystemsSetup() override;
+        void GameplaySystemsSetup() override;
+        void WorldSetup() override;
     };
 }
