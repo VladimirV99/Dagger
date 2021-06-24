@@ -23,10 +23,10 @@ includes = [
     include_directories('libs/imgui/include/imgui'),
     include_directories('libs/imgui/include/imgui/backends'),
     include_directories('libs/json/include'),
-    include_directories('libs/simpleini')
+    include_directories('libs/simpleini'),
     include_directories('libs/sparse-map/include'),
     include_directories('libs/spdlog/include'),
-    include_directories('libs/stb/include'),
+    include_directories('libs/stb/include')
 ]
 
 sources = [
@@ -65,7 +65,6 @@ sources = [
     'source/dagger/gameplay/racing/racing_player_car.cpp',
     'source/dagger/gameplay/team_game/team_game_main.cpp',
     'source/dagger/gameplay/tiles_example/tiles_example_main.cpp',
-    'source/dagger/tools/FileBrowser/imgui_demo.cpp',
     'source/dagger/tools/FileBrowser/ImGuiFileBrowser.cpp',
     'source/dagger/tools/console.cpp',
     'source/dagger/tools/diagnostics.cpp',
