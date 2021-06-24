@@ -16,18 +16,17 @@ endif
 
 includes = [
     include_directories('source/dagger'),
-    include_directories('libs/sparse-map/include'),
     include_directories('libs/entt/single_include'),
-    include_directories('libs/glm/include'),
     include_directories('libs/glad/include'),
-    include_directories('libs/json/include'),
-    include_directories('libs/stb/include'),
-    include_directories('libs/spdlog/include'),
+    include_directories('libs/glm/include'),
     include_directories('libs/imgui/include'),
     include_directories('libs/imgui/include/imgui'),
     include_directories('libs/imgui/include/imgui/backends'),
-    include_directories('libs/spdlog/include'),
+    include_directories('libs/json/include'),
     include_directories('libs/simpleini')
+    include_directories('libs/sparse-map/include'),
+    include_directories('libs/spdlog/include'),
+    include_directories('libs/stb/include'),
 ]
 
 sources = [
