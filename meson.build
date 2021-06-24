@@ -16,18 +16,17 @@ endif
 
 includes = [
     include_directories('source/dagger'),
-    include_directories('libs/sparse-map/include'),
     include_directories('libs/entt/single_include'),
-    include_directories('libs/glm/include'),
     include_directories('libs/glad/include'),
-    include_directories('libs/json/include'),
-    include_directories('libs/stb/include'),
-    include_directories('libs/spdlog/include'),
+    include_directories('libs/glm/include'),
     include_directories('libs/imgui/include'),
     include_directories('libs/imgui/include/imgui'),
     include_directories('libs/imgui/include/imgui/backends'),
+    include_directories('libs/json/include'),
+    include_directories('libs/simpleini'),
+    include_directories('libs/sparse-map/include'),
     include_directories('libs/spdlog/include'),
-    include_directories('libs/simpleini')
+    include_directories('libs/stb/include')
 ]
 
 sources = [
@@ -66,7 +65,6 @@ sources = [
     'source/dagger/gameplay/racing/racing_player_car.cpp',
     'source/dagger/gameplay/team_game/team_game_main.cpp',
     'source/dagger/gameplay/tiles_example/tiles_example_main.cpp',
-    'source/dagger/tools/FileBrowser/imgui_demo.cpp',
     'source/dagger/tools/FileBrowser/ImGuiFileBrowser.cpp',
     'source/dagger/tools/console.cpp',
     'source/dagger/tools/diagnostics.cpp',
@@ -81,6 +79,7 @@ sources = [
     'libs/glad/include/glad/glad.c',
     'libs/imgui/include/imgui/imgui.cpp',
     'libs/imgui/include/imgui/imgui_widgets.cpp',
+	'libs/imgui/include/imgui/imgui_tables.cpp',
     'libs/imgui/include/imgui/imgui_draw.cpp',
     'libs/imgui/include/imgui/backends/imgui_impl_glfw.cpp',
     'libs/imgui/include/imgui/backends/imgui_impl_opengl3.cpp'
