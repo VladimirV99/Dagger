@@ -63,7 +63,7 @@ void PingPongBallSystem::Run()
                 }
             }
 
-            if (Engine::Registry().has<PingPongWall>(col.colidedWith))
+            if (Engine::Registry().all_of<PingPongWall>(col.colidedWith))
             {
                 PingPongWall& wall = Engine::Registry().get<PingPongWall>(col.colidedWith);
                 ball.reachedGoal = true;
