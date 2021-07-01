@@ -2,6 +2,8 @@
 
 #include "core/engine.h"
 #include "core/game/transforms.h"
+#include "core/graphics/text.h"
+
 #include "gameplay/common/simple_collisions.h"
 #include "gameplay/ping_pong/pingpong_ball.h"
 #include "gameplay/ping_pong/ping_pong_main.h"
@@ -30,12 +32,12 @@ void PlayerScoresSystem::Run()
             if (ball.playerOneScored)
             {
                 m_goalsPlayerOne++;
-                t.position = { (-(s_FieldWidth+3) / 2.f) * s_TileSize,  s_TileSize * m_goalsPlayerOne, 0 };
+                t.position = { (-(s_FieldWidth + 2) / 2.f - ((m_goalsPlayerOne - 1) / 10)) * s_TileSize, -s_TileSize * (-2 + (m_goalsPlayerOne - 1) % 10), 0 };
             }
             else
             {
                 m_goalsPlayerTwo++;
-                t.position = { ((s_FieldWidth+3) / 2.f) * s_TileSize, s_TileSize * m_goalsPlayerTwo, 0 };
+                t.position = { ((s_FieldWidth + 3) / 2.f + ((m_goalsPlayerTwo - 1) / 10)) * s_TileSize, -s_TileSize * (-2 + (m_goalsPlayerTwo - 1) % 10), 0 };
             }
 
             ball.processed = true;
@@ -44,6 +46,28 @@ void PlayerScoresSystem::Run()
         if (!ball.reachedGoal)
         {
             ballOnField++;
+        }
+    }
+
+    auto scoreView = Engine::Registry().view<PlayerScore, Text>();
+    for (auto score : scoreView)
+    {
+        auto& ps = scoreView.get<PlayerScore>(score);
+        auto& txt = scoreView.get<Text>(score);
+
+        if (ps.isLeft)
+        {
+            if (ps.score != m_goalsPlayerOne) {
+                ps.score = m_goalsPlayerOne;
+                txt.Set("pixel-font", std::to_string(m_goalsPlayerOne), { -(s_FieldWidth + 3) * s_TileSize / 2, 80, 0 });
+            }
+        }
+        else
+        {
+            if (ps.score != m_goalsPlayerTwo) {
+                ps.score = m_goalsPlayerTwo;
+                txt.Set("pixel-font", std::to_string(m_goalsPlayerTwo), { (s_FieldWidth + 5) * s_TileSize / 2, 80, 0 });
+            }
         }
     }
 

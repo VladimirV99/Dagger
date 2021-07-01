@@ -8,6 +8,12 @@ using namespace dagger;
 
 namespace ping_pong
 {
+    struct PlayerScore
+    {
+        bool isLeft;
+        int score{ -1 };
+    };
+
     class PlayerScoresSystem : public System
     {
         static int s_FieldWidth;

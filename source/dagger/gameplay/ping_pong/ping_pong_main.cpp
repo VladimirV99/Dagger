@@ -12,6 +12,7 @@
 #include "core/graphics/textures.h"
 #include "core/graphics/animations.h"
 #include "core/graphics/gui.h"
+#include "core/graphics/text.h"
 #include "tools/diagnostics.h"
 
 #include "gameplay/common/simple_collisions.h"
@@ -281,6 +282,19 @@ void ping_pong::SetupWorld()
         auto& controller = reg.emplace<ControllerMapping>(entity);
         PingPongPlayerInputSystem::SetupPlayerTwoInput(controller);
     }
+
+    // score text
+    auto score_left = reg.create();
+    auto& player_score_left = reg.emplace<PlayerScore>(score_left);
+    player_score_left.isLeft = true;
+    auto& text_left = reg.emplace<Text>(score_left);
+    text_left.spacing = 0.6f;
+
+    auto score_right = reg.create();
+    auto& player_score_right = reg.emplace<PlayerScore>(score_right);
+    player_score_right.isLeft = false;
+    auto& text_right = reg.emplace<Text>(score_right);
+    text_right.spacing = 0.6f;
 
     // add score system to count scores for left and right collisions
     PlayerScoresSystem::SetFieldSize(width, height, tileSize * (1 + Space));
