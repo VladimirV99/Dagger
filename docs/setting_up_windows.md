@@ -6,4 +6,4 @@ You can clone and fully set up this project by simply running:
 git clone --recursive https://github.com/enoxum/UbiBelPMF_2021.git
 ```
 
-Afterwards, run the solution file `dagger.sln` in Visual Studio 2019 to start playing around. 
+Afterwards, generate the project files by running `generate_projects.bat` and open the solution file `projects/dagger.vs20xx.sln` for your Visual Studio version to start playing around.
