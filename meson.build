@@ -54,6 +54,7 @@ sources = [
     'source/dagger/gameplay/ping_pong/pingpong_ball.cpp',
     'source/dagger/gameplay/ping_pong/pingpong_playerinput.cpp',
     'source/dagger/gameplay/ping_pong/player_scores.cpp',
+    'source/dagger/gameplay/ping_pong/pingpong_tools.cpp',
     'source/dagger/gameplay/platformer/camera_focus.cpp',
     'source/dagger/gameplay/platformer/parallax.cpp',
     'source/dagger/gameplay/platformer/platformer_controller.cpp',

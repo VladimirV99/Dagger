@@ -24,6 +24,23 @@
 using namespace dagger;
 using namespace ping_pong;
 
+void ping_pong::CreateRandomPingPongBall(float tileSize_, int fieldHeight_)
+{
+    // Done without if for better performance
+    CreatePingPongBall(
+        tileSize_,
+        // Random color
+        ColorRGBA(rand() % 255 / 255.0f, rand() % 255 / 255.0f, rand() % 255 / 255.0f, 1),
+        // Random speed
+        // in range [4, 13] in each direction
+        // ((rand()%2+2)%3-1) is a -1 or 1 value
+        { (rand() % 10 + 4) * ((rand() % 2 + 2) % 3 - 1),(rand() % 10 + 4) * ((rand() % 2 + 2) % 3 - 1),0 },
+        // Random position
+        // in range [-s_FieldHeight/2+2, s_FieldHeight/2-2]
+        { 0,rand() % (fieldHeight_ - 3) + 2 - (fieldHeight_ / 2),0 }
+    );
+}
+
 void ping_pong::CreatePingPongBall(float tileSize_, ColorRGBA color_, Vector3 speed_, Vector3 pos_)
 {
     auto& reg = Engine::Registry();
@@ -37,6 +54,7 @@ void ping_pong::CreatePingPongBall(float tileSize_, ColorRGBA color_, Vector3 sp
     auto& transform = reg.emplace<Transform>(entity);
     transform.position = pos_ * tileSize_;
     transform.position.z = pos_.z;
+    
     auto& ball = reg.emplace<PingPongBall>(entity);
     ball.speed = speed_ * tileSize_;
 
