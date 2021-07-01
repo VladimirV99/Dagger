@@ -9,6 +9,7 @@ using namespace dagger;
 
 namespace ping_pong
 {
+    void CreateRandomPingPongBall(float tileSize_, int fieldHeight_);
     void CreatePingPongBall(float tileSize_, ColorRGBA color_, Vector3 speed_, Vector3 pos_);
     void SetupWorld();
 

@@ -12,9 +12,11 @@
 #include "core/graphics/textures.h"
 #include "core/graphics/animations.h"
 #include "core/graphics/gui.h"
+#include "core/graphics/text.h"
 #include "tools/diagnostics.h"
 
 #include "gameplay/common/simple_collisions.h"
+#include "gameplay/ping_pong/pingpong_ai.h"
 #include "gameplay/ping_pong/pingpong_ball.h"
 #include "gameplay/ping_pong/player_scores.h"
 #include "gameplay/ping_pong/pingpong_playerinput.h"
@@ -23,6 +25,23 @@
 
 using namespace dagger;
 using namespace ping_pong;
+
+void ping_pong::CreateRandomPingPongBall(float tileSize_, int fieldHeight_)
+{
+    // Done without if for better performance
+    CreatePingPongBall(
+        tileSize_,
+        // Random color
+        ColorRGBA(rand() % 255 / 255.0f, rand() % 255 / 255.0f, rand() % 255 / 255.0f, 1),
+        // Random speed
+        // in range [4, 13] in each direction
+        // ((rand()%2+2)%3-1) is a -1 or 1 value
+        { (rand() % 10 + 4) * ((rand() % 2 + 2) % 3 - 1),(rand() % 10 + 4) * ((rand() % 2 + 2) % 3 - 1),0 },
+        // Random position
+        // in range [-s_FieldHeight/2+2, s_FieldHeight/2-2]
+        { 0,rand() % (fieldHeight_ - 3) + 2 - (fieldHeight_ / 2),0 }
+    );
+}
 
 void ping_pong::CreatePingPongBall(float tileSize_, ColorRGBA color_, Vector3 speed_, Vector3 pos_)
 {
@@ -37,6 +56,7 @@ void ping_pong::CreatePingPongBall(float tileSize_, ColorRGBA color_, Vector3 sp
     auto& transform = reg.emplace<Transform>(entity);
     transform.position = pos_ * tileSize_;
     transform.position.z = pos_.z;
+    
     auto& ball = reg.emplace<PingPongBall>(entity);
     ball.speed = speed_ * tileSize_;
 
@@ -71,6 +91,7 @@ void PingPongGame::GameplaySystemsSetup()
     engine.AddPausableSystem<PingPongBallSystem>();
     engine.AddPausableSystem<PingPongPlayerInputSystem>();
     engine.AddPausableSystem<PlayerScoresSystem>();
+    engine.AddPausableSystem<PingPongAISystem>();
 #if defined(DAGGER_DEBUG)
     engine.AddPausableSystem<PingPongTools>();
 #endif //defined(DAGGER_DEBUG)
@@ -222,6 +243,7 @@ void ping_pong::SetupWorld()
     const Float32 playerSize = tileSize * ((height - 2) * (1 + Space) * 0.33f);
     PingPongPlayerInputSystem::SetupPlayerBoarders(playerSize, -playerSize);
     PingPongPlayerInputSystem::s_PlayerSpeed = tileSize * 14.f;
+    PingPongAISystem::s_PlayerSpeed = tileSize * 14.f;
     //1st player
     {
         auto entity = reg.create();
@@ -239,8 +261,10 @@ void ping_pong::SetupWorld()
         sprite.size.x = tileSize;
         sprite.size.y = playerSize;
 
-        auto& controller = reg.emplace<ControllerMapping>(entity);
-        PingPongPlayerInputSystem::SetupPlayerOneInput(controller);
+        //auto& controller = reg.emplace<ControllerMapping>(entity);
+        //PingPongPlayerInputSystem::SetupPlayerOneInput(controller);
+        auto& ai = reg.emplace<AI>(entity);
+        ai.side = PlayerSide::LEFT;
     }
 
     //2nd player
@@ -262,7 +286,24 @@ void ping_pong::SetupWorld()
 
         auto& controller = reg.emplace<ControllerMapping>(entity);
         PingPongPlayerInputSystem::SetupPlayerTwoInput(controller);
+        //auto& ai = reg.emplace<AI>(entity);
+        //ai.side = PlayerSide::RIGHT;
     }
+
+    PingPongAISystem::SetupPlayerBoarders(playerSize, -playerSize, playerSize);
+
+    // score text
+    auto score_left = reg.create();
+    auto& player_score_left = reg.emplace<PlayerScore>(score_left);
+    player_score_left.isLeft = true;
+    auto& text_left = reg.emplace<Text>(score_left);
+    text_left.spacing = 0.6f;
+
+    auto score_right = reg.create();
+    auto& player_score_right = reg.emplace<PlayerScore>(score_right);
+    player_score_right.isLeft = false;
+    auto& text_right = reg.emplace<Text>(score_right);
+    text_right.spacing = 0.6f;
 
     // add score system to count scores for left and right collisions
     PlayerScoresSystem::SetFieldSize(width, height, tileSize * (1 + Space));

@@ -63,8 +63,7 @@ void PingPongTools::OnEndOfFrame()
     {
         m_GenerateBall = false;
 
-        ping_pong::CreatePingPongBall(PlayerScoresSystem::GetTileSize(), ColorRGBA(1, 1, 1, 1), 
-            { (1 - 2 * (rand() % 2)) * (rand()%10 + 4),rand()%10 + 4,0 },   { 0,0,0 });
+        ping_pong::CreateRandomPingPongBall(PlayerScoresSystem::GetTileSize(), 20);
     }
 }
 
