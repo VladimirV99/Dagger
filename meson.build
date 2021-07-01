@@ -51,6 +51,7 @@ sources = [
     'source/dagger/gameplay/common/simple_collisions.cpp',
     'source/dagger/gameplay/editor/editor_main.cpp',
     'source/dagger/gameplay/ping_pong/ping_pong_main.cpp',
+    'source/dagger/gameplay/ping_pong/pingpong_ai.cpp',
     'source/dagger/gameplay/ping_pong/pingpong_ball.cpp',
     'source/dagger/gameplay/ping_pong/pingpong_playerinput.cpp',
     'source/dagger/gameplay/ping_pong/player_scores.cpp',

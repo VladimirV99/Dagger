@@ -16,6 +16,7 @@
 #include "tools/diagnostics.h"
 
 #include "gameplay/common/simple_collisions.h"
+#include "gameplay/ping_pong/pingpong_ai.h"
 #include "gameplay/ping_pong/pingpong_ball.h"
 #include "gameplay/ping_pong/player_scores.h"
 #include "gameplay/ping_pong/pingpong_playerinput.h"
@@ -90,6 +91,7 @@ void PingPongGame::GameplaySystemsSetup()
     engine.AddPausableSystem<PingPongBallSystem>();
     engine.AddPausableSystem<PingPongPlayerInputSystem>();
     engine.AddPausableSystem<PlayerScoresSystem>();
+    engine.AddPausableSystem<PingPongAISystem>();
 #if defined(DAGGER_DEBUG)
     engine.AddPausableSystem<PingPongTools>();
 #endif //defined(DAGGER_DEBUG)
@@ -241,6 +243,7 @@ void ping_pong::SetupWorld()
     const Float32 playerSize = tileSize * ((height - 2) * (1 + Space) * 0.33f);
     PingPongPlayerInputSystem::SetupPlayerBoarders(playerSize, -playerSize);
     PingPongPlayerInputSystem::s_PlayerSpeed = tileSize * 14.f;
+    PingPongAISystem::s_PlayerSpeed = tileSize * 14.f;
     //1st player
     {
         auto entity = reg.create();
@@ -258,8 +261,10 @@ void ping_pong::SetupWorld()
         sprite.size.x = tileSize;
         sprite.size.y = playerSize;
 
-        auto& controller = reg.emplace<ControllerMapping>(entity);
-        PingPongPlayerInputSystem::SetupPlayerOneInput(controller);
+        //auto& controller = reg.emplace<ControllerMapping>(entity);
+        //PingPongPlayerInputSystem::SetupPlayerOneInput(controller);
+        auto& ai = reg.emplace<AI>(entity);
+        ai.side = PlayerSide::LEFT;
     }
 
     //2nd player
@@ -281,7 +286,11 @@ void ping_pong::SetupWorld()
 
         auto& controller = reg.emplace<ControllerMapping>(entity);
         PingPongPlayerInputSystem::SetupPlayerTwoInput(controller);
+        //auto& ai = reg.emplace<AI>(entity);
+        //ai.side = PlayerSide::RIGHT;
     }
+
+    PingPongAISystem::SetupPlayerBoarders(playerSize, -playerSize, playerSize);
 
     // score text
     auto score_left = reg.create();
