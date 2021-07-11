@@ -221,7 +221,7 @@ void EditorToolSystem::GUIDrawSpriteEditor()
             currentSelected = selectedTexture;
             String title{};
             title.reserve(100);
-            sprintf(title.data(), "Image (%d)", textures.size());
+            sprintf(title.data(), "Image (%zu)", textures.size());
             if (ImGui::Combo(title.data(), &selectedTexture, textures.data(), textures.size()))
             {
                 if (currentSelected != selectedTexture)

@@ -95,7 +95,6 @@ void AudioSystem::SpinUp()
 
 void AudioSystem::WindDown()
 {
-    auto* audio = Engine::GetDefaultResource<Audio>();
     delete Engine::GetDefaultResource<Audio>();
 }
 

@@ -112,8 +112,6 @@ void Camera::Update()
 	auto* window = Engine::GetDefaultResource<WindowSystem>();
 	auto* config = Engine::GetDefaultResource<RenderConfig>();
 	auto* camera = Engine::GetDefaultResource<Camera>();
-
-	bool changedProjection = false;
 	
 	window->UpdateViewProjectionMatrix(*config, *camera);
 	window->UpdateCameraMatrix();
@@ -211,6 +209,7 @@ void WindowSystem::SpinUp()
 	glfwSetCharCallback(window, CharCallback);
 	glfwSetMouseButtonCallback(window, MouseCallback);
 	glfwSetCursorPosCallback(window, CursorCallback);
+	glfwSetScrollCallback(window, ScrollCallback);
 	glfwSetWindowSizeCallback(window, WindowResizeCallback);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

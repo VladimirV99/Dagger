@@ -30,7 +30,7 @@ void Engine::EngineError(Error& error_)
 {
 	Logger::error(error_.message);
 	m_ShouldStayUp = false;
-	m_ExitStatus = -1;
+	m_ExitStatus = 1;
 }
 
 void Engine::EngineInit()

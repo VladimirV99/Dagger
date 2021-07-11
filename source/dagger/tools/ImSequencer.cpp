@@ -29,9 +29,6 @@ namespace ImSequencer
       return overDel;
    }
 
-   static int min(int a, int b) { return (a < b) ? a : b; }
-   static int max(int a, int b) { return (a > b) ? a : b; }
-
    bool Sequencer(SequenceInterface* sequence, int* currentFrame, bool* expanded, int* selectedEntry, int* firstFrame, int sequenceOptions)
    {
       bool ret = false;

@@ -51,7 +51,7 @@ namespace editor
 
         Bool m_IsInEditor;
         Registry m_Registry;
-        Entity m_Focus;
+        Entity m_Focus{ entt::null };
         EditorFocusTarget m_Selected{ ms_NoTarget };
         String m_Filename;
         Sequence<EditorFocusTarget> m_Targets;

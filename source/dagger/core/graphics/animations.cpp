@@ -34,7 +34,7 @@ void AnimationSystem::Run()
                 animator_.currentFrameTime += Engine::DeltaTime();
                 if (animator_.currentFrameTime > frame.absoluteLength)
                 {
-                    UInt32 count = currentAnimation->frames.size();
+                    auto count = currentAnimation->frames.size();
                     animator_.currentFrame = (animator_.currentFrame + 1) % count;
                     animator_.currentFrameTime = 0.0;
                     

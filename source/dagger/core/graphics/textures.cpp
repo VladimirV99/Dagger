@@ -49,7 +49,6 @@ void TextureSystem::OnLoadAsset(AssetLoadRequest<Texture> request_)
     }
 
     auto* texture = new Texture(textureName, path, image, (UInt32)width, (UInt32)height, (UInt32)channels);
-    UInt32 currentIndex = (UInt32) m_TextureHandles.size();
 
     assert(width != 0);
     texture->m_Ratio = (Float32)height / (Float32)width;
