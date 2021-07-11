@@ -10,6 +10,8 @@ namespace dagger
 
 	struct System
 	{
+		virtual ~System() { };
+
 		virtual String SystemName() = 0;
 		virtual inline void SpinUp() {};
 		virtual inline void Run() {};

@@ -8,6 +8,8 @@ namespace dagger
 
     struct Game
     {
+        virtual ~Game() { };
+
         virtual void CoreSystemsSetup();
 
         virtual String GetIniFile() = 0;
