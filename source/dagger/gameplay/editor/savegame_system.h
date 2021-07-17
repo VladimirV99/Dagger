@@ -17,6 +17,7 @@ struct LoadGame
 template<typename Archetype>
 struct SaveLoadProcess
 {
+    virtual ~SaveLoadProcess() = default;
     virtual Archetype Save(Entity entity_, JSON::json& saveTo_) = 0;
     virtual void Load(Archetype archetype_, Entity entity_, JSON::json& loadFrom_) = 0;
 };

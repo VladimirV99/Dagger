@@ -44,10 +44,9 @@ void RacingPlayerInputSystem::OnKeyboardEvent(KeyboardEvent kEvent_)
 void RacingPlayerInputSystem::Run()
 {
     RacingGameFieldSettings fieldSettings;
-    if (auto* ptr = Engine::GetDefaultResource<RacingGameFieldSettings>())
-    {
-        fieldSettings = *ptr;
-    }
+    auto* ptr = Engine::GetDefaultResource<RacingGameFieldSettings>();
+    assert(ptr != nullptr);
+    fieldSettings = *ptr;
 
     auto view = Engine::Registry().view<Transform, ControllerMapping, RacingPlayerCar>();
     for (auto entity : view)

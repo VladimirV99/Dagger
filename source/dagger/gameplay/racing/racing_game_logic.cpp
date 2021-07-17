@@ -23,18 +23,16 @@ void RacingCollisionsLogicSystem::WindDown()
 void RacingCollisionsLogicSystem::Run()
 {
     RacingGameFieldSettings fieldSettings;
-    {
-        static Entity entityFieldSettings;
-        if (auto* ptr = Engine::GetDefaultResource<RacingGameFieldSettings>())
-        {
-            fieldSettings = *ptr;
-        }
+    {        
+        auto* ptr = Engine::GetDefaultResource<RacingGameFieldSettings>();
+        assert(ptr != nullptr);
+        fieldSettings = *ptr;
 
         auto view = Engine::Registry().view<RacingPlayerCar, Transform, SimpleCollision>();
         for (auto entity : view)
         {
-            auto &t = view.get<Transform>(entity);
-            auto &player = view.get<RacingPlayerCar>(entity);
+            // auto &t = view.get<Transform>(entity);
+            // auto &player = view.get<RacingPlayerCar>(entity);
             auto &col = view.get<SimpleCollision>(entity);
 
             if (col.colided)

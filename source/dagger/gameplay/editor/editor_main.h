@@ -24,14 +24,14 @@ namespace editor
 
     #define IS_ARCHETYPE_SET(in, test) ((in & test) == test)
 
-    inline ECommonSaveArchetype operator|(ECommonSaveArchetype a, ECommonSaveArchetype b)
+    inline ECommonSaveArchetype operator|(ECommonSaveArchetype a_, ECommonSaveArchetype b_)
     {
-        return static_cast<ECommonSaveArchetype>(static_cast<int>(a) | static_cast<int>(b));
+        return static_cast<ECommonSaveArchetype>(static_cast<int>(a_) | static_cast<int>(b_));
     }
 
-    inline ECommonSaveArchetype operator&(ECommonSaveArchetype a, ECommonSaveArchetype b)
+    inline ECommonSaveArchetype operator&(ECommonSaveArchetype a_, ECommonSaveArchetype b_)
     {
-        return static_cast<ECommonSaveArchetype>(static_cast<int>(a) & static_cast<int>(b));
+        return static_cast<ECommonSaveArchetype>(static_cast<int>(a_) & static_cast<int>(b_));
     }
 
     struct EditorFocus
@@ -47,12 +47,12 @@ namespace editor
 
     class EditorToolSystem : public System
     {
-        static inline EditorFocusTarget ms_NoTarget{ entt::null, "" };
+        static inline EditorFocusTarget s_NoTarget{ entt::null, "" };
 
         Bool m_IsInEditor;
         Registry m_Registry;
         Entity m_Focus{ entt::null };
-        EditorFocusTarget m_Selected{ ms_NoTarget };
+        EditorFocusTarget m_Selected{ s_NoTarget };
         String m_Filename;
         Sequence<EditorFocusTarget> m_Targets;
 
@@ -90,10 +90,10 @@ namespace editor
         void OnRenderGUI();
 
         void GUIExecuteCreateEntity();
-        void GUIDrawSpriteEditor();
-        void GUIDrawAnimationEditor();
-        void GUIDrawPhysicsEditor();
-        bool GUIDrawEntityFocusSelection(int& selectedItem);
+        void GUIDrawSpriteEditor() const;
+        void GUIDrawAnimationEditor() const;
+        void GUIDrawPhysicsEditor() const;
+        bool GUIDrawEntityFocusSelection(int& selectedItem_);
 
     };
 

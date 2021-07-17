@@ -2,6 +2,8 @@
 
 #include "core/system.h"
 #include "core/core.h"
+#include "core/game/transforms.h"
+#include "gameplay/common/simple_collisions.h"
 
 using namespace dagger;
 
@@ -24,9 +26,12 @@ namespace ping_pong
     class PingPongBallSystem
         : public System
     {
+        void ResolveCollision(Transform& t_, SimpleCollision& col_, PingPongBall& ball_,
+            const Transform& otherTransform_, const SimpleCollision& otherCollision_);
+
     public:
 
-        inline String SystemName() { return "PingPong Ball System"; }
+        inline String SystemName() override { return "PingPong Ball System"; }
 
         void Run() override;
     };

@@ -13,12 +13,12 @@ namespace racing_game
         int fieldHeight;
         Float32 fieldTileSize;
 
-        Float32 GetXBoarder()
+        Float32 GetXBoarder() const
         {
             return (fieldWidth - 2) / 2 * fieldTileSize;
         }
 
-        Float32 GetYBoarder()
+        Float32 GetYBoarder() const
         {
             return (fieldHeight) / 2 * fieldTileSize;
         }
@@ -35,7 +35,7 @@ namespace racing_game
         bool m_Restart = false;
 
     public:
-        inline String SystemName() { return "Racing Collision Car System"; }
+        inline String SystemName() override { return "Racing Collision Car System"; }
 
         void SpinUp() override;
         void WindDown() override;

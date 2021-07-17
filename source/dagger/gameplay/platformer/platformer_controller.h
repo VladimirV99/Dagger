@@ -16,7 +16,7 @@ namespace platformer
 	class PlatformerControllerSystem
 		: public System
 	{
-		CharacterControllerFSM characterFSM;
+		CharacterControllerFSM m_CharacterFSM;
 
 	public:
 		String SystemName() override {

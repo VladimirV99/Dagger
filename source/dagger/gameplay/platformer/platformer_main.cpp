@@ -51,15 +51,15 @@ struct Character
     InputReceiver& input;
     PlatformerCharacter& character;
 
-    static Character Get(Entity entity)
+    static Character Get(Entity entity_)
     {
         auto& reg = Engine::Registry();
-        auto& sprite = reg.get_or_emplace<Sprite>(entity);
-        auto& anim = reg.get_or_emplace<Animator>(entity);
-        auto& input = reg.get_or_emplace<InputReceiver>(entity);
-        auto& character = reg.get_or_emplace<PlatformerCharacter>(entity);
+        auto& sprite = reg.get_or_emplace<Sprite>(entity_);
+        auto& anim = reg.get_or_emplace<Animator>(entity_);
+        auto& input = reg.get_or_emplace<InputReceiver>(entity_);
+        auto& character = reg.get_or_emplace<PlatformerCharacter>(entity_);
 
-        return Character{ entity, sprite, anim, input, character };
+        return Character{ entity_, sprite, anim, input, character };
     }
 
     static Character Create(
@@ -81,7 +81,7 @@ struct Character
         AssignSprite(chr.sprite, "souls_like_knight_character:IDLE:idle1");
         AnimatorPlay(chr.animator, "souls_like_knight_character:IDLE");
 
-        if(input_ != "")
+        if(!input_.empty())
             chr.input.contexts.push_back(input_);
 
         chr.character.speed = 50;

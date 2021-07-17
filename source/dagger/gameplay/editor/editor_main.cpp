@@ -186,10 +186,10 @@ void EditorToolSystem::GUIExecuteCreateEntity()
     auto newEntity = reg.create();
     auto& newSprite = reg.emplace<Sprite>(newEntity);
     AssignSprite(newSprite, "tools:knob2");
-    auto& newSavegame = reg.emplace<SaveGame<ECommonSaveArchetype>>(newEntity);
+    reg.emplace<SaveGame<ECommonSaveArchetype>>(newEntity);
 }
 
-void EditorToolSystem::GUIDrawSpriteEditor()
+void EditorToolSystem::GUIDrawSpriteEditor() const
 {
     static String filter;
 
@@ -206,7 +206,7 @@ void EditorToolSystem::GUIDrawSpriteEditor()
             Sequence<const char*> textures;
             int i = 0;
             int currentSelected = 0;
-            for (auto& [k, n] : Engine::Res<Texture>())
+            for (const auto& [k, n] : Engine::Res<Texture>())
             {
                 if (strstr(k.data(), filter.data()) != nullptr)
                     textures.push_back(k.c_str());
@@ -273,7 +273,7 @@ void EditorToolSystem::GUIDrawSpriteEditor()
     }
 }
 
-void EditorToolSystem::GUIDrawAnimationEditor()
+void EditorToolSystem::GUIDrawAnimationEditor() const
 {
     auto& reg = Engine::Registry();
 
@@ -285,7 +285,7 @@ void EditorToolSystem::GUIDrawAnimationEditor()
             Sequence<const char*> animations;
             int i = 0;
             int currentSelected = 0;
-            for (auto& [k, n] : Engine::Res<Animation>())
+            for (const auto& [k, n] : Engine::Res<Animation>())
             {
                 animations.push_back(k.c_str());
                 if (k == compAnim.currentAnimation)
@@ -318,7 +318,7 @@ void EditorToolSystem::GUIDrawAnimationEditor()
     }
 }
 
-void EditorToolSystem::GUIDrawPhysicsEditor()
+void EditorToolSystem::GUIDrawPhysicsEditor() const
 {
     auto& reg = Engine::Registry();
 
@@ -349,7 +349,7 @@ void EditorToolSystem::GUIDrawPhysicsEditor()
     }
 }
 
-bool EditorToolSystem::GUIDrawEntityFocusSelection(int& selectedItem)
+bool EditorToolSystem::GUIDrawEntityFocusSelection(int& selectedItem_)
 {
     auto& reg = Engine::Registry();
 
@@ -361,17 +361,17 @@ bool EditorToolSystem::GUIDrawEntityFocusSelection(int& selectedItem)
         items.push_back(item.name.c_str());
     }
 
-    ImGui::ListBox("In Focus", &selectedItem, items.data(), items.size(), 10);
+    ImGui::ListBox("In Focus", &selectedItem_, items.data(), items.size(), 10);
 
-    if (selectedItem - 1 >= m_Targets.size())
+    if (selectedItem_ - 1 >= m_Targets.size())
     {
-        selectedItem = 0;
+        selectedItem_ = 0;
         m_Selected.entity = entt::null;
     }
 
-    if (selectedItem > 0)
+    if (selectedItem_ > 0)
     {
-        const int index = selectedItem - 1;
+        const int index = selectedItem_ - 1;
         m_Selected = m_Targets[index];
 
         if (!reg.valid(m_Selected.entity))
@@ -391,8 +391,6 @@ void EditorToolSystem::OnRenderGUI()
 {
     if (m_IsInEditor)
     {
-        auto& reg = Engine::Registry();
-
         static int selectedItem = 0;
 
         ImGui::Begin("Scene Editor");

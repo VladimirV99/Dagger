@@ -11,10 +11,9 @@ using namespace racing_game;
 void RacingCarSystem::Run()
 {
     RacingGameFieldSettings fieldSettings;
-    if (auto* ptr = Engine::GetDefaultResource<RacingGameFieldSettings>())
-    {
-        fieldSettings = *ptr;
-    }
+    auto* ptr = Engine::GetDefaultResource<RacingGameFieldSettings>();
+    assert(ptr != nullptr);
+    fieldSettings = *ptr;
 
     auto view = Engine::Registry().view<Transform, RacingCar>();
     for (auto entity : view)

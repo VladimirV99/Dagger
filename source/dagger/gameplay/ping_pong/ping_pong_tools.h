@@ -19,7 +19,7 @@ namespace ping_pong
         bool m_GenerateBall = false;
 
     public:
-        inline String SystemName() { return "Ping Pong Tools System"; }
+        inline String SystemName() override { return "Ping Pong Tools System"; }
 
         void SpinUp() override;
         void Run() override;

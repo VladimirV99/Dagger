@@ -1,4 +1,4 @@
-#include "pingpong_playerinput.h"
+#include "ping_pong_player_input.h"
 
 #include "core/engine.h"
 #include "core/game/transforms.h"
@@ -25,19 +25,19 @@ void PingPongPlayerInputSystem::OnKeyboardEvent(KeyboardEvent kEvent_)
 {
     Engine::Registry().view<ControllerMapping>().each([&](ControllerMapping& ctrl_)
     {
-        if (kEvent_.key == ctrl_.up_key && (kEvent_.action == EDaggerInputState::Pressed || kEvent_.action == EDaggerInputState::Held))
+        if (kEvent_.key == ctrl_.upKey && (kEvent_.action == EDaggerInputState::Pressed || kEvent_.action == EDaggerInputState::Held))
         {
             ctrl_.input.y = 1;
         }
-        else if (kEvent_.key == ctrl_.up_key && kEvent_.action == EDaggerInputState::Released && ctrl_.input.y > 0)
+        else if (kEvent_.key == ctrl_.upKey && kEvent_.action == EDaggerInputState::Released && ctrl_.input.y > 0)
         {
             ctrl_.input.y = 0;
         }
-        else if (kEvent_.key == ctrl_.down_key && (kEvent_.action == EDaggerInputState::Held || kEvent_.action == EDaggerInputState::Pressed))
+        else if (kEvent_.key == ctrl_.downKey && (kEvent_.action == EDaggerInputState::Held || kEvent_.action == EDaggerInputState::Pressed))
         {
             ctrl_.input.y = -1;
         }
-        else if (kEvent_.key == ctrl_.down_key && kEvent_.action == EDaggerInputState::Released && ctrl_.input.y < 0)
+        else if (kEvent_.key == ctrl_.downKey && kEvent_.action == EDaggerInputState::Released && ctrl_.input.y < 0)
         {
             ctrl_.input.y = 0;
         }

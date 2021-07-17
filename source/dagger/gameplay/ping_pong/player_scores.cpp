@@ -5,7 +5,7 @@
 #include "core/graphics/text.h"
 
 #include "gameplay/common/simple_collisions.h"
-#include "gameplay/ping_pong/pingpong_ball.h"
+#include "gameplay/ping_pong/ping_pong_ball.h"
 #include "gameplay/ping_pong/ping_pong_main.h"
 
 using namespace ping_pong;
@@ -31,13 +31,13 @@ void PlayerScoresSystem::Run()
 
             if (ball.playerOneScored)
             {
-                m_goalsPlayerOne++;
-                t.position = { (-(s_FieldWidth + 2) / 2.f - ((m_goalsPlayerOne - 1) / 10)) * s_TileSize, -s_TileSize * (-2 + (m_goalsPlayerOne - 1) % 10), 0 };
+                m_GoalsPlayerOne++;
+                t.position = { (-(s_FieldWidth + 2) / 2.f - ((m_GoalsPlayerOne - 1) / 10)) * s_TileSize, -s_TileSize * (-2 + (m_GoalsPlayerOne - 1) % 10), 0 };
             }
             else
             {
-                m_goalsPlayerTwo++;
-                t.position = { ((s_FieldWidth + 3) / 2.f + ((m_goalsPlayerTwo - 1) / 10)) * s_TileSize, -s_TileSize * (-2 + (m_goalsPlayerTwo - 1) % 10), 0 };
+                m_GoalsPlayerTwo++;
+                t.position = { ((s_FieldWidth + 3) / 2.f + ((m_GoalsPlayerTwo - 1) / 10)) * s_TileSize, -s_TileSize * (-2 + (m_GoalsPlayerTwo - 1) % 10), 0 };
             }
 
             ball.processed = true;
@@ -57,16 +57,16 @@ void PlayerScoresSystem::Run()
 
         if (ps.isLeft)
         {
-            if (ps.score != m_goalsPlayerOne) {
-                ps.score = m_goalsPlayerOne;
-                txt.Set("pixel-font", std::to_string(m_goalsPlayerOne), { -(s_FieldWidth + 3) * s_TileSize / 2, 80, 0 });
+            if (ps.score != m_GoalsPlayerOne) {
+                ps.score = m_GoalsPlayerOne;
+                txt.Set("pixel-font", std::to_string(m_GoalsPlayerOne), { -(s_FieldWidth + 3) * s_TileSize / 2, 80, 0 });
             }
         }
         else
         {
-            if (ps.score != m_goalsPlayerTwo) {
-                ps.score = m_goalsPlayerTwo;
-                txt.Set("pixel-font", std::to_string(m_goalsPlayerTwo), { (s_FieldWidth + 5) * s_TileSize / 2, 80, 0 });
+            if (ps.score != m_GoalsPlayerTwo) {
+                ps.score = m_GoalsPlayerTwo;
+                txt.Set("pixel-font", std::to_string(m_GoalsPlayerTwo), { (s_FieldWidth + 5) * s_TileSize / 2, 80, 0 });
             }
         }
     }

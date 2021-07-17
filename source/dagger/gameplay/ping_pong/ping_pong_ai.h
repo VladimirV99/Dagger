@@ -1,17 +1,20 @@
 #pragma once
 #include "core/system.h"
 
+#include "core/game/transforms.h"
+#include "ping_pong_ball.h"
+
 using namespace dagger;
 
 namespace ping_pong
 {
-	enum class PlayerSide {
+	enum class EPlayerSide {
 		LEFT,
 		RIGHT
 	};
 
 	struct AI {
-		PlayerSide side;
+		EPlayerSide side;
 	};
 
 	class PingPongAISystem
@@ -21,10 +24,11 @@ namespace ping_pong
 		static Float32 s_BoarderDown;
 		static Float32 s_PlayerSize;
 
-	public:
-		static Float32 s_PlayerSpeed;
+		Bool ShouldConsiderBall(const Transform& ballTransform_, const PingPongBall& ball_, const Transform& playerTransform_, const AI& playerAI_);
 
 	public:
+		static Float32 s_AIPlayerSpeed;
+
 		inline String SystemName() override {
 			return "AI System";
 		}

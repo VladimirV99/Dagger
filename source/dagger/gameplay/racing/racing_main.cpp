@@ -32,8 +32,6 @@ void RacingGame::GameplaySystemsSetup()
 
 void RacingGame::WorldSetup()
 {
-    auto& engine = Engine::Instance();
-
     ShaderSystem::Use("standard");
 
     auto* camera = Engine::GetDefaultResource<Camera>();
@@ -48,51 +46,50 @@ void RacingGame::WorldSetup()
 
 void racing_game::SetupWorld()
 {
-    auto& engine = Engine::Instance();
-    auto& reg = engine.Registry();
+    auto& reg = Engine::Registry();
 
     constexpr Vector2 scale(1, 1);
 
-    constexpr int Heigh = 30;
-    constexpr int Width = 21;
-    constexpr float TileSize = 20.f;
+    constexpr int heigh = 30;
+    constexpr int width = 21;
+    constexpr float tileSize = 20.0f;
 
     {
         auto entity = reg.create();
         auto& fieldSettings = reg.emplace<RacingGameFieldSettings>(entity);
-        fieldSettings.fieldWidth = Width;
-        fieldSettings.fieldHeight = Heigh;
-        fieldSettings.fieldTileSize = TileSize;
+        fieldSettings.fieldWidth = width;
+        fieldSettings.fieldHeight = heigh;
+        fieldSettings.fieldTileSize = tileSize;
 
         Engine::PutDefaultResource<RacingGameFieldSettings>(&fieldSettings);
     }
 
     float zPos = 1.f;
 
-    for (int i = 0; i < Heigh; i++)
+    for (int i = 0; i < heigh; i++)
     {
-        for (int j = 0; j < Width; j++)
+        for (int j = 0; j < width; j++)
         {
             auto entity = reg.create();
             auto& sprite = reg.emplace<Sprite>(entity);
             AssignSprite(sprite, "EmptyWhitePixel");
-            sprite.size = scale * TileSize;
+            sprite.size = scale * tileSize;
 
             sprite.color = { 0.4f, 0.4f, 0.4f, 1 };
 
-            if ((j == Width / 2) || (Width % 2 == 0 && (j == Width / 2 - 1)))
+            if ((j == width / 2) || (width % 2 == 0 && (j == width / 2 - 1)))
             {
                 sprite.color = { 1,1,1,1 };
             }
 
-            if (j == 0 || j == Width - 1)
+            if (j == 0 || j == width - 1)
             {
                 sprite.color = { 0,0,0,1 };
             }
 
             auto& transform = reg.emplace<Transform>(entity);
-            transform.position.x = (0.5f + j - static_cast<float>(Width) / 2.f) * TileSize;
-            transform.position.y = (0.5f + i - static_cast<float>(Heigh) / 2.f) * TileSize;
+            transform.position.x = (0.5f + j - static_cast<float>(width) / 2.f) * tileSize;
+            transform.position.y = (0.5f + i - static_cast<float>(heigh) / 2.f) * tileSize;
             transform.position.z = zPos;
         }
     }
@@ -105,13 +102,13 @@ void racing_game::SetupWorld()
         auto& sprite = reg.emplace<Sprite>(entity);
         AssignSprite(sprite, "Racing:police-car-bmw-z4");
         float ratio = sprite.size.y / sprite.size.x;
-        sprite.size = { 2 * TileSize, 2 * TileSize * ratio };
+        sprite.size = { 2 * tileSize, 2 * tileSize * ratio };
 
         auto& transform = reg.emplace<Transform>(entity);
-        transform.position = { -TileSize * 4, -TileSize * 4, zPos };
+        transform.position = { -tileSize * 4, -tileSize * 4, zPos };
 
         auto& racingPlayer = reg.emplace<RacingPlayerCar>(entity);
-        racingPlayer.horzSpeed = TileSize * 6;
+        racingPlayer.horzSpeed = tileSize * 6;
 
         reg.emplace<ControllerMapping>(entity);
 
@@ -134,14 +131,14 @@ void racing_game::SetupWorld()
         auto& sprite = reg.emplace<Sprite>(entity);
         AssignSprite(sprite, "Racing:police-car-bmw-z4"); 
         float ratio = sprite.size.y / sprite.size.x;
-        sprite.size = { 2 * TileSize, 2 * TileSize * ratio };
+        sprite.size = { 2 * tileSize, 2 * tileSize * ratio };
         sprite.scale.y = -1;
 
         auto& transform = reg.emplace<Transform>(entity);
-        transform.position = { TileSize * (3 * (i+1) - Width/2), TileSize * (-i * 2 + Heigh/2), zPos };
+        transform.position = { tileSize * (3 * (i+1) - width/2), tileSize * (-i * 2 + heigh/2), zPos };
 
         auto& racingCar = reg.emplace<RacingCar>(entity);
-        racingCar.speed = TileSize * (rand() % 5 + 3);
+        racingCar.speed = tileSize * (rand() % 5 + 3);
 
         auto& col = reg.emplace<SimpleCollision>(entity);
         col.size = sprite.size;

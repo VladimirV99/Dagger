@@ -59,7 +59,7 @@ protected:
 	Map<States, OwningPtr<State>> m_StatePointers;
 };
 
-#define CONNECT_STATE(States_, Class_) m_StatePointers[States_::Class_] = std::move(OwningPtr<Class_>(new Class_(this)))
+#define CONNECT_STATE(States_, Class_) m_StatePointers[States_::Class_] = OwningPtr<Class_>(new Class_(this))
 
 #define DEFINE_STATE(Machine_, States_, State_) struct State_ : public State \
 { \

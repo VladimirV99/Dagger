@@ -9,8 +9,8 @@ namespace ping_pong
 {
     struct ControllerMapping
     {
-        EDaggerKeyboard up_key;
-        EDaggerKeyboard down_key;
+        EDaggerKeyboard upKey;
+        EDaggerKeyboard downKey;
 
         Vector2 input{ 0, 0 };
     };
@@ -22,11 +22,9 @@ namespace ping_pong
         static Float32 s_BoarderDown;
 
     public:
-
         static Float32 s_PlayerSpeed;
 
-    public:
-        inline String SystemName() { return "PingPong Player Input System"; }
+        inline String SystemName() override { return "PingPong Player Input System"; }
 
         void SpinUp() override;
         void WindDown() override;
@@ -34,14 +32,14 @@ namespace ping_pong
 
         static void SetupPlayerOneInput(ControllerMapping& controllerMapping_)
         {
-            controllerMapping_.up_key = EDaggerKeyboard::KeyW;
-            controllerMapping_.down_key = EDaggerKeyboard::KeyS;
+            controllerMapping_.upKey = EDaggerKeyboard::KeyW;
+            controllerMapping_.downKey = EDaggerKeyboard::KeyS;
         }
 
         static void SetupPlayerTwoInput(ControllerMapping& controllerMapping_)
         {
-            controllerMapping_.up_key = EDaggerKeyboard::KeyUp;
-            controllerMapping_.down_key = EDaggerKeyboard::KeyDown;
+            controllerMapping_.upKey = EDaggerKeyboard::KeyUp;
+            controllerMapping_.downKey = EDaggerKeyboard::KeyDown;
         }
 
         static void SetupPlayerBoarders(Float32 boarderUp_, Float32 boarderDown_)
@@ -51,7 +49,6 @@ namespace ping_pong
         }
 
     private:
-
         void OnKeyboardEvent(KeyboardEvent kEvent_);
     };
 }

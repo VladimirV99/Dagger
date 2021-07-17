@@ -36,8 +36,7 @@ void TeamGame::WorldSetup()
 
 void team_game::SetupWorld()
 {
-    auto& engine = Engine::Instance();
-    auto& reg = engine.Registry();
+    auto& reg = Engine::Registry();
 
     float zPos = 1.f;
 

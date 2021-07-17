@@ -12,18 +12,18 @@ struct SimpleCollision
     bool colided = false;
     entt::entity colidedWith;
 
-    bool IsCollided(const Vector3& pos_, const SimpleCollision& other_, const Vector3& posOther_);
+    bool IsCollided(const Vector3& pos_, const SimpleCollision& other_, const Vector3& posOther_) const;
 
     // return (0,1) if collision happen by y, (1,0) if collision happen by x
-    Vector2 GetCollisionSides(const Vector3& pos_, const SimpleCollision& other_, const Vector3& posOther_);
+    Vector2 GetCollisionSides(const Vector3& pos_, const SimpleCollision& other_, const Vector3& posOther_) const;
 
-    Vector3 GetCollisionCenter(const Vector3& pos_, const SimpleCollision& other_, const Vector3& posOther_);
+    Vector3 GetCollisionCenter(const Vector3& pos_, const SimpleCollision& other_, const Vector3& posOther_) const;
 };
 
 class SimpleCollisionsSystem : public System
 {
 public:
-    inline String SystemName() { return "Simple Collisions System"; }
+    inline String SystemName() override { return "Simple Collisions System"; }
 
     void Run() override;
 };

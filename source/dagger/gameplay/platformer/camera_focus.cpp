@@ -11,7 +11,6 @@ using namespace platformer;
 void CameraFollowSystem::Run()
 {
     auto* camera = Engine::GetDefaultResource<Camera>();
-    auto camPosition = (Vector2)camera->position;
 
     Vector2 center{};
     UInt32 count{ 0 };

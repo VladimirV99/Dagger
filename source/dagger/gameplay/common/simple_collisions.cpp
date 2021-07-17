@@ -39,23 +39,18 @@ void SimpleCollisionsSystem::Run()
 
 // SimpleCollision
 
-bool SimpleCollision::IsCollided(const Vector3& pos_, const SimpleCollision& other_, const Vector3& posOther_)
+bool SimpleCollision::IsCollided(const Vector3& pos_, const SimpleCollision& other_, const Vector3& posOther_) const
 {
     Vector2 p(pos_.x + pivot.x * size.x, pos_.y + pivot.y * size.y);
     Vector2 p2(posOther_.x + other_.pivot.x * other_.size.x, posOther_.y + other_.pivot.y * other_.size.y);
 
-    if (p.x < p2.x + other_.size.x &&
+    return p.x < p2.x + other_.size.x &&
         p.x + size.x > p2.x &&
         p.y < p2.y + other_.size.y &&
-        p.y + size.y > p2.y)
-    {
-        return true;
-    }
-
-    return false;
+        p.y + size.y > p2.y;
 }
 
-Vector2 SimpleCollision::GetCollisionSides(const Vector3& pos_, const SimpleCollision& other_, const Vector3& posOther_)
+Vector2 SimpleCollision::GetCollisionSides(const Vector3& pos_, const SimpleCollision& other_, const Vector3& posOther_) const
 {
     Vector2 res(0, 0);
 
@@ -77,7 +72,7 @@ Vector2 SimpleCollision::GetCollisionSides(const Vector3& pos_, const SimpleColl
     return res;
 }
 
-Vector3 SimpleCollision::GetCollisionCenter(const Vector3& pos_, const SimpleCollision& other_, const Vector3& posOther_)
+Vector3 SimpleCollision::GetCollisionCenter(const Vector3& pos_, const SimpleCollision& other_, const Vector3& posOther_) const
 {
     Vector3 res;
 

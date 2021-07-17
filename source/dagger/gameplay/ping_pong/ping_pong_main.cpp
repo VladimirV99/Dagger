@@ -16,12 +16,11 @@
 #include "tools/diagnostics.h"
 
 #include "gameplay/common/simple_collisions.h"
-#include "gameplay/ping_pong/pingpong_ai.h"
-#include "gameplay/ping_pong/pingpong_ball.h"
+#include "gameplay/ping_pong/ping_pong_ai.h"
+#include "gameplay/ping_pong/ping_pong_ball.h"
 #include "gameplay/ping_pong/player_scores.h"
-#include "gameplay/ping_pong/pingpong_playerinput.h"
-#include "gameplay/ping_pong/pingpong_tools.h"
-
+#include "gameplay/ping_pong/ping_pong_player_input.h"
+#include "gameplay/ping_pong/ping_pong_tools.h"
 
 using namespace dagger;
 using namespace ping_pong;
@@ -113,20 +112,15 @@ void ping_pong::SetupWorld()
 {
     Vector2 scale(1, 1);
 
-    auto& engine = Engine::Instance();
-    auto& reg = engine.Registry();
-
-    // field
-    constexpr int screenWidth = 800;
-    constexpr int screenHeight = 600;
+    auto& reg = Engine::Registry();
 
     constexpr int height = 20;
     constexpr int width = 26;
-    constexpr float tileSize = 20.f;// / static_cast<float>(Width);
+    constexpr float tileSize = 20.0f;
 
     float zPos = 1.f;
 
-    constexpr float Space = 0.1f;
+    constexpr float space = 0.1f;
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
@@ -161,51 +155,51 @@ void ping_pong::SetupWorld()
             }
 
             auto& transform = reg.emplace<Transform>(entity);
-            transform.position.x = (0.5f + j + j * Space - static_cast<float>(width * (1 + Space)) / 2.f) * tileSize;
-            transform.position.y = (0.5f + i + i * Space - static_cast<float>(height * (1 + Space)) / 2.f) * tileSize;
+            transform.position.x = (0.5f + j + j * space - static_cast<float>(width * (1 + space)) / 2.f) * tileSize;
+            transform.position.y = (0.5f + i + i * space - static_cast<float>(height * (1 + space)) / 2.f) * tileSize;
             transform.position.z = zPos;
         }
     }
 
     zPos -= 1.f;
 
-    // collisions
+    // Collisions
     {
-        // up
+        // Up
         {
             auto entity = reg.create();
             auto& col = reg.emplace<SimpleCollision>(entity);
-            col.size.x = tileSize * (width - 2)* (1 + Space);
+            col.size.x = tileSize * (width - 2)* (1 + space);
             col.size.y = tileSize;
 
             auto& transform = reg.emplace<Transform>(entity);
             transform.position.x = 0;
-            transform.position.y = (0.5f + (height - 1) + (height - 1) * Space - static_cast<float>(height * (1 + Space)) / 2.f) * tileSize;
+            transform.position.y = (0.5f + (height - 1) + (height - 1) * space - static_cast<float>(height * (1 + space)) / 2.f) * tileSize;
             transform.position.z = zPos;
         }
 
-        // down
+        // Down
         {
             auto entity = reg.create();
             auto& col = reg.emplace<SimpleCollision>(entity);
-            col.size.x = tileSize * (width - 2) * (1 + Space);
+            col.size.x = tileSize * (width - 2) * (1 + space);
             col.size.y = tileSize;
 
             auto& transform = reg.emplace<Transform>(entity);
             transform.position.x = 0;
-            transform.position.y = (0.5f - static_cast<float>(height * (1 + Space)) / 2.f) * tileSize;
+            transform.position.y = (0.5f - static_cast<float>(height * (1 + space)) / 2.f) * tileSize;
             transform.position.z = zPos;
         }
 
-        // left
+        // Left
         {
             auto entity = reg.create();
             auto& col = reg.emplace<SimpleCollision>(entity);
             col.size.x = tileSize;
-            col.size.y = tileSize * (height - 2) * (1 + Space);
+            col.size.y = tileSize * (height - 2) * (1 + space);
 
             auto& transform = reg.emplace<Transform>(entity);
-            transform.position.x = (0.5f - static_cast<float>(width * (1 + Space)) / 2.f) * tileSize;
+            transform.position.x = (0.5f - static_cast<float>(width * (1 + space)) / 2.f) * tileSize;
             transform.position.y = 0;
             transform.position.z = zPos;
 
@@ -213,15 +207,15 @@ void ping_pong::SetupWorld()
             wall.isLeft = true;
         }
 
-        // right
+        // Right
         {
             auto entity = reg.create();
             auto& col = reg.emplace<SimpleCollision>(entity);
             col.size.x = tileSize;
-            col.size.y = tileSize * (height - 2) * (1 + Space);
+            col.size.y = tileSize * (height - 2) * (1 + space);
 
             auto& transform = reg.emplace<Transform>(entity);
-            transform.position.x = (0.5f + (width - 1) + (width - 1) * Space - static_cast<float>(width * (1 + Space)) / 2.f) * tileSize;
+            transform.position.x = (0.5f + (width - 1) + (width - 1) * space - static_cast<float>(width * (1 + space)) / 2.f) * tileSize;
             transform.position.y = 0;
             transform.position.z = zPos;
 
@@ -230,7 +224,7 @@ void ping_pong::SetupWorld()
         }
     }
 
-    // ball
+    // Ball
     CreatePingPongBall(tileSize, ColorRGBA(1, 1, 1, 1), { 7,-7,0 }, { -1,5,zPos });
     //CreatePingPongBall(reg, TileSize, Color(0.5f, 1, 1, 1), { -14,14,0 },   { 1,3,zPos });
     CreatePingPongBall(tileSize, ColorRGBA(1, 0.5f, 1, 1), { -6,4,0 }, { -1,1,zPos });
@@ -239,12 +233,12 @@ void ping_pong::SetupWorld()
     //CreatePingPongBall(reg, TileSize, Color(0.5f, 0.5f, 0.5f, 1), { -14,-20,0 }, { 1,-5,zPos });
     CreatePingPongBall(tileSize, ColorRGBA(0.5f, 1, 0.5f, 1), { 8,8,0 }, { -1,-7,zPos });
 
-    // player controller setup
-    const Float32 playerSize = tileSize * ((height - 2) * (1 + Space) * 0.33f);
+    // Player controller setup
+    const Float32 playerSize = tileSize * ((height - 2) * (1 + space) * 0.33f);
     PingPongPlayerInputSystem::SetupPlayerBoarders(playerSize, -playerSize);
     PingPongPlayerInputSystem::s_PlayerSpeed = tileSize * 14.f;
-    PingPongAISystem::s_PlayerSpeed = tileSize * 14.f;
-    //1st player
+    PingPongAISystem::s_AIPlayerSpeed = tileSize * 14.f;
+    // 1st player
     {
         auto entity = reg.create();
         auto& col = reg.emplace<SimpleCollision>(entity);
@@ -252,7 +246,7 @@ void ping_pong::SetupWorld()
         col.size.y = playerSize;
 
         auto& transform = reg.emplace<Transform>(entity);
-        transform.position.x = (2.5f - static_cast<float>(width * (1 + Space)) / 2.f) * tileSize;
+        transform.position.x = (2.5f - static_cast<float>(width * (1 + space)) / 2.f) * tileSize;
         transform.position.y = 0;
         transform.position.z = zPos;
 
@@ -264,10 +258,10 @@ void ping_pong::SetupWorld()
         //auto& controller = reg.emplace<ControllerMapping>(entity);
         //PingPongPlayerInputSystem::SetupPlayerOneInput(controller);
         auto& ai = reg.emplace<AI>(entity);
-        ai.side = PlayerSide::LEFT;
+        ai.side = EPlayerSide::LEFT;
     }
 
-    //2nd player
+    // 2nd player
     {
         auto entity = reg.create();
         auto& col = reg.emplace<SimpleCollision>(entity);
@@ -275,7 +269,7 @@ void ping_pong::SetupWorld()
         col.size.y = playerSize;
 
         auto& transform = reg.emplace<Transform>(entity);
-        transform.position.x = (0.5f + (width - 3) + (width - 1) * Space - static_cast<float>(width * (1 + Space)) / 2.f) * tileSize;
+        transform.position.x = (0.5f + (width - 3) + (width - 1) * space - static_cast<float>(width * (1 + space)) / 2.f) * tileSize;
         transform.position.y = 0;
         transform.position.z = zPos;
 
@@ -287,24 +281,24 @@ void ping_pong::SetupWorld()
         auto& controller = reg.emplace<ControllerMapping>(entity);
         PingPongPlayerInputSystem::SetupPlayerTwoInput(controller);
         //auto& ai = reg.emplace<AI>(entity);
-        //ai.side = PlayerSide::RIGHT;
+        //ai.side = EPlayerSide::RIGHT;
     }
 
     PingPongAISystem::SetupPlayerBoarders(playerSize, -playerSize, playerSize);
 
-    // score text
-    auto score_left = reg.create();
-    auto& player_score_left = reg.emplace<PlayerScore>(score_left);
-    player_score_left.isLeft = true;
-    auto& text_left = reg.emplace<Text>(score_left);
-    text_left.spacing = 0.6f;
+    // Score text
+    auto scoreLeft = reg.create();
+    auto& playerScoreLeft = reg.emplace<PlayerScore>(scoreLeft);
+    playerScoreLeft.isLeft = true;
+    auto& textLeft = reg.emplace<Text>(scoreLeft);
+    textLeft.spacing = 0.6f;
 
-    auto score_right = reg.create();
-    auto& player_score_right = reg.emplace<PlayerScore>(score_right);
-    player_score_right.isLeft = false;
-    auto& text_right = reg.emplace<Text>(score_right);
-    text_right.spacing = 0.6f;
+    auto scoreRight = reg.create();
+    auto& playerScoreRight = reg.emplace<PlayerScore>(scoreRight);
+    playerScoreRight.isLeft = false;
+    auto& textRight = reg.emplace<Text>(scoreRight);
+    textRight.spacing = 0.6f;
 
     // add score system to count scores for left and right collisions
-    PlayerScoresSystem::SetFieldSize(width, height, tileSize * (1 + Space));
+    PlayerScoresSystem::SetFieldSize(width, height, tileSize * (1 + space));
 }
