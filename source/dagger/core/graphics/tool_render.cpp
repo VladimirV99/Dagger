@@ -24,7 +24,7 @@ void ToolRenderSystem::SpinUp()
 
     // attribute #0: vertex position
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE,
-        sizeof(float) * 4, (void*)0);
+        sizeof(float) * 4, (void*)0); // NOLINT
     glEnableVertexAttribArray(0);
 
     // attribute #1: tex coord
@@ -69,7 +69,7 @@ void ToolRenderSystem::SpinUp()
 
 void ToolRenderSystem::OnRender()
 {
-    static auto SortSprites = [](const Sprite& a_, const Sprite& b_)
+    static auto sortSprites = [](const Sprite& a_, const Sprite& b_)
     {
         // sorting by levels: z-order, shader, then image
         // if the values are equal on z-order level, we go to the next (shader)
@@ -85,16 +85,16 @@ void ToolRenderSystem::OnRender()
 
         if (aZ == bZ)
         {
-            if (aShader == bShader)
-            {
-                return aImage < bImage;
-            }
-            else
-                return aShader < bShader;
+            return aShader == bShader ? aImage < bImage : aShader < bShader;
         }
         else
+        {
             return aZ > bZ;
+        }
     };
+
+    if (registry == nullptr)
+        return;
 
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_InstanceQuadInfoVBO);
@@ -103,51 +103,47 @@ void ToolRenderSystem::OnRender()
     ViewPtr<Texture> prevTexture{ nullptr };
     ViewPtr<Shader> prevShader{ nullptr };
 
-    if (registry != nullptr)
+    const auto& view = registry->view<Sprite>();
+    Sequence<Sprite> sprites{ view.raw(), view.raw() + view.size() };
+    std::sort(sprites.begin(), sprites.end(), sortSprites);
+    Sequence<SpriteData> currentRender{};
+
+    for (auto ptr = sprites.begin(); ptr != sprites.end();)
     {
-        const auto& view = registry->view<Sprite>();
-        Sequence<Sprite> sprites{ view.raw(), view.raw() + view.size() };
-        std::sort(sprites.begin(), sprites.end(), SortSprites);
-        //UInt64 dataSize = sizeof(SpriteData) * sprites.size();
-        Sequence<SpriteData> currentRender{};
+        // assert(ptr->image != nullptr);
+        while (ptr != sprites.end() && ptr->image == nullptr) ptr++;
+        if (ptr == sprites.end()) break;
 
-        for (auto ptr = sprites.begin(); ptr != sprites.end();)
+        if (prevShader != ptr->shader)
         {
-            if (prevShader != ptr->shader)
-            {
-                prevShader = ptr->shader;
-                glUseProgram(prevShader->programId);
-                Engine::Dispatcher().trigger<ShaderChangeRequest>(ShaderChangeRequest(prevShader));
-            }
-
-            assert(ptr->image != nullptr);
-            while (ptr != sprites.end() && ptr->image == nullptr) ptr++;
-            if (ptr == sprites.end()) break;
-
-            prevTexture = ptr->image;
-
-            while (ptr != sprites.end() && prevTexture == ptr->image)
-            {
-                // look at the definition of SpriteData if you're wondering why the cast.
-                // we only need some fields, to optimize on data transfer.
-                currentRender.push_back((SpriteData)*ptr);
-                ptr++;
-            }
-
-            const UInt32 renderSize = sizeof(SpriteData) * currentRender.size();
-
-            m_Data = reinterpret_cast<float*>(glMapBufferRange(GL_ARRAY_BUFFER,
-                0, sizeof(Sprite) * currentRender.size(), GL_MAP_WRITE_BIT));
-
-            memcpy(m_Data, &(*currentRender.begin()), renderSize);
-            glUnmapBuffer(GL_ARRAY_BUFFER);
-
-            glBindTexture(GL_TEXTURE_2D, prevTexture->TextureId());
-            glDrawArraysInstanced(GL_TRIANGLES, 0, s_VertexCount, (GLsizei)currentRender.size());
-            currentRender.clear();
-
-            if (ptr == sprites.end()) break;
+            prevShader = ptr->shader;
+            glUseProgram(prevShader->programId);
+            Engine::Dispatcher().trigger<ShaderChangeRequest>(ShaderChangeRequest(prevShader));
         }
+
+        prevTexture = ptr->image;
+
+        while (ptr != sprites.end() && prevTexture == ptr->image)
+        {
+            // look at the definition of SpriteData if you're wondering why the cast.
+            // we only need some fields, to optimize on data transfer.
+            currentRender.push_back((SpriteData)*ptr);
+            ptr++;
+        }
+
+        const UInt32 renderSize = sizeof(SpriteData) * currentRender.size();
+
+        m_Data = reinterpret_cast<float*>(glMapBufferRange(GL_ARRAY_BUFFER,
+            0, sizeof(Sprite) * currentRender.size(), GL_MAP_WRITE_BIT));
+
+        memcpy(m_Data, &(*currentRender.begin()), renderSize);
+        glUnmapBuffer(GL_ARRAY_BUFFER);
+
+        glBindTexture(GL_TEXTURE_2D, prevTexture->TextureId());
+        glDrawArraysInstanced(GL_TRIANGLES, 0, s_VertexCount, (GLsizei)currentRender.size());
+        currentRender.clear();
+
+        if (ptr == sprites.end()) break;
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);

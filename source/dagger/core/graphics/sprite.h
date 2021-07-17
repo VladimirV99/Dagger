@@ -57,7 +57,7 @@ namespace dagger
 
 	void AssignSprite(Sprite& spriteTarget_, String textureName_);
 	void AssignSprite(Sprite& spriteTarget_, ViewPtr<Texture> texture_);
-	void AssignSprite(Sprite& spriteTarget_, ViewPtr<SpriteFrame> texture_);
+	void AssignSprite(Sprite& spriteTarget_, ViewPtr<SpriteFrame> spritesheet_);
 
 	void AssignSpriteShader(Sprite& spriteTarget_, String shaderName_);
 

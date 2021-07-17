@@ -13,7 +13,7 @@ struct Transform
 class TransformSystem
     : public System
 {
-    inline String SystemName() { return "Transform System"; }
+    inline String SystemName() override { return "Transform System"; }
 
     void Run() override;
 };

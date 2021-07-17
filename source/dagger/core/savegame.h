@@ -7,18 +7,19 @@
 #include "core/graphics/sprite.h"
 #include "core/graphics/animation.h"
 #include "core/game/transforms.h"
+#include "gameplay/common/simple_collisions.h"
 
 template<typename T>
 JSON::json SerializeComponent(T& input_)
 {
-    assert(("Serialization failed: no type specialization found!", false));
+    assert(("Serialization failed: no type specialization found!", false)); // NOLINT
     return JSON::json{};
 }
 
 template<typename T>
 void DeserializeComponent(JSON::json input_, T& fill_)
 {
-    assert(("Deserialization failed: no type specialization found!", false));
+    assert(("Deserialization failed: no type specialization found!", false)); // NOLINT
 }
 
 // Serialize vectors
@@ -134,11 +135,11 @@ void DeserializeComponent(JSON::json input_, Animator& fill_)
 }
 
 template<>
-JSON::json SerializeComponent(SimpleCollision& collision_)
+JSON::json SerializeComponent(SimpleCollision& input_)
 {
     JSON::json save{};
-    save["size"] = SerializeComponent(collision_.size);
-    save["pivot"] = SerializeComponent(collision_.pivot);
+    save["size"] = SerializeComponent(input_.size);
+    save["pivot"] = SerializeComponent(input_.pivot);
     return save;
 }
 

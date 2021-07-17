@@ -8,7 +8,7 @@ using namespace dagger;
 
 void ShaderSystem::Use(String name_)
 {
-    auto shader = Engine::Res<Shader>()[name_];
+    auto* shader = Engine::Res<Shader>()[name_];
     assert(shader != nullptr);
     glUseProgram(shader->programId);
     Engine::Dispatcher().trigger<ShaderChangeRequest>(ShaderChangeRequest(shader));
@@ -16,14 +16,14 @@ void ShaderSystem::Use(String name_)
 
 ViewPtr<Shader> ShaderSystem::Get(String name_)
 {
-    auto shader = Engine::Res<Shader>()[name_];
+    auto* shader = Engine::Res<Shader>()[name_];
     assert(shader != nullptr);
     return shader;
 }
 
 UInt32 ShaderSystem::GetId(String name_)
 {
-    auto shader = Engine::Res<Shader>()[name_];
+    auto* shader = Engine::Res<Shader>()[name_];
     assert(shader != nullptr);
     return shader->programId;
 }
@@ -73,7 +73,7 @@ void ShaderSystem::OnLoadAsset(AssetLoadRequest<Shader> request_)
         }
 
         config.paths = stageLoader;
-        auto shader = new Shader(config);
+        auto* shader = new Shader(config);
         Engine::Res<Shader>()[config.name] = shader;
     }
 }
@@ -82,7 +82,7 @@ void ShaderSystem::SpinUp()
 {
     Engine::Dispatcher().sink<AssetLoadRequest<Shader>>().connect<&ShaderSystem::OnLoadAsset>(this);
 
-    for (auto& entry : Files::recursive_directory_iterator("shaders"))
+    for (const auto& entry : Files::recursive_directory_iterator("shaders"))
     {
         auto path = entry.path().string();
         if (entry.is_regular_file() && entry.path().extension() == ".json")
@@ -95,9 +95,9 @@ void ShaderSystem::SpinUp()
 void ShaderSystem::WindDown()
 {
     auto& textures = Engine::Res<Shader>();
-    for (auto t = textures.begin(); t != textures.end(); t++)
+    for (const auto& texture : textures)
     {
-        delete t->second;
+        delete texture.second;
     }
 
     Engine::Dispatcher().sink<AssetLoadRequest<Shader>>().disconnect<&ShaderSystem::OnLoadAsset>(this);

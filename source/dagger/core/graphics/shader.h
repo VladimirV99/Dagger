@@ -16,7 +16,7 @@ ENABLE_BITMASK_OPERATORS(EShaderStage);
 
 struct ShaderConfig
 {
-	String name{ "" };
+	String name{};
 	EShaderStage stages{ EShaderStage::None };
 	Map<EShaderStage, String> paths{};
 };

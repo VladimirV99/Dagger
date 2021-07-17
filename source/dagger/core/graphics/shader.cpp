@@ -12,7 +12,6 @@ Shader::Shader(ShaderConfig config_)
 {
 	Logger::info("Constructing shader program '{}'", config_.name);
 
-	constexpr auto count = s_ShaderStageCount + 1;
 	Sequence<UInt32> shaderIds;
 
 	programId = glCreateProgram();
@@ -32,14 +31,14 @@ Shader::Shader(ShaderConfig config_)
 		}
 
 		{
-			auto sourceCode = source.c_str();
+			const auto* sourceCode = source.c_str();
 			glShaderSource(id, 1, &sourceCode, nullptr);
 			glCompileShader(id);
 			{
 				GLint success;
 				GLchar infoLog[512];
 				glGetShaderiv(id, GL_COMPILE_STATUS, &success);
-				if (!success)
+				if (success == 0)
 				{
 					glGetShaderInfoLog(id, 512, nullptr, infoLog);
 					auto errorMessage = fmt::format("Shader error ({}): {}", config_.name, infoLog);
@@ -61,8 +60,8 @@ Shader::Shader(ShaderConfig config_)
 		GLint success;
 		GLchar infoLog[512];
 		glGetProgramiv(programId, GL_LINK_STATUS, &success);
-		if (!success) {
-			glGetProgramInfoLog(programId, 512, NULL, infoLog);
+		if (success == 0) {
+			glGetProgramInfoLog(programId, 512, nullptr, infoLog);
 			auto errorMessage = fmt::format("Shader linking error ({}): {}", config_.name, infoLog);
 			Logger::error(errorMessage);
 			Engine::Dispatcher().trigger<Error>(Error{ errorMessage });
@@ -77,12 +76,11 @@ Shader::Shader(ShaderConfig config_)
 		glDeleteShader(id);
 	}
 
-	programId = programId;
 	assert(programId != 0);
 
 	if (!s_FirstLoadedShader)
 	{
-		s_FirstLoadedShader.reset(this);
+		s_FirstLoadedShader.Reset(this);
 	}
 }
 

@@ -22,7 +22,7 @@ class AnimationSystem
 {
 
 public:
-    inline String SystemName() { return "Animation System"; }
+    inline String SystemName() override { return "Animation System"; }
 
     static ViewPtr<Animation> Get(String name_);
 
@@ -35,4 +35,7 @@ public:
     void SpinUp() override;
     void Run() override;
     void WindDown() override;
+
+private:
+    Frame LoadFrame(const JSON::json& frameJson_);
 };

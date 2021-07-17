@@ -75,7 +75,7 @@ void InputSystem::SpinUp()
 
 void InputSystem::LoadDefaultAssets()
 {
-	for (auto& entry : Files::recursive_directory_iterator("input-contexts"))
+	for (const auto& entry : Files::recursive_directory_iterator("input-contexts"))
 	{
 		auto path = entry.path().string();
 		if (entry.is_regular_file() && entry.path().extension() == ".json")
@@ -146,7 +146,7 @@ void InputSystem::OnAssetLoadRequest(AssetLoadRequest<InputContext> request_)
 	JSON::json json;
 	handle >> json;
 
-	InputContext* context = new InputContext();
+	auto* context = new InputContext();
 	assert(json.contains("context-name"));
 	assert(json.contains("commands"));
 
@@ -187,110 +187,142 @@ void InputSystem::OnAssetLoadRequest(AssetLoadRequest<InputContext> request_)
 	Logger::info("Input context '{}' loaded!", context->name);
 }
 
+Bool InputSystem::ProcessMouseAction(InputAction& action_)
+{
+	Bool toFire = false;
+	const Bool toConsume = action_.event == EDaggerInputState::Pressed;
+
+	if (action_.duration == 0)
+	{
+		if (Input::IsInputDown((EDaggerMouse)(action_.trigger)))
+		{
+			toFire = true;
+			if (toConsume)
+				m_InputState.releasedLastFrame.emplace(action_.trigger);
+		}
+	}
+	else
+	{
+		if (Input::GetInputDuration((EDaggerMouse)(action_.trigger)) >= action_.duration)
+		{
+			toFire = true;
+			m_InputState.releasedLastFrame.emplace(action_.trigger);
+		}
+	}
+
+	return toFire;
+}
+
+Bool InputSystem::ProcessKeyboardAction(InputAction& action_)
+{
+	Bool toFire = false;
+	const Bool toConsume = action_.event == EDaggerInputState::Pressed;
+
+	if (action_.duration == 0)
+	{
+		if (Input::IsInputDown((EDaggerKeyboard)(action_.trigger)))
+		{
+			toFire = true;
+			if (toConsume) 
+				m_InputState.releasedLastFrame.emplace(action_.trigger);
+		}
+	}
+	else
+	{
+		if (Input::GetInputDuration((EDaggerKeyboard)(action_.trigger)) >= action_.duration)
+		{
+			toFire = true;
+			m_InputState.releasedLastFrame.emplace(action_.trigger);
+		}
+	}
+
+	return toFire;
+}
+
+Bool InputSystem::ProcessInputAction(InputAction& action_)
+{
+	// Mouse
+	if (action_.trigger >= MouseStart && action_.trigger <= (MouseStart + 10))
+	{
+		return ProcessMouseAction(action_);
+	}
+	// Keyboard
+	else
+	{
+		return ProcessKeyboardAction(action_);
+	}
+}
+
+void InputSystem::ProcessContext(InputContext* context_, InputReceiver& receiver_, Set<String>& updatedCommands_)
+{
+	for (auto& command : context_->commands)
+	{
+		String fullName = command.name;
+		for (auto& action : command.actions)
+		{
+			if (action.event == EDaggerInputState::Released)
+			{
+				if (m_InputState.releasedLastFrame.contains(action.trigger))
+				{
+					receiver_.values[fullName] = action.value;
+					updatedCommands_.emplace(fullName);
+				}
+			}
+			else
+			{
+				if (m_InputState.releasedLastFrame.contains(action.trigger))
+				{
+					receiver_.values[fullName] = 0;
+				}
+
+				// If the action trigger is active set the appropriate value
+				if (ProcessInputAction(action))
+				{
+					receiver_.values[fullName] = action.value;
+					updatedCommands_.emplace(fullName);
+				}
+			}
+		}
+	}
+}
+
 void InputSystem::Run()
 {
 	Engine::Registry().view<InputReceiver>().each([&](InputReceiver& receiver_)
 		{
 			static Set<String> updatedCommands{};
 
+			// Bit map of current inputs
 			auto& bitmap = m_InputState.bitmap;
+			// List of loaded input contexts
 			auto& library = Engine::Res<InputContext>();
+			// Loop through every context the input receiver is listening
 			for (auto& name : receiver_.contexts)
 			{
 				assert(library.contains(name));
 				const auto& context = library[name];
 				const auto& collision = (bitmap & context->bitmap);
+				// If any key used for the context is held or has changed state process the context again
 				if (collision.any())
 				{
-					for (auto& command : context->commands)
-					{
-						String fullName = command.name;
-						for (auto& action : command.actions)
-						{
-							if (action.event == EDaggerInputState::Released)
-							{
-								if (m_InputState.releasedLastFrame.contains(action.trigger))
-								{
-									receiver_.values[fullName] = action.value;
-									updatedCommands.emplace(fullName);
-								}
-							}
-							else
-							{
-								if (m_InputState.releasedLastFrame.contains(action.trigger))
-								{
-									receiver_.values[fullName] = 0;
-								}
-
-								Bool toFire = false;
-								const Bool toConsume = action.event == EDaggerInputState::Pressed;
-
-								if (action.duration == 0)
-								{
-									// mouse
-									if (action.trigger >= MouseStart && action.trigger <= (MouseStart + 10))
-									{
-										if (Input::IsInputDown((EDaggerMouse)(action.trigger)))
-										{
-											toFire = true;
-											if (toConsume)
-												m_InputState.releasedLastFrame.emplace(action.trigger);
-										}
-									}
-									else
-									{
-										if (Input::IsInputDown((EDaggerKeyboard)(action.trigger)))
-										{
-											toFire = true;
-											if (toConsume) m_InputState.releasedLastFrame.emplace(action.trigger);
-										}
-									}
-								}
-								else
-								{
-									// mouse
-									if (action.trigger >= MouseStart && action.trigger <= (MouseStart + 10))
-									{
-										if (Input::GetInputDuration((EDaggerMouse)(action.trigger)) >= action.duration)
-										{
-											toFire = true;
-											m_InputState.releasedLastFrame.emplace(action.trigger);
-										}
-									}
-									else
-									{
-										if (Input::GetInputDuration((EDaggerKeyboard)(action.trigger)) >= action.duration)
-										{
-											toFire = true;
-											m_InputState.releasedLastFrame.emplace(action.trigger);
-										}
-									}
-								}
-
-								if (toFire)
-								{
-									receiver_.values[fullName] = action.value;
-									updatedCommands.emplace(fullName);
-								}
-							}
-						}
-					}
+					ProcessContext(context, receiver_, updatedCommands);
 				}
 
 				Map<String, Float32> newValues;
+				// Update the input context values
 				for (auto [key, value] : receiver_.values)
 				{
 					newValues[key] = updatedCommands.contains(key) ? value : 0.0f;
 				}
-
 				receiver_.values = newValues;
 				updatedCommands.clear();
 			}
 		});
 
+	// Reset bitmap values for keys released the last frame
 	if (!m_InputState.releasedLastFrame.empty())
 	{
-		for (auto& input : m_InputState.releasedLastFrame)
+		for (const auto& input : m_InputState.releasedLastFrame)
 		{
 			m_InputState.bitmap.reset(input);
 		}
@@ -333,19 +365,19 @@ Bool dagger::Input::IsInputReleased(EDaggerMouse button_)
 	return !state->mouse[button] && state->releasedLastFrame.contains(button);
 }
 
-const Vector2 dagger::Input::CursorPositionInWindow()
+Vector2 dagger::Input::CursorPositionInWindow()
 {
 	const auto* state = Engine::GetDefaultResource<InputState>();
 	return state->cursor;
 }
 
-const Vector2 dagger::Input::CursorPositionInScreen()
+Vector2 dagger::Input::CursorPositionInScreen()
 {
 	auto* state = Engine::GetDefaultResource<InputState>();
 	return Camera::WindowToScreen(state->cursor);
 }
 
-const Vector2 dagger::Input::CursorPositionInWorld()
+Vector2 dagger::Input::CursorPositionInWorld()
 {
 	auto* state = Engine::GetDefaultResource<InputState>();
 	return Camera::WindowToWorld(state->cursor);
@@ -354,7 +386,7 @@ const Vector2 dagger::Input::CursorPositionInWorld()
 UInt32 dagger::Input::GetInputDuration(EDaggerKeyboard key_)
 {
 	const auto* state = Engine::GetDefaultResource<InputState>();
-	UInt32 value = (UInt32)key_;
+	auto value = (UInt32)key_;
 	if (!state->moments.contains(value)) 
 	{ 
 		return 0;
@@ -366,7 +398,7 @@ UInt32 dagger::Input::GetInputDuration(EDaggerKeyboard key_)
 UInt32 dagger::Input::GetInputDuration(EDaggerMouse mouse_)
 {
 	const auto* state = Engine::GetDefaultResource<InputState>();
-	UInt32 value = (UInt32)mouse_;
+	auto value = (UInt32)mouse_;
 	return DurationToMilliseconds(Engine::CurrentTime() - state->moments.at(value));
 }
 
@@ -374,7 +406,7 @@ void dagger::Input::ConsumeInput(EDaggerKeyboard key_)
 {
 	auto* state = Engine::GetDefaultResource<InputState>();
 
-	UInt32 value = (UInt32)key_;
+	auto value = (UInt32)key_;
 	state->keys[value] = false;
 	state->moments.erase(value);
 	state->bitmap.reset(value);
@@ -384,7 +416,7 @@ void dagger::Input::ConsumeInput(EDaggerMouse button_)
 {
 	auto* state = Engine::GetDefaultResource<InputState>();
 
-	UInt32 value = (UInt32)button_;
+	auto value = (UInt32)button_;
 	state->mouse[value - MouseStart] = false;
 	state->moments.erase(value);
 	state->bitmap.reset(value);

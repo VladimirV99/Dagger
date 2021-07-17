@@ -22,7 +22,7 @@ void dagger::AssignSprite(Sprite& spriteTarget_, String textureName_)
 	}
 	ViewPtr<Texture> texture = TextureSystem::Get(textureName_);
 
-	spriteTarget_.image = texture.get();
+	spriteTarget_.image = texture.Get();
 	spriteTarget_.size.x = texture->Width();
 	spriteTarget_.size.y = texture->Height();
 	spriteTarget_.UseFullImage();
@@ -30,7 +30,7 @@ void dagger::AssignSprite(Sprite& spriteTarget_, String textureName_)
 
 void dagger::AssignSprite(Sprite& spriteTarget_, ViewPtr<Texture> texture_)
 {
-	spriteTarget_.image = texture_.get();
+	spriteTarget_.image = texture_.Get();
 	spriteTarget_.size.x = texture_->Width();
 	spriteTarget_.size.y = texture_->Height();
 	spriteTarget_.UseFullImage();
@@ -38,10 +38,10 @@ void dagger::AssignSprite(Sprite& spriteTarget_, ViewPtr<Texture> texture_)
 
 void dagger::AssignSprite(Sprite& spriteTarget_, ViewPtr<SpriteFrame> spritesheet_)
 {
-	spriteTarget_.image = spritesheet_->texture.get();
+	spriteTarget_.image = spritesheet_->texture.Get();
 	spriteTarget_.size.x = spritesheet_->texture->Width();
 	spriteTarget_.size.y = spritesheet_->texture->Height();
-	spriteTarget_.Use(spritesheet_.get());
+	spriteTarget_.Use(spritesheet_.Get());
 }
 
 void dagger::AssignSpriteShader(Sprite& spriteTarget_, String shaderName_)

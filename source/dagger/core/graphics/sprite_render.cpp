@@ -24,7 +24,7 @@ void SpriteRenderSystem::SpinUp()
 
     // attribute #0: vertex position
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 
-        sizeof(float) * 4, (void*)0);
+        sizeof(float) * 4, (void*)0); // NOLINT
     glEnableVertexAttribArray(0);
 
     // attribute #1: tex coord
@@ -66,7 +66,7 @@ void SpriteRenderSystem::SpinUp()
 
     Engine::Dispatcher().sink<AssetLoadRequest<SpriteFrame>>().connect<&SpriteRenderSystem::OnRequestSpritesheet>(this);
 
-    for (auto& entry : Files::recursive_directory_iterator("spritesheets"))
+    for (const auto& entry : Files::recursive_directory_iterator("spritesheets"))
     {
         if (entry.path().extension() == ".spritesheet")
             Engine::Dispatcher().trigger<AssetLoadRequest<SpriteFrame>>(AssetLoadRequest<SpriteFrame>{ entry.path().string() });
@@ -87,7 +87,7 @@ void SpriteRenderSystem::OnRequestSpritesheet(AssetLoadRequest<SpriteFrame> requ
     FilePath root{ request_.path };
     root.remove_filename();
 
-    String textureName = "";
+    String textureName;
     {
         String pathName = root.append(path.stem().string()).string();
         if (pathName.find("textures") == 0)
@@ -99,7 +99,7 @@ void SpriteRenderSystem::OnRequestSpritesheet(AssetLoadRequest<SpriteFrame> requ
     }
 
     assert(textures.contains(textureName));
-    auto texture = textures[textureName];
+    auto* texture = textures[textureName];
 
     std::ifstream framesInput{ request_.path };
     String line;
@@ -135,7 +135,7 @@ void SpriteRenderSystem::OnRequestSpritesheet(AssetLoadRequest<SpriteFrame> requ
 
         for (UInt32 i = 0; i < count; ++i)
         {
-            SpriteFrame* spritesheet = new SpriteFrame();
+            auto* spritesheet = new SpriteFrame();
             spritesheet->texture = texture;
 
             spritesheet->frame.size.x = w;
@@ -160,7 +160,7 @@ void SpriteRenderSystem::OnRequestSpritesheet(AssetLoadRequest<SpriteFrame> requ
 
 void SpriteRenderSystem::OnRender()
 {
-    static auto SortSprites = [](const Sprite& a_, const Sprite& b_)
+    static auto sortSprites = [](const Sprite& a_, const Sprite& b_)
     {
         UInt32 aShader = a_.shader->programId;
         UInt32 bShader = b_.shader->programId;
@@ -171,15 +171,12 @@ void SpriteRenderSystem::OnRender()
 
         if (aZ == bZ)
         {
-            if (aShader == bShader)
-            {
-                return aImage < bImage;
-            }
-            else
-                return aShader < bShader;
+            return aShader == bShader ? aImage < bImage : aShader < bShader;
         }
         else
+        {
             return aZ > bZ;
+        }
     };
 
 	glBindVertexArray(m_VAO);
@@ -191,8 +188,7 @@ void SpriteRenderSystem::OnRender()
 
     const auto& view = Engine::Registry().view<Sprite>();
     Sequence<Sprite> sprites{ view.raw(), view.raw() + view.size() };
-    std::sort(sprites.begin(), sprites.end(), SortSprites);
-    //UInt64 dataSize = sizeof(SpriteData) * sprites.size();
+    std::sort(sprites.begin(), sprites.end(), sortSprites);
     Sequence<SpriteData> currentRender{};
 
     for (auto ptr = sprites.begin(); ptr != sprites.end();)

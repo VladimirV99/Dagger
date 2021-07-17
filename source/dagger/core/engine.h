@@ -98,8 +98,8 @@ namespace dagger
 		template<typename K, typename Archetype>
 		inline static tsl::sparse_map<K, Archetype>& Cache()
 		{
-			static tsl::sparse_map<K, Archetype> s_CachedMap;
-			return s_CachedMap;
+			static tsl::sparse_map<K, Archetype> cachedMap;
+			return cachedMap;
 		}
 
 		template<typename Archetype>
@@ -129,15 +129,15 @@ namespace dagger
 		template<typename Archetype>
 		inline static tsl::sparse_map<std::string, Archetype*>& Res()
 		{
-			static tsl::sparse_map<std::string, Archetype*> s_CachedMap;
-			return s_CachedMap;
+			static tsl::sparse_map<std::string, Archetype*> cachedMap;
+			return cachedMap;
 		}
 
 		Engine();
 
 		Engine(const Engine&) = delete;
 
-		~Engine() {}
+		~Engine() = default;
 
 		void EngineShutdown(Exit&);
 

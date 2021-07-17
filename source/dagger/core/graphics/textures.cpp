@@ -12,7 +12,7 @@ using namespace dagger;
 
 ViewPtr<Texture> TextureSystem::Get(String name_)
 {
-    auto texture = Engine::Res<Texture>()[name_];
+    auto* texture = Engine::Res<Texture>()[name_];
     assert(texture != nullptr);
     return texture;
 }
@@ -20,13 +20,13 @@ ViewPtr<Texture> TextureSystem::Get(String name_)
 void TextureSystem::OnLoadAsset(AssetLoadRequest<Texture> request_)
 {
     Logger::info("Loading texture {}...", request_.path);
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(1);
 
     FilePath path{ request_.path };
     FilePath root{ request_.path };
     root.remove_filename();
 
-    String textureName = "";
+    String textureName;
     {
         String pathName = root.append(path.stem().string()).string();
         if(pathName.find("textures") == 0)
@@ -40,13 +40,13 @@ void TextureSystem::OnLoadAsset(AssetLoadRequest<Texture> request_)
     // these have to remain "int" because of API/ABI-compatibility with stbi_load
     int width, height, channels;
     UInt8* image = stbi_load(path.string().c_str(), &width, &height, &channels, 0);
-    Logger::info("Image statistics: name ({}), width ({}), height ({}), depth ({})", textureName, width, height, channels);
-
     if (image == nullptr)
     {
         Engine::Dispatcher().trigger<Error>(Error{ fmt::format("Failed to load texture: {}", path.string()) });
         return;
     }
+
+    Logger::info("Image statistics: name ({}), width ({}), height ({}), depth ({})", textureName, width, height, channels);
 
     auto* texture = new Texture(textureName, path, image, (UInt32)width, (UInt32)height, (UInt32)channels);
 
@@ -63,7 +63,7 @@ void TextureSystem::SpinUp()
 {
     Engine::Dispatcher().sink<AssetLoadRequest<Texture>>().connect<&TextureSystem::OnLoadAsset>(this);
 
-    for (auto& entry : Files::recursive_directory_iterator("textures"))
+    for (const auto& entry : Files::recursive_directory_iterator("textures"))
     {
         if (entry.path().extension() == ".png")
             Engine::Dispatcher().trigger<AssetLoadRequest<Texture>>(AssetLoadRequest<Texture>{ entry.path().string() });
@@ -73,9 +73,9 @@ void TextureSystem::SpinUp()
 void TextureSystem::WindDown()
 {
     auto& textures = Engine::Res<Texture>();
-    for (auto t = textures.begin(); t != textures.end(); t++)
+    for (const auto& texture : textures)
     {
-        delete t->second;
+        delete texture.second;
     }
     
     textures.clear();

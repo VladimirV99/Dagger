@@ -6,7 +6,7 @@
 
 ViewPtr<Animation> AnimationSystem::Get(String name_)
 {
-    auto animation = Engine::Res<Animation>()[name_];
+    auto* animation = Engine::Res<Animation>()[name_];
     assert(animation != nullptr);
     return animation;
 }
@@ -107,6 +107,56 @@ void AnimationSystem::RenderToolMenu()
 }
 #endif //!defined(NDEBUG)
 
+Frame AnimationSystem::LoadFrame(const JSON::json& frameJson_)
+{
+    Frame frame;
+
+    assert(frameJson_.contains("texture-name"));
+    frame.textureName = frameJson_["texture-name"];
+
+    if (frameJson_.contains("pivot"))
+    {
+        if (frameJson_["pivot"].is_array())
+        {
+            frame.pivot = { frameJson_["pivot"][0], frameJson_["pivot"][1] };
+        }
+        else
+        {
+            String pivot = frameJson_["pivot"];
+
+            if (pivot == "CENTER")
+                frame.pivot = { 0.0f, 0.0f };
+            else if (pivot == "BOTTOM")
+                frame.pivot = { 0.0f, 0.5f };
+            else if (pivot == "TOP")
+                frame.pivot = { 0.0f, -0.5f };
+        }
+    }
+
+    if (frameJson_.contains("relative-length"))
+    {
+        frame.relativeLength = frameJson_["relative-length"];
+        assert(frame.relativeLength > 0);
+    }
+    else
+    {
+        frame.relativeLength = 1;
+    }
+
+    if (frame.textureName.find("spritesheets:") == 0)
+    {
+        auto* spritesheet = Engine::Res<SpriteFrame>()[frame.textureName];
+        frame.spritesheet.frame = spritesheet->frame;
+        frame.spritesheet.texture = spritesheet->texture;
+    }
+    else
+    {
+        frame.spritesheet.frame.UseFullImage();
+        frame.spritesheet.texture = Engine::Res<Texture>()[frame.textureName];
+    }
+
+    return frame;
+}
 
 void AnimationSystem::OnLoadAsset(AssetLoadRequest<Animation> request_)
 {
@@ -132,7 +182,7 @@ void AnimationSystem::OnLoadAsset(AssetLoadRequest<Animation> request_)
     JSON::json json;
     handle >> json;
 
-    Animation* animation = new Animation();
+    auto* animation = new Animation();
 
     assert(json.contains("animation-name"));
     animation->name = json["animation-name"];
@@ -154,51 +204,8 @@ void AnimationSystem::OnLoadAsset(AssetLoadRequest<Animation> request_)
     assert(json.contains("animation-frames"));
     for (auto& sub : json["animation-frames"])
     {
-        Frame frame;
-
-        assert(sub.contains("texture-name"));
-        frame.textureName = sub["texture-name"];
-
-        if (sub.contains("pivot"))
-        {
-            if (sub["pivot"].is_array())
-            {
-                frame.pivot = { sub["pivot"][0], sub["pivot"][1] };
-            }
-            else
-            {
-                String pivot = sub["pivot"];
-
-                if (pivot == "CENTER")
-                    frame.pivot = { 0.0f, 0.0f };
-                else if (pivot == "BOTTOM")
-                    frame.pivot = { 0.0f, 0.5f };
-                else if (pivot == "TOP")
-                    frame.pivot = { 0.0f, -0.5f };
-            }
-        }
-
-        if (sub.contains("relative-length"))
-        {
-            frame.relativeLength = sub["relative-length"];
-            assert(frame.relativeLength > 0);
-        }
-        else
-            frame.relativeLength = 1;
-
+        Frame frame = LoadFrame(sub);
         animation->frameLengthRelativeSum += frame.relativeLength;
-
-        if (frame.textureName.find("spritesheets:") == 0)
-        {
-            auto spritesheet = Engine::Res<SpriteFrame>()[frame.textureName];
-            frame.spritesheet.frame = spritesheet->frame;
-            frame.spritesheet.texture = spritesheet->texture;
-        }
-        else
-        {
-            frame.spritesheet.frame.UseFullImage();
-            frame.spritesheet.texture = Engine::Res<Texture>()[frame.textureName];
-        }
         animation->frames.push_back(std::move(frame));
     }
 
@@ -221,7 +228,7 @@ void AnimationSystem::OnLoadAsset(AssetLoadRequest<Animation> request_)
 
 void AnimationSystem::LoadDefaultAssets()
 {
-    for (auto& entry : Files::recursive_directory_iterator("animations"))
+    for (const auto& entry : Files::recursive_directory_iterator("animations"))
     {
         auto path = entry.path().string();
         if (entry.is_regular_file() && entry.path().extension() == ".json")

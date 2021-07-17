@@ -10,20 +10,24 @@
 
 using namespace dagger;
 
-struct ShaderChangeRequest
+class ShaderChangeRequest
 {
     ViewPtr<Shader> m_Shader;
 
+public:
     explicit ShaderChangeRequest(ViewPtr<Shader> shader_)
         : m_Shader{ shader_ }
     {}
+
+    ViewPtr<Shader> GetShader() { return m_Shader; };
 };
 
-struct ShaderSystem
+class ShaderSystem
     : public System
     , public Subscriber<AssetLoadRequest<Shader>>
 {
-    inline String SystemName() { return "Shader System"; }
+public:
+    inline String SystemName() override { return "Shader System"; }
 
     static void Use(String name_);
     static ViewPtr<Shader> Get(String name_);

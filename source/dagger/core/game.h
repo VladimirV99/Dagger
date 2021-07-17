@@ -8,7 +8,7 @@ namespace dagger
 
     struct Game
     {
-        virtual ~Game() { };
+        virtual ~Game() = default;
 
         virtual void CoreSystemsSetup();
 

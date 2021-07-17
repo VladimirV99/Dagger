@@ -15,7 +15,7 @@ void Text::Set(String font_, String message_, Vector3 pos_, Bool ui_)
 
 	assert(Engine::Res<Texture>().contains(fmt::format("spritesheets:{}", font_)));
 
-	if (entities.size() > 0)
+	if (!entities.empty())
 	{
 		registry.destroy(entities.begin(), entities.end());
 		entities.clear();
@@ -33,14 +33,14 @@ void Text::Set(String font_, String message_, Vector3 pos_, Bool ui_)
 	}
 
 	Float32 xOffsetDueToAlign = 0.0f;
-	if (alignment == TextAlignment::CENTER)
+	if (alignment == ETextAlignment::CENTER)
 		xOffsetDueToAlign = (Float32)fullStringWidth / 2.0f;
-	else if (alignment == TextAlignment::RIGHT)
+	else if (alignment == ETextAlignment::RIGHT)
 		xOffsetDueToAlign = (Float32)fullStringWidth;
 
 	for (char letter : message_)
 	{
-		auto spritesheet = cache[letter];
+		auto* spritesheet = cache[letter];
 		auto entity = registry.create();
 		auto& sprite = registry.emplace<Sprite>(entity);
 

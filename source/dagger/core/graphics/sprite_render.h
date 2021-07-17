@@ -37,14 +37,14 @@ class SpriteRenderSystem
 	void OnRender();
 
 public:
-	inline String SystemName() { return "Sprite Render System"; }
+	inline String SystemName() override { return "Sprite Render System"; }
 
 	constexpr static UInt64 s_VertexCount = 24;
-	constexpr static UInt64 m_SizeOfMesh = sizeof(Float32) * s_VertexCount;
+	constexpr static UInt64 s_SizeOfMesh = sizeof(Float32) * s_VertexCount;
 	constexpr static UInt64 s_MaxNumberOfMeshes = 10000;
 	constexpr static UInt64 s_BufferSize = sizeof(Float32) * s_VertexCount * s_MaxNumberOfMeshes;
 
-	void OnRequestSpritesheet(AssetLoadRequest<SpriteFrame> spritesheet_);
+	void OnRequestSpritesheet(AssetLoadRequest<SpriteFrame> request_);
 
 	void SpinUp() override;
 	void WindDown() override;

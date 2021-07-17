@@ -74,25 +74,25 @@ struct Camera
 	static Vector2 WorldToWindow(Vector2 worldCoord_);
 };
 
-struct WindowSystem 
+class WindowSystem 
 	: public System
 	, public Publisher<PreRender, Render, ToolRender, 
 				KeyboardEvent, MouseEvent, CursorEvent, Error>
 {
-	inline String SystemName() { return "Window System"; }
-
-	CachedMatrices m_Matrices;
 	RenderConfig m_Config;
+	CachedMatrices m_Matrices;
 	Camera m_Camera;
 
+public:
 	WindowSystem()
 		: m_Config{}
-		, m_Camera{}
 		, m_Matrices{}
+		, m_Camera{}
 	{}
 
-	~WindowSystem() = default;
 	WindowSystem(const WindowSystem&) = delete;
+
+	inline String SystemName() override { return "Window System"; }
 
 	void UpdateViewProjectionMatrix();
 

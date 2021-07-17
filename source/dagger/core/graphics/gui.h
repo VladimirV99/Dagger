@@ -15,7 +15,7 @@ class GUISystem
 	void OnToolRender();
 
 public:
-	inline String SystemName() { return "GUI System"; }
+	inline String SystemName() override { return "GUI System"; }
 
 	void SpinUp() override;
 	void WindDown() override;

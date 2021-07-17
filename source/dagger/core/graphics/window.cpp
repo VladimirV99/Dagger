@@ -49,8 +49,8 @@ static void WindowResizeCallback(GLFWwindow* window_, int width_, int height_)
 
 void WindowSystem::UpdateViewProjectionMatrix()
 {
-	glUniformMatrix4fv((GLuint)m_Matrices.viewportMatrixId, 1, false, glm::value_ptr(m_Config.viewport));
-	glUniformMatrix4fv((GLuint)m_Matrices.projectionMatrixId, 1, false, glm::value_ptr(m_Config.projection));
+	glUniformMatrix4fv((GLuint)m_Matrices.viewportMatrixId, 1, false, glm::value_ptr(m_Config.viewport)); // NOLINT
+	glUniformMatrix4fv((GLuint)m_Matrices.projectionMatrixId, 1, false, glm::value_ptr(m_Config.projection)); // NOLINT
 }
 
 void WindowSystem::UpdateViewProjectionMatrix(RenderConfig& config_, Camera& camera_)
@@ -58,6 +58,7 @@ void WindowSystem::UpdateViewProjectionMatrix(RenderConfig& config_, Camera& cam
 	SetViewProjectionMatrix(config_, camera_, config_.lastSize.x, config_.lastSize.y);
 }
 
+// NOLINTNEXTLINE
 void WindowSystem::SetViewProjectionMatrix(RenderConfig& config_, Camera& camera_, Float32 width_, Float32 height_)
 {
 	config_.lastSize = Vector2{ width_, height_ };
@@ -82,8 +83,8 @@ void WindowSystem::SetViewProjectionMatrix(RenderConfig& config_, Camera& camera
 		break;
 	}
 	
-	glUniformMatrix4fv((GLuint)m_Matrices.viewportMatrixId, 1, false, glm::value_ptr(config_.viewport));
-	glUniformMatrix4fv((GLuint)m_Matrices.projectionMatrixId, 1, false, glm::value_ptr(config_.projection));
+	glUniformMatrix4fv((GLuint)m_Matrices.viewportMatrixId, 1, false, glm::value_ptr(config_.viewport)); // NOLINT
+	glUniformMatrix4fv((GLuint)m_Matrices.projectionMatrixId, 1, false, glm::value_ptr(config_.projection)); // NOLINT
 }
 
 void WindowSystem::OnWindowResized(WindowResized resized_)
@@ -99,9 +100,9 @@ void WindowSystem::OnWindowResized(WindowResized resized_)
 
 void WindowSystem::OnShaderChanged(ShaderChangeRequest request_)
 {
-	m_Matrices.cameraMatrixId = glGetUniformLocation(request_.m_Shader->programId, Shader::s_CameraMatrixName);
-	m_Matrices.viewportMatrixId = glGetUniformLocation(request_.m_Shader->programId, Shader::s_ViewportMatrixName);
-	m_Matrices.projectionMatrixId = glGetUniformLocation(request_.m_Shader->programId, Shader::s_ProjectionMatrixName);
+	m_Matrices.cameraMatrixId = glGetUniformLocation(request_.GetShader()->programId, Shader::s_CameraMatrixName);
+	m_Matrices.viewportMatrixId = glGetUniformLocation(request_.GetShader()->programId, Shader::s_ViewportMatrixName);
+	m_Matrices.projectionMatrixId = glGetUniformLocation(request_.GetShader()->programId, Shader::s_ProjectionMatrixName);
 
 	UpdateViewProjectionMatrix();
 	UpdateCameraMatrix();
@@ -125,7 +126,7 @@ void WindowSystem::UpdateCameraMatrix()
 
 	glm::mat4 scaleMatrix = glm::scale(glm::vec3(camera->zoom));
 	m_Config.camera = scaleMatrix * glm::lookAt(camera->position, camera->position - glm::vec3(0, 0, 10000), glm::vec3(0, 1, 0));
-	glUniformMatrix4fv((GLuint)m_Matrices.cameraMatrixId, 1, false, glm::value_ptr(m_Config.camera));
+	glUniformMatrix4fv((GLuint)m_Matrices.cameraMatrixId, 1, false, glm::value_ptr(m_Config.camera)); // NOLINT
 }
 
 void WindowSystem::SpinUp()
@@ -142,6 +143,7 @@ void WindowSystem::SpinUp()
 
 	auto& events = Engine::Dispatcher();
 
+	// NOLINTNEXTLINE
 	if (!glfwInit())
 	{
 		events.trigger<Error>(Error{ "GLFW failed to initialize." });
@@ -161,7 +163,7 @@ void WindowSystem::SpinUp()
 	if (m_Config.fullscreen)
 	{
 		monitor = glfwGetPrimaryMonitor();
-		auto mode = glfwGetVideoMode(monitor);
+		const auto* mode = glfwGetVideoMode(monitor);
 		m_Config.windowWidth = mode->width;
 		m_Config.windowHeight = mode->height;
 	}
@@ -187,6 +189,7 @@ void WindowSystem::SpinUp()
 		glfwSwapInterval(0);
 	}
 
+	// NOLINTNEXTLINE
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		events.trigger<Error>(Error{ "Couldn't initialize GLAD" });
@@ -240,6 +243,7 @@ void WindowSystem::Run()
 
 	glfwPollEvents();
 
+	// NOLINTNEXTLINE
 	if (glfwWindowShouldClose(window))
 		Engine::Dispatcher().trigger<Exit>();
 }

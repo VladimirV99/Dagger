@@ -10,7 +10,7 @@ using namespace dagger;
 
 void GUISystem::SpinUp()
 {
-	auto renderConfig = Engine::GetDefaultResource<RenderConfig>();
+	auto* renderConfig = Engine::GetDefaultResource<RenderConfig>();
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();

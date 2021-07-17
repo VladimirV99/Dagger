@@ -29,6 +29,7 @@ namespace dagger
     {
         String name;
         Sequence<InputCommand> commands;
+        // Bitmap of all action triggers
         BitSet<InputCount> bitmap;
     };
 
@@ -52,7 +53,9 @@ namespace dagger
         Bool mouse[10]{ false, };
         Vector2 cursor{ 0, 0 };
         Set<UInt32> releasedLastFrame{};
+        // Map of input keys and times they were pressed. Only for currently pressed keys
         Map<UInt32, TimePoint> moments{};
+        // Bitmap indicating all changed inputs including just released keys
         BitSet<InputCount> bitmap;
 
         friend class InputSystem;
@@ -203,10 +206,15 @@ namespace dagger
         void OnMouseEvent(MouseEvent input_);
         void OnCursorMoveEvent(CursorEvent cursor_);
 
-    public:
+        Bool ProcessMouseAction(InputAction& action_);
+        Bool ProcessKeyboardAction(InputAction& action_);
+        Bool ProcessInputAction(InputAction& action_);
+        void ProcessContext(InputContext* context_, InputReceiver& receiver_, Set<String>& updatedCommands_);
+
         InputState m_InputState;
 
-        inline String SystemName() { return "Input System"; }
+    public:
+        inline String SystemName() override { return "Input System"; }
 
         void SpinUp() override;
         void Run() override;
@@ -220,9 +228,9 @@ namespace dagger
         static Bool IsInputReleased(EDaggerKeyboard key_);
         static Bool IsInputReleased(EDaggerMouse button_);
 
-        static const Vector2 CursorPositionInWindow();
-        static const Vector2 CursorPositionInScreen();
-        static const Vector2 CursorPositionInWorld();
+        static Vector2 CursorPositionInWindow();
+        static Vector2 CursorPositionInScreen();
+        static Vector2 CursorPositionInWorld();
 
         static UInt32 GetInputDuration(EDaggerKeyboard key_);
         static UInt32 GetInputDuration(EDaggerMouse mouse_);

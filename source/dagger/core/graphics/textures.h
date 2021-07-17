@@ -9,15 +9,16 @@
 
 using namespace dagger;
 
-struct TextureSystem 
+class TextureSystem 
     : public System
-    , public Subscriber<ShaderChangeRequest, AssetLoadRequest<Texture>>
+    , public Subscriber<AssetLoadRequest<Texture>>
 {
-    inline String SystemName() { return "Texture System"; }
+    Sequence<UInt64> m_TextureHandles;
+
+public:
+    inline String SystemName() override { return "Texture System"; }
 
     static ViewPtr<Texture> Get(String name_);
-
-    Sequence<UInt64> m_TextureHandles;
 
     void OnLoadAsset(AssetLoadRequest<Texture> request_);
     void SpinUp() override;

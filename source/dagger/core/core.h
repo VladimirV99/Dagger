@@ -47,7 +47,7 @@ using OwningPtr = std::unique_ptr<Archetype>;
 // ViewPtr<T>: the pointer is not owned or managed by whoever holds this instance.
 // It just views the object through this. Can be used anywhere a raw pointer could be used.
 template<typename Archetype>
-using ViewPtr = jss::object_ptr<Archetype>;
+using ViewPtr = jss::ObjectPtr<Archetype>;
 
 // Pair<A, B>: contains two types with no other relations in it.
 template<typename A, typename B>
@@ -295,7 +295,7 @@ struct CharEvent
     UInt8 codepoint;
 };
 
-typedef glm::dvec2 ScrollEvent;
+using ScrollEvent = glm::dvec2;
 
 struct MouseEvent
 {
@@ -304,7 +304,7 @@ struct MouseEvent
     UInt32 modifiers;
 };
 
-typedef glm::dvec2 CursorEvent;
+using CursorEvent = glm::dvec2;
 
 struct Error
 {

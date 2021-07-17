@@ -2,7 +2,7 @@
 
 #include "core/core.h"
 
-enum struct TextAlignment
+enum struct ETextAlignment
 {
 	LEFT,
 	CENTER,
@@ -12,7 +12,7 @@ enum struct TextAlignment
 struct Text
 {
 	String font;
-	TextAlignment alignment{ TextAlignment::CENTER };
+	ETextAlignment alignment{ ETextAlignment::CENTER };
 	Float32 spacing{ 1.0f };
 	Sequence<Entity> entities;
 
