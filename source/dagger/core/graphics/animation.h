@@ -31,7 +31,7 @@ namespace dagger
 		UInt32 currentFrame {0};
 		Float64 currentFrameTime {0};
 		Bool isLooping {true};
-		entt::delegate<void(ViewPtr<Animation>)> onAnimationEnded;
+		entt::delegate<void(Entity, ViewPtr<Animation>)> onAnimationEnded;
 	};
 
 	void AnimatorPlayOnce(Animator& animator_, String animationName_);

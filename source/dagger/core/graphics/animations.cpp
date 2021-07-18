@@ -24,7 +24,7 @@ void AnimationSystem::Run()
 {
 	const auto& entities = Engine::Registry().view<Animator, Sprite>();
 	entities.each(
-		[](Animator& animator_, Sprite& sprite_)
+		[](const auto entity_, Animator& animator_, Sprite& sprite_)
 		{
 			if (animator_.animationPlaying && animator_.currentAnimation != "")
 			{
@@ -41,7 +41,7 @@ void AnimationSystem::Run()
 					{
 						if (animator_.onAnimationEnded)
 						{
-							animator_.onAnimationEnded(currentAnimation);
+							animator_.onAnimationEnded(entity_, currentAnimation);
 						}
 
 						if (!animator_.isLooping)
