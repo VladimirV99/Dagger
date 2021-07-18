@@ -1,14 +1,16 @@
 #pragma once
 
-#include "core/system.h"
 #include "core/core.h"
-    
+#include "core/system.h"
+
 using namespace dagger;
 
-class JiggleSystem
-    : public System
+class JiggleSystem : public System
 {
-    inline String SystemName() { return "Jiggle System"; }
+	inline String SystemName() const override
+	{
+		return "Jiggle System";
+	}
 
-    void Run() override;
+	void Run() override;
 };

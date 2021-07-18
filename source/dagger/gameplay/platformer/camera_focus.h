@@ -7,18 +7,18 @@ using namespace dagger;
 
 namespace platformer
 {
-    struct CameraFollowFocus
-    {
-        UInt32 weight{ 1 };
-    };
+	struct CameraFollowFocus
+	{
+		UInt32 weight {1};
+	};
 
-    class CameraFollowSystem
-        : public System
-    {
-        inline String SystemName() override {
-            return "Camera Follow System";
-        };
+	class CameraFollowSystem : public System
+	{
+		inline String SystemName() const override
+		{
+			return "Camera Follow System";
+		};
 
-        void Run() override;
-    };
-}
+		void Run() override;
+	};
+} // namespace platformer

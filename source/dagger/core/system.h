@@ -10,23 +10,33 @@ namespace dagger
 
 	struct System
 	{
-		virtual String SystemName() = 0;
+		virtual ~System() = default;
+
+		virtual String SystemName() const = 0;
 		virtual inline void SpinUp() {};
 		virtual inline void Run() {};
 		virtual inline void WindDown() {};
 
-		Bool canBePaused{ false };
-		Bool isPaused{ false };
+		Bool canBePaused {false};
+		Bool isPaused {false};
 
-		void Pause() { isPaused = true; }
-		void Unpause() { isPaused = false; }
+		void Pause()
+		{
+			isPaused = true;
+		}
+		void Unpause()
+		{
+			isPaused = false;
+		}
 	};
 
 	template<typename... Ts>
 	struct Publisher
-	{};
+	{
+	};
 
 	template<typename... Ts>
 	struct Subscriber
-	{};
-}
+	{
+	};
+} // namespace dagger

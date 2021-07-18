@@ -1,20 +1,22 @@
 
 #include "gui.h"
+
 #include "core/engine.h"
 
-#include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui/imgui.h>
 
 using namespace dagger;
 
 void GUISystem::SpinUp()
 {
-	auto renderConfig = Engine::GetDefaultResource<RenderConfig>();
+	auto* renderConfig = Engine::GetDefaultResource<RenderConfig>();
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGuiIO& io = ImGui::GetIO();
+	(void)io;
 
 	ImGui_ImplOpenGL3_Init();
 	ImGui_ImplGlfw_InitForOpenGL(renderConfig->window, true);

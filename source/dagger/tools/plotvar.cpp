@@ -1,23 +1,24 @@
 
 #include "imgui.h"
-#include <vector>
-#include <map>
+
 #include <algorithm>
+#include <map>
+#include <vector>
 
 namespace ImGui
 {
 	struct PlotVarData
 	{
-		ImGuiID        m_ID;
-		std::vector<float>  m_Data;
-		int            m_InsertIndex;
-		int            m_LastFrame;
+		ImGuiID m_ID;
+		std::vector<float> m_Data;
+		int m_InsertIndex;
+		int m_LastFrame;
 
-		PlotVarData() : m_ID(0), m_InsertIndex(0), m_LastFrame(-1) {}
+		PlotVarData() : m_ID(0), m_InsertIndex(0), m_LastFrame(-1) { }
 	};
 
 	typedef std::map<ImGuiID, PlotVarData> PlotVarsMap;
-	inline static PlotVarsMap	g_PlotVarsMap;
+	inline static PlotVarsMap g_PlotVarsMap;
 
 	void PlotVar(const char* label_, float value_, float scaleMin_, float scaleMax_, size_t bufferSize_)
 	{
@@ -52,9 +53,10 @@ namespace ImGui
 		int current_frame = ImGui::GetFrameCount();
 		if (pvd.m_LastFrame != current_frame)
 		{
-			ImGui::PlotLines("##plot", &pvd.m_Data[0], bufferSize_, pvd.m_InsertIndex, NULL, scaleMin_, scaleMax_, ImVec2(0, 40));
+			ImGui::PlotLines(
+				"##plot", &pvd.m_Data[0], bufferSize_, pvd.m_InsertIndex, NULL, scaleMin_, scaleMax_, ImVec2(0, 40));
 			ImGui::SameLine();
-			ImGui::Text("%s\n%-3.4f", label_, pvd.m_Data[display_idx]);	// Display last value in buffer
+			ImGui::Text("%s\n%-3.4f", label_, pvd.m_Data[display_idx]); // Display last value in buffer
 			pvd.m_LastFrame = current_frame;
 		}
 
@@ -64,7 +66,7 @@ namespace ImGui
 	void PlotVarFlushOldEntries()
 	{
 		int current_frame = ImGui::GetFrameCount();
-		for (PlotVarsMap::iterator it = g_PlotVarsMap.begin(); it != g_PlotVarsMap.end(); )
+		for (PlotVarsMap::iterator it = g_PlotVarsMap.begin(); it != g_PlotVarsMap.end();)
 		{
 			PlotVarData& pvd = it->second;
 			if (pvd.m_LastFrame < current_frame - std::max(400, (int)pvd.m_Data.size()))
@@ -73,4 +75,4 @@ namespace ImGui
 				++it;
 		}
 	}
-}
+} // namespace ImGui

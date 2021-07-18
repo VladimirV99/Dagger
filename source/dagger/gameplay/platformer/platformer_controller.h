@@ -10,19 +10,19 @@ namespace platformer
 {
 	struct PlatformerCharacter
 	{
-		int speed{ 1 };
+		int speed {1};
 	};
 
-	class PlatformerControllerSystem
-		: public System
+	class PlatformerControllerSystem : public System
 	{
-		CharacterControllerFSM characterFSM;
+		CharacterControllerFSM m_CharacterFSM;
 
 	public:
-		String SystemName() override {
+		String SystemName() const override
+		{
 			return "Character Controller System";
 		}
 
 		void Run() override;
 	};
-}
+} // namespace platformer

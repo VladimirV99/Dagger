@@ -1,18 +1,18 @@
 #pragma once
 
-#include "system.h"
 #include "core/core.h"
 #include "core/game.h"
+#include "system.h"
 
+#include <SimpleIni.h>
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
 #include <tsl/sparse_map.h>
 #include <tsl/sparse_set.h>
-#include <SimpleIni.h>
 
-#include <utility>
 #include <memory>
 #include <typeinfo>
+#include <utility>
 
 #undef main
 
@@ -22,23 +22,23 @@ namespace dagger
 		: public Subscriber<Exit, Error>
 		, public Publisher<NextFrame>
 	{
-		UInt64 m_LastFrameCounter{ 0 };
-		UInt64 m_FrameCounter{ 0 };
-		Duration m_DeltaTime{ 0.0 };
-		TimePoint m_CurrentTime{};
+		UInt64 m_LastFrameCounter {0};
+		UInt64 m_FrameCounter {0};
+		Duration m_DeltaTime {0.0};
+		TimePoint m_CurrentTime {};
 
 		IniFile m_Ini;
 		OwningPtr<Game> m_Game;
 		std::vector<System*> m_Systems;
 		OwningPtr<entt::registry> m_Registry;
 		OwningPtr<entt::dispatcher> m_EventDispatcher;
-		Bool m_ShouldStayUp{ true };
+		Bool m_ShouldStayUp {true};
 		UInt32 m_ExitStatus;
 
 		static inline Engine* s_Instance = nullptr;
-	public:
 
-		static inline Bool s_IsPaused{ false };
+	public:
+		static inline Bool s_IsPaused {false};
 		static inline uint64_t s_EntityId = 0;
 
 		template<typename Sys, typename... Args>
@@ -98,8 +98,8 @@ namespace dagger
 		template<typename K, typename Archetype>
 		inline static tsl::sparse_map<K, Archetype>& Cache()
 		{
-			static tsl::sparse_map<K, Archetype> s_CachedMap;
-			return s_CachedMap;
+			static tsl::sparse_map<K, Archetype> cachedMap;
+			return cachedMap;
 		}
 
 		template<typename Archetype>
@@ -129,15 +129,15 @@ namespace dagger
 		template<typename Archetype>
 		inline static tsl::sparse_map<std::string, Archetype*>& Res()
 		{
-			static tsl::sparse_map<std::string, Archetype*> s_CachedMap;
-			return s_CachedMap;
+			static tsl::sparse_map<std::string, Archetype*> cachedMap;
+			return cachedMap;
 		}
 
 		Engine();
 
 		Engine(const Engine&) = delete;
 
-		~Engine() {}
+		~Engine() = default;
 
 		void EngineShutdown(Exit&);
 
@@ -157,7 +157,7 @@ namespace dagger
 			m_Ini.SetUnicode();
 			auto iniPath = m_Game->GetIniFile();
 
-			FilePath path{ iniPath };
+			FilePath path {iniPath};
 			if (m_Ini.LoadFile(Files::absolute(path).string().c_str()) < 0)
 			{
 				Logger::critical("Ini file missing: {}", Files::absolute(path).string());
@@ -178,4 +178,4 @@ namespace dagger
 			return m_ExitStatus;
 		};
 	};
-}
+} // namespace dagger

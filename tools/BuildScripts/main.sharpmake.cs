@@ -91,6 +91,7 @@ public class MainProject : Project
 
         File.Copy(Path.Combine(imguiRoot, @"imgui.cpp"), Path.Combine(imguiDest, @"imgui.cpp"), true);
         File.Copy(Path.Combine(imguiRoot, @"imgui_widgets.cpp"), Path.Combine(imguiDest, @"imgui_widgets.cpp"), true);
+        File.Copy(Path.Combine(imguiRoot, @"imgui_tables.cpp"), Path.Combine(imguiDest, @"imgui_tables.cpp"), true);
         File.Copy(Path.Combine(imguiRoot, @"imgui_draw.cpp"), Path.Combine(imguiDest, @"imgui_draw.cpp"), true);
         File.Copy(Path.Combine(imguiRoot, @"backends", @"imgui_impl_glfw.cpp"), Path.Combine(imguiDest, @"imgui_impl_glfw.cpp"), true);
         File.Copy(Path.Combine(imguiRoot, @"backends", @"imgui_impl_opengl3.cpp"), Path.Combine(imguiDest, @"imgui_impl_opengl3.cpp"), true);

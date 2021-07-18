@@ -6,32 +6,31 @@
 
 using namespace dagger;
 
-void Audio::Initialize() {}
+void Audio::Initialize() { }
 
-void Audio::Load(AssetLoadRequest<Sound> request_) {}
+void Audio::Load(AssetLoadRequest<Sound> request_) { }
 
-void Audio::Play(String name_) {}
+void Audio::Play(String name_) { }
 
-void Audio::PlayLoop(String name_) {}
+void Audio::PlayLoop(String name_) { }
 
-void Audio::Stop() {}
+void Audio::Stop() { }
 
-void Audio::Uninitialize() {}
-
+void Audio::Uninitialize() { }
 
 void AudioSystem::OnLoadAsset(AssetLoadRequest<Sound> request_)
 {
-    Logger::critical("Sound is not yet implemented on Unix");
+	Logger::critical("Sound is not yet implemented on Unix");
 }
 
 void AudioSystem::SpinUp()
 {
-    Logger::critical("Sound is not yet implemented on Unix");
+	Logger::critical("Sound is not yet implemented on Unix");
 }
 
 void AudioSystem::WindDown()
 {
-    Logger::critical("Sound is not yet implemented on Unix");
+	Logger::critical("Sound is not yet implemented on Unix");
 }
 
-#endif //!defined(_WIN32)
+#endif //! defined(_WIN32)

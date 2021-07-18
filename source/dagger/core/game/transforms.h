@@ -1,19 +1,21 @@
 #pragma once
 
-#include "core/system.h"
 #include "core/core.h"
+#include "core/system.h"
 
 using namespace dagger;
 
 struct Transform
 {
-    Vector3 position{ 0, 0, 0 };
+	Vector3 position {0, 0, 0};
 };
 
-class TransformSystem
-    : public System
+class TransformSystem : public System
 {
-    inline String SystemName() { return "Transform System"; }
+	inline String SystemName() const override
+	{
+		return "Transform System";
+	}
 
-    void Run() override;
+	void Run() override;
 };

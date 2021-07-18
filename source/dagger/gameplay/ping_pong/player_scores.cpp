@@ -2,8 +2,9 @@
 
 #include "core/engine.h"
 #include "core/game/transforms.h"
+#include "core/graphics/text.h"
 #include "gameplay/common/simple_collisions.h"
-#include "gameplay/ping_pong/pingpong_ball.h"
+#include "gameplay/ping_pong/ping_pong_ball.h"
 #include "gameplay/ping_pong/ping_pong_main.h"
 
 using namespace ping_pong;
@@ -14,42 +15,70 @@ Float32 PlayerScoresSystem::s_TileSize = 1.f;
 
 void PlayerScoresSystem::Run()
 {
-    auto view = Engine::Registry().view<PingPongBall, Transform>();
+	auto view = Engine::Registry().view<PingPongBall, Transform>();
 
-    int ballOnField = 0;
+	int ballOnField = 0;
 
-    for (auto entity : view)
-    {
-        auto &ball = view.get<PingPongBall>(entity);
-        auto &t = view.get<Transform>(entity);
+	for (auto entity : view)
+	{
+		auto& ball = view.get<PingPongBall>(entity);
+		auto& t = view.get<Transform>(entity);
 
-        if (ball.reachedGoal && !ball.processed)
-        {
-            ball.speed = { 0,0,0 };
+		if (ball.reachedGoal && !ball.processed)
+		{
+			ball.speed = {0, 0, 0};
 
-            if (ball.playerOneScored)
-            {
-                m_goalsPlayerOne++;
-                t.position = { (-(s_FieldWidth+3) / 2.f) * s_TileSize,  s_TileSize * m_goalsPlayerOne, 0 };
-            }
-            else
-            {
-                m_goalsPlayerTwo++;
-                t.position = { ((s_FieldWidth+3) / 2.f) * s_TileSize, s_TileSize * m_goalsPlayerTwo, 0 };
-            }
+			if (ball.playerOneScored)
+			{
+				m_GoalsPlayerOne++;
+				t.position = {
+					(-(s_FieldWidth + 2) / 2.f - ((m_GoalsPlayerOne - 1) / 10)) * s_TileSize,
+					-s_TileSize * (-2 + (m_GoalsPlayerOne - 1) % 10), 0};
+			}
+			else
+			{
+				m_GoalsPlayerTwo++;
+				t.position = {
+					((s_FieldWidth + 3) / 2.f + ((m_GoalsPlayerTwo - 1) / 10)) * s_TileSize,
+					-s_TileSize * (-2 + (m_GoalsPlayerTwo - 1) % 10), 0};
+			}
 
-            ball.processed = true;
-        }
+			ball.processed = true;
+		}
 
-        if (!ball.reachedGoal)
-        {
-            ballOnField++;
-        }
-    }
+		if (!ball.reachedGoal)
+		{
+			ballOnField++;
+		}
+	}
 
-    if (ballOnField == 0)
-    {
-        // TODO: set speed to be random in both directions. Done without if for better performnce 
-        CreatePingPongBall(s_TileSize, ColorRGBA(1, 1, 1, 1), { (rand() % 10 + 4)*((rand() % 2 + 2)%3-1),(rand() % 10 + 4) * ((rand() % 2 + 2) % 3 - 1),0 },   { 0,rand()%(s_FieldHeight / 2),0 });
-    }
+	auto scoreView = Engine::Registry().view<PlayerScore, Text>();
+	for (auto score : scoreView)
+	{
+		auto& ps = scoreView.get<PlayerScore>(score);
+		auto& txt = scoreView.get<Text>(score);
+
+		if (ps.isLeft)
+		{
+			if (ps.score != m_GoalsPlayerOne)
+			{
+				ps.score = m_GoalsPlayerOne;
+				txt.Set("pixel-font", std::to_string(m_GoalsPlayerOne), {-(s_FieldWidth + 3) * s_TileSize / 2, 80, 0});
+			}
+		}
+		else
+		{
+			if (ps.score != m_GoalsPlayerTwo)
+			{
+				ps.score = m_GoalsPlayerTwo;
+				txt.Set("pixel-font", std::to_string(m_GoalsPlayerTwo), {(s_FieldWidth + 5) * s_TileSize / 2, 80, 0});
+			}
+		}
+	}
+
+	if (ballOnField == 0)
+	{
+		// Done without if for better performance
+		CreateRandomPingPongBall(s_TileSize, s_FieldHeight);
+	}
 }
