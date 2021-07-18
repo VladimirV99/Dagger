@@ -1,15 +1,15 @@
 #include "character_controller_fsm.h"
+
 #include "core/core.h"
 #include "core/engine.h"
-#include "core/input/inputs.h"
-#include "core/graphics/sprite.h"
 #include "core/graphics/animation.h"
+#include "core/graphics/sprite.h"
+#include "core/input/inputs.h"
 #include "gameplay/platformer/platformer_controller.h"
 
 using namespace dagger;
 
 // Idle
-
 
 void CharacterControllerFSM::Idle::Enter(CharacterControllerFSM::StateComponent& state_)
 {
@@ -19,7 +19,7 @@ void CharacterControllerFSM::Idle::Enter(CharacterControllerFSM::StateComponent&
 
 DEFAULT_EXIT(CharacterControllerFSM, Idle);
 
-void CharacterControllerFSM::Idle::Run(CharacterControllerFSM::StateComponent& state_) 
+void CharacterControllerFSM::Idle::Run(CharacterControllerFSM::StateComponent& state_)
 {
 	auto& input = Engine::Registry().get<InputReceiver>(state_.entity);
 
@@ -29,22 +29,21 @@ void CharacterControllerFSM::Idle::Run(CharacterControllerFSM::StateComponent& s
 	}
 }
 
-
 // Running
 
-void CharacterControllerFSM::Running::Enter(CharacterControllerFSM::StateComponent& state_) 
+void CharacterControllerFSM::Running::Enter(CharacterControllerFSM::StateComponent& state_)
 {
 	auto& animator = Engine::Registry().get<Animator>(state_.entity);
 	AnimatorPlay(animator, "souls_like_knight_character:RUN");
 }
 
 // same as: DEFAULT_EXIT(CharacterControllerFSM, Running);
-void CharacterControllerFSM::Running::Exit(CharacterControllerFSM::StateComponent& state_) 
-{}
+void CharacterControllerFSM::Running::Exit(CharacterControllerFSM::StateComponent& state_) { }
 
-void CharacterControllerFSM::Running::Run(CharacterControllerFSM::StateComponent& state_) 
+void CharacterControllerFSM::Running::Run(CharacterControllerFSM::StateComponent& state_)
 {
-	auto&& [sprite, input, character] = Engine::Registry().get<Sprite, InputReceiver, platformer::PlatformerCharacter>(state_.entity);
+	auto&& [sprite, input, character] =
+		Engine::Registry().get<Sprite, InputReceiver, platformer::PlatformerCharacter>(state_.entity);
 
 	Float32 run = input.Get("run");
 

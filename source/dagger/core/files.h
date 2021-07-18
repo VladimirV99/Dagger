@@ -15,8 +15,7 @@ static String ReadFromFile(String path_)
 	str.reserve(stream.tellg());
 	stream.seekg(0, std::ios::beg);
 
-	str.assign((std::istreambuf_iterator<char>(stream)),
-		std::istreambuf_iterator<char>());
+	str.assign((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
 
 	return str;
 }

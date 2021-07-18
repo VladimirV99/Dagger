@@ -1,9 +1,10 @@
 
 #include "tools/diagnostics.h"
-#include "tools/plotvar.h"
+
 #include "core/engine.h"
-#include "core/input/inputs.h"
 #include "core/graphics/window.h"
+#include "core/input/inputs.h"
+#include "tools/plotvar.h"
 
 #include <imgui/imgui.h>
 #include <spdlog/spdlog.h>
@@ -13,7 +14,7 @@ void DiagnosticSystem::Tick()
 	m_FrameCounter++;
 }
 
-void DiagnosticSystem::RenderGUI()
+void DiagnosticSystem::RenderGUI() const
 {
 	ImGui::SetNextWindowSize(ImVec2(200, 60), ImGuiCond_FirstUseEver);
 	ImGui::Begin("Diagnostics");
@@ -60,13 +61,13 @@ void DiagnosticSystem::ReceiveSystemStats(SystemRunStats stats_)
 	else
 		m_SystemStats[stats_.name] = (m_SystemStats[stats_.name] + length) / 2.0f;
 }
-#endif//defined(MEASURE_SYSTEMS)
+#endif // defined(MEASURE_SYSTEMS)
 
 void DiagnosticSystem::SpinUp()
 {
 #if defined(MEASURE_SYSTEMS)
 	Engine::Dispatcher().sink<SystemRunStats>().connect<&DiagnosticSystem::ReceiveSystemStats>(this);
-#endif//defined(MEASURE_SYSTEMS)
+#endif // defined(MEASURE_SYSTEMS)
 	Engine::Dispatcher().sink<GUIRender>().connect<&DiagnosticSystem::RenderGUI>(this);
 	Engine::Dispatcher().sink<NextFrame>().connect<&DiagnosticSystem::Tick>(this);
 }
@@ -89,7 +90,7 @@ void DiagnosticSystem::Run()
 		Logger::trace("Systemic time: {:>30}", m_SystemTimeCounter / m_LastFrameCounter);
 
 		m_SystemTimeCounter = 0.0;
-#endif//defined(MEASURE_SYSTEMS)
+#endif // defined(MEASURE_SYSTEMS)
 
 		m_DeltaSum = 0.0;
 	}
@@ -99,7 +100,7 @@ void DiagnosticSystem::WindDown()
 {
 #if defined(MEASURE_SYSTEMS)
 	Engine::Dispatcher().sink<SystemRunStats>().disconnect<&DiagnosticSystem::ReceiveSystemStats>(this);
-#endif//defined(MEASURE_SYSTEMS)
+#endif // defined(MEASURE_SYSTEMS)
 	Engine::Dispatcher().sink<NextFrame>().disconnect<&DiagnosticSystem::Tick>(this);
 	Engine::Dispatcher().sink<GUIRender>().disconnect<&DiagnosticSystem::RenderGUI>(this);
 }
