@@ -24,7 +24,7 @@ namespace ping_pong
     public:
         static Float32 s_PlayerSpeed;
 
-        inline String SystemName() override { return "PingPong Player Input System"; }
+        inline String SystemName() const override { return "PingPong Player Input System"; }
 
         void SpinUp() override;
         void WindDown() override;

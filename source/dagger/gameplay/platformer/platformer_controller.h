@@ -19,7 +19,7 @@ namespace platformer
 		CharacterControllerFSM m_CharacterFSM;
 
 	public:
-		String SystemName() override {
+		String SystemName() const override {
 			return "Character Controller System";
 		}
 

@@ -11,7 +11,7 @@ namespace tiles_example
 {
     class TilesExampleMain : public Game
     {
-        inline String GetIniFile() override
+        inline String GetIniFile() const override
         {
             return "tiles_example.ini";
         };

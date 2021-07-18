@@ -43,7 +43,7 @@ struct ParticleSpawnerSettings
 class ParticleSystem
     : public System
 {
-    inline String SystemName() override { return "Particle System"; }
+    inline String SystemName() const override { return "Particle System"; }
 
     void SpinUp() override;
     void Run() override;

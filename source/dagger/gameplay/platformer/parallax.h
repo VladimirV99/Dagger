@@ -16,7 +16,7 @@ namespace platformer
     class ParallaxSystem
         : public System
     {
-        inline String SystemName() override {
+        inline String SystemName() const override {
             return "Parallax System";
         };
 

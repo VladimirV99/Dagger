@@ -27,7 +27,7 @@ class ShaderSystem
     , public Subscriber<AssetLoadRequest<Shader>>
 {
 public:
-    inline String SystemName() override { return "Shader System"; }
+    inline String SystemName() const override { return "Shader System"; }
 
     static void Use(String name_);
     static ViewPtr<Shader> Get(String name_);

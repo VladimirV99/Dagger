@@ -10,7 +10,7 @@ using namespace dagger;
 
 #pragma region IMGUI DEBUG CONSOLE IMPLEMENTATION
 
-struct DebugConsole
+class DebugConsole
 {
     char                  m_InputBuf[256];
     ImVector<char*>       m_Items;
@@ -21,14 +21,18 @@ struct DebugConsole
     bool                  m_AutoScroll;
     bool                  m_ScrollToBottom;
 
+    void TextEditCallbackCompletion(ImGuiInputTextCallbackData* data_);
+    void TextEditCallbackHistory(ImGuiInputTextCallbackData* data_);
+
+public:
     DebugConsole();
     ~DebugConsole();
 
     // Portable helpers
-    static int   Stricmp(const char* s1, const char* s2); 
-    static int   Strnicmp(const char* s1, const char* s2, int n); 
-    static char* Strdup(const char* s);
-    static void  Strtrim(char* s);
+    static int   Stricmp(const char* s1_, const char* s2_); 
+    static int   Strnicmp(const char* s1_, const char* s2_, int n_); 
+    static char* Strdup(const char* s_);
+    static void  Strtrim(char* s_);
 
     void ClearLog();
     void AddLog(const char* fmt_, ...);
@@ -37,7 +41,7 @@ struct DebugConsole
 
     static int TextEditCallbackStub(ImGuiInputTextCallbackData* data_)
     {
-        DebugConsole* console = (DebugConsole*)data_->UserData;
+        auto* console = (DebugConsole*)data_->UserData;
         return console->TextEditCallback(data_);
     }
         
@@ -50,17 +54,14 @@ class ConsoleSystem
     , public Subscriber<GUIRender, Log>
 {
     DebugConsole m_Console;
-	bool m_IsOpen;
+	bool m_IsOpen { false };
 	void RenderGUI();
-	void ReceiveLog(Log log);
+	void ReceiveLog(Log log_);
 
 public:
-	ConsoleSystem()
-		: m_Console{}
-		, m_IsOpen{ false }
-	{}
+	ConsoleSystem() = default;
 
-    inline String SystemName() { return "Console System"; }
+    inline String SystemName() const override { return "Console System"; }
 
 	void SpinUp() override;
 	void WindDown() override;

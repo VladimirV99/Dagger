@@ -29,7 +29,7 @@ namespace ping_pong
 	public:
 		static Float32 s_AIPlayerSpeed;
 
-		inline String SystemName() override {
+		inline String SystemName() const override {
 			return "AI System";
 		}
 

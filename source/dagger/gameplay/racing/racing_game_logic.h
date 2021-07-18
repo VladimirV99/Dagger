@@ -35,7 +35,7 @@ namespace racing_game
         bool m_Restart = false;
 
     public:
-        inline String SystemName() override { return "Racing Collision Car System"; }
+        inline String SystemName() const override { return "Racing Collision Car System"; }
 
         void SpinUp() override;
         void WindDown() override;

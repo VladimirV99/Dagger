@@ -37,7 +37,7 @@ class ToolRenderSystem
 	void OnRender();
 
 public:
-	inline String SystemName() override { return "Tool Render System"; }
+	inline String SystemName() const override { return "Tool Render System"; }
 
 	constexpr static UInt64 s_VertexCount = 24;
 	constexpr static UInt64 s_SizeOfMesh = sizeof(Float32) * s_VertexCount;

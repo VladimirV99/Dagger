@@ -32,7 +32,7 @@ struct SaveGameSystem : public dagger::System
         : m_Process{ process }
     {}
 
-    String SystemName() override { return "SaveGame"; }
+    String SystemName() const override { return "SaveGame"; }
 
     void SpinUp() override
     {

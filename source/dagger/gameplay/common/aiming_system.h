@@ -15,7 +15,7 @@ using namespace dagger;
     class AimingSystem : public System
     {
     public:
-        inline String SystemName() override { return "Aiming System"; }
+        inline String SystemName() const override { return "Aiming System"; }
 
         void Run() override;
 

@@ -12,7 +12,7 @@ namespace dagger
 	{
 		virtual ~System() = default;
 
-		virtual String SystemName() = 0;
+		virtual String SystemName() const = 0;
 		virtual inline void SpinUp() {};
 		virtual inline void Run() {};
 		virtual inline void WindDown() {};

@@ -13,7 +13,7 @@ void DiagnosticSystem::Tick()
 	m_FrameCounter++;
 }
 
-void DiagnosticSystem::RenderGUI()
+void DiagnosticSystem::RenderGUI() const
 {
 	ImGui::SetNextWindowSize(ImVec2(200, 60), ImGuiCond_FirstUseEver);
 	ImGui::Begin("Diagnostics");

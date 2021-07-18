@@ -15,7 +15,7 @@ struct ToolMenuSystem
 	, public Subscriber<GUIRender>
 	, public Publisher<ToolMenuRender>
 {
-	inline String SystemName() { return "Tool Menu System"; }
+	inline String SystemName() const override { return "Tool Menu System"; }
 
 	void RenderGUI();
 	void SpinUp() override;

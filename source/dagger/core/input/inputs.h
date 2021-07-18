@@ -214,7 +214,7 @@ namespace dagger
         InputState m_InputState;
 
     public:
-        inline String SystemName() override { return "Input System"; }
+        inline String SystemName() const override { return "Input System"; }
 
         void SpinUp() override;
         void Run() override;

@@ -56,7 +56,7 @@ namespace editor
         String m_Filename;
         Sequence<EditorFocusTarget> m_Targets;
 
-        String SystemName() override { return "SaveGame"; }
+        String SystemName() const override { return "SaveGame"; }
 
         void SpinUp() override
         {
@@ -99,7 +99,7 @@ namespace editor
 
     class EditorTestGame : public Game, public SaveLoadProcess<ECommonSaveArchetype>
     {
-        inline String GetIniFile() override
+        inline String GetIniFile() const override
         {
             return "editor.ini";
         };

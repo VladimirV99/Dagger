@@ -31,7 +31,7 @@ namespace ping_pong
 
     public:
 
-        inline String SystemName() override { return "PingPong Ball System"; }
+        inline String SystemName() const override { return "PingPong Ball System"; }
 
         void Run() override;
     };

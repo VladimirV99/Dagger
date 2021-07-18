@@ -15,7 +15,7 @@ namespace ping_pong
 
     class PingPongGame : public Game
     {
-        inline String GetIniFile() override
+        inline String GetIniFile() const override
         {
             return "pingpong.ini";
         };

@@ -22,7 +22,7 @@ struct Audio
 
 struct AudioSystem : public dagger::System
 {
-	inline String SystemName() override { return "AudioSystem"; }
+	inline String SystemName() const override { return "AudioSystem"; }
 
 	void OnLoadAsset(AssetLoadRequest<Sound> request_);
 	void SpinUp() override;

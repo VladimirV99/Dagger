@@ -13,7 +13,7 @@ namespace racing_game
 
     class RacingGame : public Game
     {
-        inline String GetIniFile() override
+        inline String GetIniFile() const override
         {
             return "racing.ini";
         };

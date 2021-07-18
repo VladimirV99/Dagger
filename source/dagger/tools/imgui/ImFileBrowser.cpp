@@ -1,4 +1,4 @@
-#include "ImGuiFileBrowser.h"
+#include "ImFileBrowser.h"
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
@@ -21,7 +21,7 @@
 #ifndef NOMINMAX
     #define NOMINMAX
 #endif
-#include "Dirent/dirent.h"
+#include "dirent/dirent.h"
 #include <windows.h>
 #else
 #include <dirent.h>

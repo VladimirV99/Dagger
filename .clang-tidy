@@ -1,5 +1,6 @@
 Checks: 'modernize-*, -modernize-avoid-c-arrays, -modernize-use-trailing-return-type, -modernize-use-nodiscard, readability-*, -readability-braces-around-statements, -readability-magic-numbers, -readability-else-after-return, -readability-convert-member-functions-to-static, -readability-uppercase-literal-suffix, -readability-isolate-declaration'
 CheckOptions:
+  - { key: readability-function-cognitive-complexity.Threshold, value: 30         }
   - { key: readability-identifier-naming.NamespaceCase,         value: lower_case }
   - { key: readability-identifier-naming.GlobalFunctionCase,    value: CamelCase  }
   - { key: readability-identifier-naming.ClassCase,             value: CamelCase  }

@@ -28,10 +28,10 @@ DebugConsole::~DebugConsole()
 }
 
 // Portable helpers
-int   DebugConsole::Stricmp(const char* s1, const char* s2) { int d; while ((d = toupper(*s2) - toupper(*s1)) == 0 && *s1) { s1++; s2++; } return d; }
-int   DebugConsole::Strnicmp(const char* s1, const char* s2, int n) { int d = 0; while (n > 0 && (d = toupper(*s2) - toupper(*s1)) == 0 && *s1) { s1++; s2++; n--; } return d; }
-char* DebugConsole::Strdup(const char* s) { size_t len = strlen(s) + 1; void* buf = malloc(len); IM_ASSERT(buf); return (char*)memcpy(buf, (const void*)s, len); }
-void  DebugConsole::Strtrim(char* s) { char* str_end = s + strlen(s); while (str_end > s && str_end[-1] == ' ') str_end--; *str_end = 0; }
+int   DebugConsole::Stricmp(const char* s1_, const char* s2_) { int d; while ((d = toupper(*s2_) - toupper(*s1_)) == 0 && (*s1_ != 0)) { s1_++; s2_++; } return d; }
+int   DebugConsole::Strnicmp(const char* s1_, const char* s2_, int n_) { int d = 0; while (n_ > 0 && (d = toupper(*s2_) - toupper(*s1_)) == 0 && (*s1_ != 0)) { s1_++; s2_++; n_--; } return d; }
+char* DebugConsole::Strdup(const char* s_) { size_t len = strlen(s_) + 1; void* buf = malloc(len); IM_ASSERT(buf); return (char*)memcpy(buf, (const void*)s_, len); }
+void  DebugConsole::Strtrim(char* s_) { char* strEnd = s_ + strlen(s_); while (strEnd > s_ && strEnd[-1] == ' ') strEnd--; *strEnd = 0; }
 
 void DebugConsole::ClearLog()
 {
@@ -62,8 +62,8 @@ void DebugConsole::Draw(const char* title_, bool* open_ = nullptr)
     }
 
     // Reserve enough left-over height for 1 separator + 1 input text
-    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar);
+    const float footerHeightToReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerHeightToReserve), false, ImGuiWindowFlags_HorizontalScrollbar);
     if (ImGui::BeginPopupContextWindow())
     {
         if (ImGui::Selectable("Clear")) ClearLog();
@@ -104,13 +104,13 @@ void DebugConsole::Draw(const char* title_, bool* open_ = nullptr)
         // Normally you would store more information in your item than just a string.
         // (e.g. make Items[] an array of structure, store color/type etc.)
         ImVec4 color;
-        bool has_color = false;
-        if (strstr(item, "[error]")) { color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f); has_color = true; }
-        else if (strncmp(item, "# ", 2) == 0) { color = ImVec4(1.0f, 0.8f, 0.6f, 1.0f); has_color = true; }
-        if (has_color)
+        bool hasColor = false;
+        if (strstr(item, "[error]") != nullptr) { color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f); hasColor = true; }
+        else if (strncmp(item, "# ", 2) == 0) { color = ImVec4(1.0f, 0.8f, 0.6f, 1.0f); hasColor = true; }
+        if (hasColor)
             ImGui::PushStyleColor(ImGuiCol_Text, color);
         ImGui::TextUnformatted(item);
-        if (has_color)
+        if (hasColor)
             ImGui::PopStyleColor();
     }
 
@@ -123,21 +123,21 @@ void DebugConsole::Draw(const char* title_, bool* open_ = nullptr)
     ImGui::Separator();
 
     // Command-line
-    bool reclaim_focus = false;
-    ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
-    if (ImGui::InputText("", m_InputBuf, IM_ARRAYSIZE(m_InputBuf), input_text_flags, &TextEditCallbackStub, (void*)this))
+    bool reclaimFocus = false;
+    ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
+    if (ImGui::InputText("", m_InputBuf, IM_ARRAYSIZE(m_InputBuf), inputTextFlags, &TextEditCallbackStub, (void*)this))
     {
         char* s = m_InputBuf;
         Strtrim(s);
-        if (s[0])
+        if (s[0] != '\0')
             ExecCommand(s);
-        strcpy(s, "");
-        reclaim_focus = true;
+        strncpy(s, "", 2);
+        reclaimFocus = true;
     }
 
     // Auto-focus on window apparition
     ImGui::SetItemDefaultFocus();
-    if (reclaim_focus)
+    if (reclaimFocus)
         ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
 
     ImGui::End();
@@ -162,6 +162,98 @@ void DebugConsole::ExecCommand(const char* command_)
     m_ScrollToBottom = true;
 }
 
+void DebugConsole::TextEditCallbackCompletion(ImGuiInputTextCallbackData* data_)
+{
+    // Example of TEXT COMPLETION
+
+    // Locate beginning of current word
+    const char* wordEnd = data_->Buf + data_->CursorPos;
+    const char* wordStart = wordEnd;
+    while (wordStart > data_->Buf)
+    {
+        const char c = wordStart[-1];
+        if (c == ' ' || c == '\t' || c == ',' || c == ';')
+            break;
+        wordStart--;
+    }
+
+    // Build a list of candidates
+    ImVector<const char*> candidates;
+    for (int i = 0; i < m_Commands.Size; i++)
+        if (Strnicmp(m_Commands[i], wordStart, (int)(wordEnd - wordStart)) == 0)
+            candidates.push_back(m_Commands[i]);
+
+    if (candidates.Size == 0)
+    {
+        // No match
+        AddLog("No match for \"%.*s\"!\n", (int)(wordEnd - wordStart), wordStart);
+    }
+    else if (candidates.Size == 1)
+    {
+        // Single match. Delete the beginning of the word and replace it entirely so we've got nice casing.
+        data_->DeleteChars((int)(wordStart - data_->Buf), (int)(wordEnd - wordStart));
+        data_->InsertChars(data_->CursorPos, candidates[0]);
+        data_->InsertChars(data_->CursorPos, " ");
+    }
+    else
+    {
+        // Multiple matches. Complete as much as we can..
+        // So inputing "C"+Tab will complete to "CL" then display "CLEAR" and "CLASSIFY" as matches.
+        int matchLen = (int)(wordEnd - wordStart);
+        for (;;)
+        {
+            int c = 0;
+            bool allCandidatesMatches = true;
+            for (int i = 0; i < candidates.Size && allCandidatesMatches; i++)
+                if (i == 0)
+                    c = toupper(candidates[i][matchLen]);
+                else if (c == 0 || c != toupper(candidates[i][matchLen]))
+                    allCandidatesMatches = false;
+            if (!allCandidatesMatches)
+                break;
+            matchLen++;
+        }
+
+        if (matchLen > 0)
+        {
+            data_->DeleteChars((int)(wordStart - data_->Buf), (int)(wordEnd - wordStart));
+            data_->InsertChars(data_->CursorPos, candidates[0], candidates[0] + matchLen);
+        }
+
+        // List matches
+        AddLog("Possible matches:\n");
+        for (int i = 0; i < candidates.Size; i++)
+            AddLog("- %s\n", candidates[i]);
+    }
+}
+
+void DebugConsole::TextEditCallbackHistory(ImGuiInputTextCallbackData* data_)
+{
+    // Example of HISTORY
+    const int prevHistoryPos = m_HistoryPos;
+    if (data_->EventKey == ImGuiKey_UpArrow)
+    {
+        if (m_HistoryPos == -1)
+            m_HistoryPos = m_History.Size - 1;
+        else if (m_HistoryPos > 0)
+            m_HistoryPos--;
+    }
+    else if (data_->EventKey == ImGuiKey_DownArrow)
+    {
+        if (m_HistoryPos != -1)
+            if (++m_HistoryPos >= m_History.Size)
+                m_HistoryPos = -1;
+    }
+
+    // A better implementation would preserve the data on the current input line along with cursor position.
+    if (prevHistoryPos != m_HistoryPos)
+    {
+        const char* historyStr = (m_HistoryPos >= 0) ? m_History[m_HistoryPos] : "";
+        data_->DeleteChars(0, data_->BufTextLen);
+        data_->InsertChars(0, historyStr);
+    }
+}
+
 int DebugConsole::TextEditCallback(ImGuiInputTextCallbackData* data_)
 {
     //AddLog("cursor: %d, selection: %d-%d", data->CursorPos, data->SelectionStart, data->SelectionEnd);
@@ -169,95 +261,13 @@ int DebugConsole::TextEditCallback(ImGuiInputTextCallbackData* data_)
     {
     case ImGuiInputTextFlags_CallbackCompletion:
     {
-        // Example of TEXT COMPLETION
-
-        // Locate beginning of current word
-        const char* word_end = data_->Buf + data_->CursorPos;
-        const char* word_start = word_end;
-        while (word_start > data_->Buf)
-        {
-            const char c = word_start[-1];
-            if (c == ' ' || c == '\t' || c == ',' || c == ';')
-                break;
-            word_start--;
-        }
-
-        // Build a list of candidates
-        ImVector<const char*> candidates;
-        for (int i = 0; i < m_Commands.Size; i++)
-            if (Strnicmp(m_Commands[i], word_start, (int)(word_end - word_start)) == 0)
-                candidates.push_back(m_Commands[i]);
-
-        if (candidates.Size == 0)
-        {
-            // No match
-            AddLog("No match for \"%.*s\"!\n", (int)(word_end - word_start), word_start);
-        }
-        else if (candidates.Size == 1)
-        {
-            // Single match. Delete the beginning of the word and replace it entirely so we've got nice casing.
-            data_->DeleteChars((int)(word_start - data_->Buf), (int)(word_end - word_start));
-            data_->InsertChars(data_->CursorPos, candidates[0]);
-            data_->InsertChars(data_->CursorPos, " ");
-        }
-        else
-        {
-            // Multiple matches. Complete as much as we can..
-            // So inputing "C"+Tab will complete to "CL" then display "CLEAR" and "CLASSIFY" as matches.
-            int match_len = (int)(word_end - word_start);
-            for (;;)
-            {
-                int c = 0;
-                bool all_candidates_matches = true;
-                for (int i = 0; i < candidates.Size && all_candidates_matches; i++)
-                    if (i == 0)
-                        c = toupper(candidates[i][match_len]);
-                    else if (c == 0 || c != toupper(candidates[i][match_len]))
-                        all_candidates_matches = false;
-                if (!all_candidates_matches)
-                    break;
-                match_len++;
-            }
-
-            if (match_len > 0)
-            {
-                data_->DeleteChars((int)(word_start - data_->Buf), (int)(word_end - word_start));
-                data_->InsertChars(data_->CursorPos, candidates[0], candidates[0] + match_len);
-            }
-
-            // List matches
-            AddLog("Possible matches:\n");
-            for (int i = 0; i < candidates.Size; i++)
-                AddLog("- %s\n", candidates[i]);
-        }
-
+        TextEditCallbackCompletion(data_);
         break;
     }
     case ImGuiInputTextFlags_CallbackHistory:
     {
-        // Example of HISTORY
-        const int prev_history_pos = m_HistoryPos;
-        if (data_->EventKey == ImGuiKey_UpArrow)
-        {
-            if (m_HistoryPos == -1)
-                m_HistoryPos = m_History.Size - 1;
-            else if (m_HistoryPos > 0)
-                m_HistoryPos--;
-        }
-        else if (data_->EventKey == ImGuiKey_DownArrow)
-        {
-            if (m_HistoryPos != -1)
-                if (++m_HistoryPos >= m_History.Size)
-                    m_HistoryPos = -1;
-        }
-
-        // A better implementation would preserve the data on the current input line along with cursor position.
-        if (prev_history_pos != m_HistoryPos)
-        {
-            const char* history_str = (m_HistoryPos >= 0) ? m_History[m_HistoryPos] : "";
-            data_->DeleteChars(0, data_->BufTextLen);
-            data_->InsertChars(0, history_str);
-        }
+        TextEditCallbackHistory(data_);
+        break;
     }
     }
     return 0;
@@ -270,9 +280,9 @@ void ConsoleSystem::RenderGUI()
     m_Console.Draw("Console");
 }
 
-void ConsoleSystem::ReceiveLog(Log log)
+void ConsoleSystem::ReceiveLog(Log log_)
 {
-    m_Console.AddLog(log.message.c_str());
+    m_Console.AddLog(log_.message.c_str());
 }
 
 void ConsoleSystem::SpinUp() 

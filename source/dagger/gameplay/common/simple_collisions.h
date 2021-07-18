@@ -23,7 +23,7 @@ struct SimpleCollision
 class SimpleCollisionsSystem : public System
 {
 public:
-    inline String SystemName() override { return "Simple Collisions System"; }
+    inline String SystemName() const override { return "Simple Collisions System"; }
 
     void Run() override;
 };

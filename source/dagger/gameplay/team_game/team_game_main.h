@@ -13,7 +13,7 @@ namespace team_game
 
     class TeamGame : public Game
     {
-        inline String GetIniFile() override
+        inline String GetIniFile() const override
         {
             return "teamgame.ini";
         };

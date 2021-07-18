@@ -92,7 +92,7 @@ public:
 
 	WindowSystem(const WindowSystem&) = delete;
 
-	inline String SystemName() override { return "Window System"; }
+	inline String SystemName() const override { return "Window System"; }
 
 	void UpdateViewProjectionMatrix();
 

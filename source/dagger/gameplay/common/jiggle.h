@@ -8,7 +8,7 @@ using namespace dagger;
 class JiggleSystem
     : public System
 {
-    inline String SystemName() override { return "Jiggle System"; }
+    inline String SystemName() const override { return "Jiggle System"; }
 
     void Run() override;
 };

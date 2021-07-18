@@ -22,7 +22,7 @@ class AnimationSystem
 {
 
 public:
-    inline String SystemName() override { return "Animation System"; }
+    inline String SystemName() const override { return "Animation System"; }
 
     static ViewPtr<Animation> Get(String name_);
 

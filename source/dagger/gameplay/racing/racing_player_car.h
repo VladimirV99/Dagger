@@ -24,7 +24,7 @@ namespace racing_game
         : public System
     {
     public:
-        inline String SystemName() override { return "Racing Player Input System"; }
+        inline String SystemName() const override { return "Racing Player Input System"; }
 
         void SpinUp() override;
         void WindDown() override;

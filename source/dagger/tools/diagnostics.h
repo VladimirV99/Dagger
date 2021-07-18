@@ -23,10 +23,10 @@ class DiagnosticSystem
 #endif//defined(MEASURE_SYSTEMS)
 
 	void Tick();
-	void RenderGUI();
+	void RenderGUI() const;
 		
 public:
-	inline String SystemName() { return "Diagnostic System"; }
+	inline String SystemName() const override { return "Diagnostic System"; }
 
 	void SpinUp() override;
 	void Run() override;

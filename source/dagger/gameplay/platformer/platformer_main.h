@@ -9,7 +9,7 @@ namespace platformer
 {
     class Platformer : public Game
     {
-        String GetIniFile() override
+        String GetIniFile() const override
         {
             return "platformer.ini";
         }

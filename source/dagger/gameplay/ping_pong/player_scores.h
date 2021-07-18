@@ -24,7 +24,7 @@ namespace ping_pong
         int m_GoalsPlayerTwo = 0;
 
     public:
-        inline String SystemName() override { return "Player Scores System"; }
+        inline String SystemName() const override { return "Player Scores System"; }
 
         void Run() override;
 

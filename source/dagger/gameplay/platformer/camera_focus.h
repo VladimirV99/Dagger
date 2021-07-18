@@ -15,7 +15,7 @@ namespace platformer
     class CameraFollowSystem
         : public System
     {
-        inline String SystemName() override {
+        inline String SystemName() const override {
             return "Camera Follow System";
         };
 

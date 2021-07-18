@@ -12,7 +12,7 @@ namespace dagger
 
         virtual void CoreSystemsSetup();
 
-        virtual String GetIniFile() = 0;
+        virtual String GetIniFile() const = 0;
         virtual void GameplaySystemsSetup() = 0;
         virtual void WorldSetup() = 0;
     };

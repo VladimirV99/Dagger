@@ -16,7 +16,7 @@ namespace racing_game
         : public System
     {
     public:
-        inline String SystemName() override { return "Racing Cars System"; }
+        inline String SystemName() const override { return "Racing Cars System"; }
 
         void Run() override;
     };

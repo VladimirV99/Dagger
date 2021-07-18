@@ -16,7 +16,7 @@ class TextureSystem
     Sequence<UInt64> m_TextureHandles;
 
 public:
-    inline String SystemName() override { return "Texture System"; }
+    inline String SystemName() const override { return "Texture System"; }
 
     static ViewPtr<Texture> Get(String name_);
 
