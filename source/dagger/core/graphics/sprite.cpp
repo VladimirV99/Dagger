@@ -1,8 +1,9 @@
 #include "sprite.h"
+
+#include "core/engine.h"
 #include "shaders.h"
 #include "texture.h"
 #include "textures.h"
-#include "core/engine.h"
 
 using namespace dagger;
 

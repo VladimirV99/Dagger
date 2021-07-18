@@ -1,14 +1,14 @@
 #pragma once
 
+#include "core/core.h"
 #include "core/graphics/window.h"
 #include "core/system.h"
-#include "core/core.h"
 
 #include <chrono>
 
 using namespace dagger;
 
-class DiagnosticSystem 
+class DiagnosticSystem
 	: public System
 	, public Subscriber<GUIRender, NextFrame>
 {
@@ -20,16 +20,18 @@ class DiagnosticSystem
 	Float32 m_SystemTimeCounter;
 	Map<String, Float32> m_SystemStats;
 	void ReceiveSystemStats(SystemRunStats stats_);
-#endif//defined(MEASURE_SYSTEMS)
+#endif // defined(MEASURE_SYSTEMS)
 
 	void Tick();
 	void RenderGUI() const;
-		
+
 public:
-	inline String SystemName() const override { return "Diagnostic System"; }
+	inline String SystemName() const override
+	{
+		return "Diagnostic System";
+	}
 
 	void SpinUp() override;
 	void Run() override;
 	void WindDown() override;
 };
-

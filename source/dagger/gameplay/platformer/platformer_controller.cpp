@@ -7,9 +7,6 @@ using namespace platformer;
 
 void PlatformerControllerSystem::Run()
 {
-    Engine::Registry().view<CharacterControllerFSM::StateComponent>()
-        .each([&](CharacterControllerFSM::StateComponent& state_)
-            {
-                m_CharacterFSM.Run(state_);
-            });
+	Engine::Registry().view<CharacterControllerFSM::StateComponent>().each(
+		[&](CharacterControllerFSM::StateComponent& state_) { m_CharacterFSM.Run(state_); });
 }

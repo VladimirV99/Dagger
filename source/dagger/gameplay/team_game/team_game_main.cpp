@@ -2,13 +2,12 @@
 
 #include "core/core.h"
 #include "core/engine.h"
-#include "core/input/inputs.h"
-#include "core/graphics/sprite.h"
+#include "core/game/transforms.h"
 #include "core/graphics/animation.h"
 #include "core/graphics/shaders.h"
+#include "core/graphics/sprite.h"
 #include "core/graphics/window.h"
-#include "core/game/transforms.h"
-
+#include "core/input/inputs.h"
 #include "gameplay/common/simple_collisions.h"
 
 using namespace dagger;
@@ -16,41 +15,41 @@ using namespace team_game;
 
 void TeamGame::GameplaySystemsSetup()
 {
-    auto& engine = Engine::Instance();
-    engine.AddSystem<SimpleCollisionsSystem>();
+	auto& engine = Engine::Instance();
+	engine.AddSystem<SimpleCollisionsSystem>();
 }
 
 void TeamGame::WorldSetup()
 {
-    ShaderSystem::Use("standard");
+	ShaderSystem::Use("standard");
 
-    auto* camera = Engine::GetDefaultResource<Camera>();
-    camera->mode = ECameraMode::FixedResolution;
-    camera->size = { 800, 600 };
-    camera->zoom = 1;
-    camera->position = { 0, 0, 0 };
-    camera->Update();
+	auto* camera = Engine::GetDefaultResource<Camera>();
+	camera->mode = ECameraMode::FixedResolution;
+	camera->size = {800, 600};
+	camera->zoom = 1;
+	camera->position = {0, 0, 0};
+	camera->Update();
 
-    team_game::SetupWorld();
+	team_game::SetupWorld();
 }
 
 void team_game::SetupWorld()
 {
-    auto& reg = Engine::Registry();
+	auto& reg = Engine::Registry();
 
-    float zPos = 1.f;
+	float zPos = 1.f;
 
-    {
-        auto entity = reg.create();
-        auto& sprite = reg.emplace<Sprite>(entity);
-        AssignSprite(sprite, "logos:dagger");
-        float ratio = sprite.size.y / sprite.size.x;
-        sprite.size = { 500 / ratio, 500  };
+	{
+		auto entity = reg.create();
+		auto& sprite = reg.emplace<Sprite>(entity);
+		AssignSprite(sprite, "logos:dagger");
+		float ratio = sprite.size.y / sprite.size.x;
+		sprite.size = {500 / ratio, 500};
 
-        auto& transform = reg.emplace<Transform>(entity);
-        transform.position = { 0, 0, zPos };
+		auto& transform = reg.emplace<Transform>(entity);
+		transform.position = {0, 0, zPos};
 
-        auto& col = reg.emplace<SimpleCollision>(entity);
-        col.size = sprite.size;
-    }
+		auto& col = reg.emplace<SimpleCollision>(entity);
+		col.size = sprite.size;
+	}
 }

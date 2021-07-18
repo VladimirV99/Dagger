@@ -4,16 +4,16 @@
 
 namespace dagger
 {
-    class Engine;
+	class Engine;
 
-    struct Game
-    {
-        virtual ~Game() = default;
+	struct Game
+	{
+		virtual ~Game() = default;
 
-        virtual void CoreSystemsSetup();
+		virtual void CoreSystemsSetup();
 
-        virtual String GetIniFile() const = 0;
-        virtual void GameplaySystemsSetup() = 0;
-        virtual void WorldSetup() = 0;
-    };
-}
+		virtual String GetIniFile() const = 0;
+		virtual void GameplaySystemsSetup() = 0;
+		virtual void WorldSetup() = 0;
+	};
+} // namespace dagger

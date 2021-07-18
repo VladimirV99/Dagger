@@ -1,35 +1,38 @@
 #pragma once
-#include "core/system.h"
-
 #include "core/game/transforms.h"
+#include "core/system.h"
 #include "ping_pong_ball.h"
 
 using namespace dagger;
 
 namespace ping_pong
 {
-	enum class EPlayerSide {
+	enum class EPlayerSide
+	{
 		LEFT,
 		RIGHT
 	};
 
-	struct AI {
+	struct AI
+	{
 		EPlayerSide side;
 	};
 
-	class PingPongAISystem
-		: public System
+	class PingPongAISystem : public System
 	{
 		static Float32 s_BoarderUp;
 		static Float32 s_BoarderDown;
 		static Float32 s_PlayerSize;
 
-		Bool ShouldConsiderBall(const Transform& ballTransform_, const PingPongBall& ball_, const Transform& playerTransform_, const AI& playerAI_);
+		Bool ShouldConsiderBall(
+			const Transform& ballTransform_, const PingPongBall& ball_, const Transform& playerTransform_,
+			const AI& playerAI_);
 
 	public:
 		static Float32 s_AIPlayerSpeed;
 
-		inline String SystemName() const override {
+		inline String SystemName() const override
+		{
 			return "AI System";
 		}
 
@@ -42,4 +45,4 @@ namespace ping_pong
 			s_PlayerSize = playerSize_;
 		}
 	};
-}
+} // namespace ping_pong

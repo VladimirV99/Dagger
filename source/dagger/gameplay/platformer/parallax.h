@@ -7,19 +7,19 @@ using namespace dagger;
 
 namespace platformer
 {
-    struct Parallax
-    {
-        Vector2 lastCameraPosition{ 0, 0 };
-        Float32 strength{ 0 };
-    };
+	struct Parallax
+	{
+		Vector2 lastCameraPosition {0, 0};
+		Float32 strength {0};
+	};
 
-    class ParallaxSystem
-        : public System
-    {
-        inline String SystemName() const override {
-            return "Parallax System";
-        };
+	class ParallaxSystem : public System
+	{
+		inline String SystemName() const override
+		{
+			return "Parallax System";
+		};
 
-        void Run() override;
-    };
-}
+		void Run() override;
+	};
+} // namespace platformer

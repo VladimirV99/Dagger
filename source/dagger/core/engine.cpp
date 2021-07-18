@@ -1,15 +1,12 @@
 #include "core/engine.h"
+
 #include "core/game.h"
 
 #include <SimpleIni.h>
 
 using namespace dagger;
 
-Engine::Engine()
-	: m_Game{}
-	, m_Registry{}
-	, m_EventDispatcher{}
-	, m_ExitStatus{ 0 }
+Engine::Engine() : m_Game {}, m_Registry {}, m_EventDispatcher {}, m_ExitStatus {0}
 {
 	srand(time(nullptr));
 	Logger::set_level(Logger::level::trace);
@@ -51,20 +48,20 @@ void Engine::EngineInit()
 
 void Engine::EngineLoop()
 {
-	Duration frameDuration{};
-	static TimePoint lastTime{ TimeSnapshot() };
-	static TimePoint nextTime{ TimeSnapshot() };
+	Duration frameDuration {};
+	static TimePoint lastTime {TimeSnapshot()};
+	static TimePoint nextTime {TimeSnapshot()};
 
 #if defined(MEASURE_SYSTEMS)
-	static TimePoint systemStart{};
-	static TimePoint systemEnd{};
-#endif//defined(MEASURE_SYSTEMS)
+	static TimePoint systemStart {};
+	static TimePoint systemEnd {};
+#endif // defined(MEASURE_SYSTEMS)
 
 	for (auto& system : this->m_Systems)
 	{
 #if defined(MEASURE_SYSTEMS)
 		systemStart = TimeSnapshot();
-#endif//defined(MEASURE_SYSTEMS)
+#endif // defined(MEASURE_SYSTEMS)
 		if (!system->isPaused)
 		{
 			system->Run();
@@ -72,15 +69,15 @@ void Engine::EngineLoop()
 #if defined(MEASURE_SYSTEMS)
 		systemEnd = TimeSnapshot();
 		frameDuration += (systemEnd - systemStart);
-		Engine::Dispatcher().trigger<SystemRunStats>(SystemRunStats{ system->SystemName(), systemEnd - systemStart });
-#endif//defined(MEASURE_SYSTEMS)
+		Engine::Dispatcher().trigger<SystemRunStats>(SystemRunStats {system->SystemName(), systemEnd - systemStart});
+#endif // defined(MEASURE_SYSTEMS)
 	}
 
 	nextTime = TimeSnapshot();
 	this->m_DeltaTime = (nextTime - lastTime);
 #if !defined(MEASURE_SYSTEMS)
 	frameDuration = this->m_DeltaTime;
-#endif//!defined(MEASURE_SYSTEMS)
+#endif //! defined(MEASURE_SYSTEMS)
 	lastTime = nextTime;
 	this->m_CurrentTime = lastTime;
 	this->m_FrameCounter++;
@@ -120,7 +117,6 @@ void Engine::ToggleSystemsPause(Bool toPause_)
 			{
 				system->Unpause();
 			}
-			
 		}
 	}
 }

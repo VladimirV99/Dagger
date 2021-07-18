@@ -1,26 +1,26 @@
 
 #include "inputs.h"
+
 #include "core/core.h"
 #include "core/engine.h"
 #include "core/graphics/window.h"
 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
 
 using namespace dagger;
 
 void InputSystem::OnKeyboardEvent(KeyboardEvent input_)
 {
-    if ((SInt32)input_.key < 0) 
-    {
-	    return;
-    }
-	
-	auto key = (UInt64)input_.key;
+	if ((SInt32)input_.key < 0)
+	{
+		return;
+	}
 
+	auto key = (UInt64)input_.key;
 
 	if (input_.action == EDaggerInputState::Pressed)
 	{
@@ -80,7 +80,7 @@ void InputSystem::LoadDefaultAssets()
 		auto path = entry.path().string();
 		if (entry.is_regular_file() && entry.path().extension() == ".json")
 		{
-			Engine::Dispatcher().trigger<AssetLoadRequest<InputContext>>(AssetLoadRequest<InputContext>{ path });
+			Engine::Dispatcher().trigger<AssetLoadRequest<InputContext>>(AssetLoadRequest<InputContext> {path});
 		}
 	}
 }
@@ -129,7 +129,7 @@ void InputSystem::OnAssetLoadRequest(AssetLoadRequest<InputContext> request_)
 
 	if (!Files::exists(path))
 	{
-		Engine::Dispatcher().trigger<Error>(Error{ fmt::format("Couldn't load input context from {}.", request_.path) });
+		Engine::Dispatcher().trigger<Error>(Error {fmt::format("Couldn't load input context from {}.", request_.path)});
 		return;
 	}
 
@@ -139,7 +139,8 @@ void InputSystem::OnAssetLoadRequest(AssetLoadRequest<InputContext> request_)
 
 	if (!handle.is_open())
 	{
-		Engine::Dispatcher().trigger<Error>(Error{ fmt::format("Couldn't open input context file '{}' for reading.", absolutePath.string()) });
+		Engine::Dispatcher().trigger<Error>(
+			Error {fmt::format("Couldn't open input context file '{}' for reading.", absolutePath.string())});
 		return;
 	}
 
@@ -223,7 +224,7 @@ Bool InputSystem::ProcessKeyboardAction(InputAction& action_)
 		if (Input::IsInputDown((EDaggerKeyboard)(action_.trigger)))
 		{
 			toFire = true;
-			if (toConsume) 
+			if (toConsume)
 				m_InputState.releasedLastFrame.emplace(action_.trigger);
 		}
 	}
@@ -288,9 +289,10 @@ void InputSystem::ProcessContext(InputContext* context_, InputReceiver& receiver
 
 void InputSystem::Run()
 {
-	Engine::Registry().view<InputReceiver>().each([&](InputReceiver& receiver_)
+	Engine::Registry().view<InputReceiver>().each(
+		[&](InputReceiver& receiver_)
 		{
-			static Set<String> updatedCommands{};
+			static Set<String> updatedCommands {};
 
 			// Bit map of current inputs
 			auto& bitmap = m_InputState.bitmap;
@@ -387,8 +389,8 @@ UInt32 dagger::Input::GetInputDuration(EDaggerKeyboard key_)
 {
 	const auto* state = Engine::GetDefaultResource<InputState>();
 	auto value = (UInt32)key_;
-	if (!state->moments.contains(value)) 
-	{ 
+	if (!state->moments.contains(value))
+	{
 		return 0;
 	}
 

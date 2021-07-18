@@ -7,14 +7,14 @@ using namespace dagger;
 
 namespace platformer
 {
-    class Platformer : public Game
-    {
-        String GetIniFile() const override
-        {
-            return "platformer.ini";
-        }
+	class Platformer : public Game
+	{
+		String GetIniFile() const override
+		{
+			return "platformer.ini";
+		}
 
-        void GameplaySystemsSetup() override;
-        void WorldSetup() override;
-    };
-}
+		void GameplaySystemsSetup() override;
+		void WorldSetup() override;
+	};
+} // namespace platformer

@@ -10,14 +10,14 @@ namespace dagger
 
 	struct SpriteCutoutData
 	{
-		Vector2 subSize{ 1.0f, 1.0f };					// 2
-		Vector2 subOrigin{ 0.0f, 0.0f };				// 2
-		Vector2 size{ 1.0f, 1.0f };						// 2
+		Vector2 subSize {1.0f, 1.0f};	// 2
+		Vector2 subOrigin {0.0f, 0.0f}; // 2
+		Vector2 size {1.0f, 1.0f};		// 2
 
 		inline void UseFullImage()
 		{
-			subSize = { 1.0f, 1.0f };
-			subOrigin = { 0.0f, 0.0f };
+			subSize = {1.0f, 1.0f};
+			subOrigin = {0.0f, 0.0f};
 		}
 
 		void Use(SpriteFrame* spritesheet_);
@@ -25,12 +25,12 @@ namespace dagger
 
 	struct SpriteData : public SpriteCutoutData
 	{
-		Vector3 position{ 0, 0, 0 };					// 3
-		Vector2 pivot{ 0, 0 };							// 2
-		ColorRGBA color{ 1.0f, 1.0f, 1.0f, 1.0f };		// 4
-		Vector2 scale{ 1.0f, 1.0f };					// 2
-		Float32 rotation{ 0.0f };						// 1
-		Float32 isUI{ 0.0f };							// 1
+		Vector3 position {0, 0, 0};				  // 3
+		Vector2 pivot {0, 0};					  // 2
+		ColorRGBA color {1.0f, 1.0f, 1.0f, 1.0f}; // 4
+		Vector2 scale {1.0f, 1.0f};				  // 2
+		Float32 rotation {0.0f};				  // 1
+		Float32 isUI {0.0f};					  // 1
 
 		inline void UseAsUI()
 		{
@@ -45,8 +45,8 @@ namespace dagger
 
 	struct Sprite : public SpriteData
 	{
-		Texture* image{ nullptr };
-		ViewPtr<Shader> shader{ Shader::s_FirstLoadedShader };
+		Texture* image {nullptr};
+		ViewPtr<Shader> shader {Shader::s_FirstLoadedShader};
 	};
 
 	struct SpriteFrame
@@ -61,4 +61,4 @@ namespace dagger
 
 	void AssignSpriteShader(Sprite& spriteTarget_, String shaderName_);
 
-}
+} // namespace dagger

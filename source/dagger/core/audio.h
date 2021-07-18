@@ -1,7 +1,8 @@
 #pragma once
 
-#include "core/core.h" 
+#include "core/core.h"
 #include "core/system.h"
+
 #include <string>
 
 struct Sound
@@ -10,7 +11,7 @@ struct Sound
 	String path;
 };
 
-struct Audio 
+struct Audio
 {
 	void Initialize();
 	void Load(AssetLoadRequest<Sound> request_);
@@ -22,7 +23,10 @@ struct Audio
 
 struct AudioSystem : public dagger::System
 {
-	inline String SystemName() const override { return "AudioSystem"; }
+	inline String SystemName() const override
+	{
+		return "AudioSystem";
+	}
 
 	void OnLoadAsset(AssetLoadRequest<Sound> request_);
 	void SpinUp() override;
