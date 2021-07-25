@@ -20,7 +20,6 @@ Shader::Shader(ShaderConfig config_) : programId {0}, shaderName {config_.name}
 		Logger::info("Loading {}'s {}...", config_.name, Shader::s_ShaderStageNames[stage]);
 		UInt32 id = glCreateShader(Shader::s_ShaderStageHandles[stage]);
 
-		Logger::trace(" path: {}", path);
 		String source = ReadFromFile(path);
 
 		if (source.empty())
