@@ -50,13 +50,18 @@ void TextureSystem::OnLoadAsset(AssetLoadRequest<Texture> request_)
 	Logger::info(
 		"Image statistics: name ({}), width ({}), height ({}), depth ({})", textureName, width, height, channels);
 
+	auto& textures = Engine::Res<Texture>();
+
+	if (textures.contains(textureName))
+		delete textures[textureName];
+
 	auto* texture = new Texture(textureName, path, image, (UInt32)width, (UInt32)height, (UInt32)channels);
 
 	assert(width != 0);
 	texture->m_Ratio = (Float32)height / (Float32)width;
 	assert(texture->m_Ratio != 0);
 
-	Engine::Res<Texture>()[textureName] = texture;
+	textures[textureName] = texture;
 	Logger::info("Texture saved under \"{}\"", textureName);
 	stbi_image_free(image);
 }

@@ -32,8 +32,8 @@ void Audio::Load(AssetLoadRequest<Sound> request_)
 
 	auto& sounds = Engine::Res<Sound>();
 
-	if (!sounds.contains(name))
-		sounds[name] = new Sound();
+	if (!sounds.contains(soundName))
+		sounds[soundName] = new Sound();
 
 	auto* sound = sounds[soundName];
 	sound->name = soundName;
