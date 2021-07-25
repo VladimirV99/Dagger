@@ -5,7 +5,8 @@
 
 using namespace dagger;
 
-void Audio::Initialize() {
+void Audio::Initialize()
+{
 	m_SoLoud.init();
 }
 
@@ -33,7 +34,7 @@ void Audio::Load(AssetLoadRequest<Sound> request_)
 
 	if (!sounds.contains(name))
 		sounds[name] = new Sound();
-	
+
 	auto* sound = sounds[soundName];
 	sound->name = soundName;
 	sound->path = request_.path;
@@ -63,6 +64,16 @@ unsigned Audio::PlayLoop(String name_, float volume_)
 	return handle;
 }
 
+void Audio::Pause(unsigned handle_, bool pause_)
+{
+	m_SoLoud.setPause(handle_, pause_);
+}
+
+void Audio::Unpause(unsigned handle_)
+{
+	m_SoLoud.setPause(handle_, false);
+}
+
 void Audio::Stop(unsigned handle_)
 {
 	m_SoLoud.stop(handle_);
@@ -80,7 +91,7 @@ void Audio::Uninitialize()
 	for (auto sound : Engine::Res<Sound>())
 	{
 		delete sound.second;
-	}	
+	}
 
 	Engine::Res<Sound>().clear();
 }
