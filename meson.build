@@ -6,7 +6,7 @@ deps = [
 ]
 
 if (host_machine.system() == 'linux')
-    add_global_link_arguments([ '-lstdc++fs' ], language: 'cpp')
+    add_global_link_arguments(['-lstdc++fs', '-lpthread'], language: 'cpp')
 
     deps += [
         dependency('tbb'),
@@ -24,6 +24,7 @@ includes = [
     include_directories('libs/imgui/include/imgui/backends'),
     include_directories('libs/json/include'),
     include_directories('libs/simpleini'),
+    include_directories('libs/soloud/include'),
     include_directories('libs/sparse-map/include'),
     include_directories('libs/spdlog/include'),
     include_directories('libs/stb/include')
@@ -43,7 +44,7 @@ sources = [
     'source/dagger/core/graphics/tool_render.cpp',
     'source/dagger/core/graphics/window.cpp',
     'source/dagger/core/input/inputs.cpp',
-    'source/dagger/core/audio_linux.cpp',
+    'source/dagger/core/audio.cpp',
     'source/dagger/core/engine.cpp',
     'source/dagger/core/game.cpp',
     'source/dagger/gameplay/common/aiming_system.cpp',
@@ -85,7 +86,31 @@ sources = [
 	'libs/imgui/include/imgui/imgui_tables.cpp',
     'libs/imgui/include/imgui/imgui_draw.cpp',
     'libs/imgui/include/imgui/backends/imgui_impl_glfw.cpp',
-    'libs/imgui/include/imgui/backends/imgui_impl_opengl3.cpp'
+    'libs/imgui/include/imgui/backends/imgui_impl_opengl3.cpp',
+    'libs/soloud/src/audiosource/wav/dr_impl.cpp',
+    'libs/soloud/src/audiosource/wav/soloud_wav.cpp',
+    'libs/soloud/src/audiosource/wav/soloud_wavstream.cpp',
+    'libs/soloud/src/audiosource/wav/stb_vorbis.c',
+    'libs/soloud/src/backend/miniaudio/soloud_miniaudio.cpp',
+    'libs/soloud/src/core/soloud_audiosource.cpp',
+    'libs/soloud/src/core/soloud_bus.cpp',
+    'libs/soloud/src/core/soloud_core_3d.cpp',
+    'libs/soloud/src/core/soloud_core_basicops.cpp',
+    'libs/soloud/src/core/soloud_core_faderops.cpp',
+    'libs/soloud/src/core/soloud_core_filterops.cpp',
+    'libs/soloud/src/core/soloud_core_getters.cpp',
+    'libs/soloud/src/core/soloud_core_setters.cpp',
+    'libs/soloud/src/core/soloud_core_voicegroup.cpp',
+    'libs/soloud/src/core/soloud_core_voiceops.cpp',
+    'libs/soloud/src/core/soloud_fader.cpp',
+    'libs/soloud/src/core/soloud_fft_lut.cpp',
+    'libs/soloud/src/core/soloud_fft.cpp',
+    'libs/soloud/src/core/soloud_file.cpp',
+    'libs/soloud/src/core/soloud_filter.cpp',
+    'libs/soloud/src/core/soloud_misc.cpp',
+    'libs/soloud/src/core/soloud_queue.cpp',
+    'libs/soloud/src/core/soloud_thread.cpp',
+    'libs/soloud/src/core/soloud.cpp'
 ]
 
-executable('dagger', sources, dependencies : deps, include_directories : includes, cpp_args : '-DIMGUI_IMPL_OPENGL_LOADER_GLAD')
+executable('dagger', sources, dependencies : deps, include_directories : includes, cpp_args : ['-DIMGUI_IMPL_OPENGL_LOADER_GLAD', '-DWITH_MINIAUDIO'])
