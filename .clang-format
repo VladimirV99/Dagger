@@ -19,7 +19,7 @@ ColumnLimit: '120'
 ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex:    '^(<|")((entt|fmt|glad|glfw|glm|imgui|nlohmann|spdlog|stb|tsl)/|SimpleIni.h)'
+  - Regex:    '^(<|")((entt|fmt|glad|glfw|glm|imgui|nlohmann|spdlog|stb|tsl)/|SimpleIni\.h|soloud.*)'
     Priority: 2
   - Regex:    '^<'
     Priority: 3
