@@ -61,6 +61,9 @@ public class MainProject : Project
         config.IncludePaths.Add(Path.Combine(m_RootDirectory, @"libs", @"imgui", @"include", @"imgui"));
         config.IncludePaths.Add(Path.Combine(m_RootDirectory, @"libs", @"imgui", @"include", @"imgui", @"backends"));
         config.IncludePaths.Add(Path.Combine(m_RootDirectory, @"libs", @"glm", @"include"));
+		config.IncludePaths.Add(Path.Combine(m_RootDirectory, @"libs", @"soloud", @"include"));
+		config.IncludePaths.Add(Path.Combine(m_RootDirectory, @"libs", @"soloud", @"src", @"audiosource", @"wav"));
+		config.IncludePaths.Add(Path.Combine(m_RootDirectory, @"libs", @"soloud", @"src", @"backend", @"miniaudio"));
 
         // Add libs
         config.LibraryPaths.Add(Path.Combine(m_RootDirectory, @"libs", "glfw3-lib"));
@@ -129,8 +132,8 @@ public class MainProject : Project
         File.Copy(Path.Combine(soloudRoot, @"core", @"soloud_core_filterops.cpp"), Path.Combine(soloudDest, @"soloud_core_filterops.cpp"), true);
         File.Copy(Path.Combine(soloudRoot, @"core", @"soloud_core_getters.cpp"), Path.Combine(soloudDest, @"soloud_core_getters.cpp"), true);
         File.Copy(Path.Combine(soloudRoot, @"core", @"soloud_core_setters.cpp"), Path.Combine(soloudDest, @"soloud_core_setters.cpp"), true);
-        File.Copy(Path.Combine(soloudRoot, @"core", @"soloud_voicegroup.cpp"), Path.Combine(soloudDest, @"soloud_voicegroup.cpp"), true);
-        File.Copy(Path.Combine(soloudRoot, @"core", @"soloud_voiceops.cpp"), Path.Combine(soloudDest, @"soloud_voiceops.cpp"), true);
+        File.Copy(Path.Combine(soloudRoot, @"core", @"soloud_core_voicegroup.cpp"), Path.Combine(soloudDest, @"soloud_core_voicegroup.cpp"), true);
+        File.Copy(Path.Combine(soloudRoot, @"core", @"soloud_core_voiceops.cpp"), Path.Combine(soloudDest, @"soloud_core_voiceops.cpp"), true);
         File.Copy(Path.Combine(soloudRoot, @"core", @"soloud_fader.cpp"), Path.Combine(soloudDest, @"soloud_fader.cpp"), true);
         File.Copy(Path.Combine(soloudRoot, @"core", @"soloud_fft_lut.cpp"), Path.Combine(soloudDest, @"soloud_fft_lut.cpp"), true);
         File.Copy(Path.Combine(soloudRoot, @"core", @"soloud_fft.cpp"), Path.Combine(soloudDest, @"soloud_fft.cpp"), true);
@@ -147,6 +150,9 @@ public class MainProject : Project
         config.Options.Add(Options.Vc.General.WindowsTargetPlatformVersion.v10_0_17763_0);
         config.Options.Add(Options.Vc.Compiler.CppLanguageStandard.CPP17);
         config.Options.Add(Options.Vc.Compiler.RuntimeLibrary.MultiThreadedDebugDLL);
+
+		// Define soloud backend
+		config.Defines.Add("WITH_MINIAUDIO");
 
         // Define flags
         if (target.Optimization == Optimization.Debug)
