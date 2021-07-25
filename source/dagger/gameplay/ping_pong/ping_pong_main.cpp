@@ -70,8 +70,8 @@ void PingPongGame::CoreSystemsSetup()
 	engine.AddSystem<InputSystem>();
 	engine.AddSystem<ShaderSystem>();
 	engine.AddSystem<TextureSystem>();
-	engine.AddSystem<SpriteRenderSystem>();
 	engine.AddPausableSystem<TransformSystem>();
+	engine.AddSystem<SpriteRenderSystem>();
 	engine.AddPausableSystem<AnimationSystem>();
 #if !defined(NDEBUG)
 	engine.AddSystem<DiagnosticSystem>();
