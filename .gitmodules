@@ -28,3 +28,6 @@
 [submodule "libs/simpleini"]
 	path = libs/simpleini
 	url = https://github.com/brofield/simpleini.git
+[submodule "libs/soloud"]
+	path = libs/soloud
+	url = https://github.com/VladimirV99/soloud.git

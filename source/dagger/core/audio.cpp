@@ -1,70 +1,86 @@
 #include "audio.h"
 
-#if defined(_WIN32)
-
 #include <core/core.h>
 #include <core/engine.h>
-#include <mmsystem.h>
-#include <windows.h>
 
 using namespace dagger;
 
-// on Windows, this does nothing
-void Audio::Initialize() { }
+void Audio::Initialize() {
+	m_SoLoud.init();
+}
 
 void Audio::Load(AssetLoadRequest<Sound> request_)
 {
+	Logger::info("Loading sound {}...", request_.path);
+
 	FilePath path {request_.path};
 	String name = path.stem().string();
-	auto& sounds = Engine::Res<Sound>();
-
-	if (!sounds.contains(name))
-		sounds[name] = new Sound();
-
 	FilePath root {request_.path};
 	root.remove_filename();
 
 	String soundName = "";
 	{
-		String pathName = root.append(path.stem().string()).string();
+		String pathName = root.append(name).string();
 		if (pathName.find("sounds") == 0)
-			pathName = pathName.substr(7, pathName.length() - 15);
+			pathName = pathName.substr(7);
 
 		std::replace(pathName.begin(), pathName.end(), '/', ':');
 		std::replace(pathName.begin(), pathName.end(), '\\', ':');
 		soundName = pathName;
 	}
 
+	auto& sounds = Engine::Res<Sound>();
+
+	if (!sounds.contains(name))
+		sounds[name] = new Sound();
+	
 	auto* sound = sounds[soundName];
 	sound->name = soundName;
 	sound->path = request_.path;
+	sound->source.load(request_.path.c_str());
 }
 
-void Audio::Play(String name_)
+unsigned Audio::Play(String name_, float volume_)
 {
 	auto& sounds = Engine::Res<Sound>();
 	assert(sounds.contains(name_));
-	PlaySound(sounds[name_]->path.c_str(), NULL, SND_FILENAME | SND_ASYNC);
+
+	SoLoud::handle handle = m_SoLoud.play(sounds[name_]->source);
+	m_SoLoud.setVolume(handle, volume_);
+
+	return handle;
 }
 
-void Audio::PlayLoop(String name_)
+unsigned Audio::PlayLoop(String name_, float volume_)
 {
 	auto& sounds = Engine::Res<Sound>();
 	assert(sounds.contains(name_));
-	PlaySound(sounds[name_]->path.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+
+	SoLoud::handle handle = m_SoLoud.play(sounds[name_]->source);
+	m_SoLoud.setLooping(handle, true);
+	m_SoLoud.setVolume(handle, volume_);
+
+	return handle;
 }
 
-void Audio::Stop()
+void Audio::Stop(unsigned handle_)
 {
-	PlaySound(NULL, NULL, NULL);
+	m_SoLoud.stop(handle_);
+}
+
+void Audio::StopAll()
+{
+	m_SoLoud.stopAll();
 }
 
 void Audio::Uninitialize()
 {
+	m_SoLoud.deinit();
+
 	for (auto sound : Engine::Res<Sound>())
 	{
 		delete sound.second;
-	}
+	}	
 
 	Engine::Res<Sound>().clear();
 }
@@ -94,7 +110,7 @@ void AudioSystem::SpinUp()
 
 void AudioSystem::WindDown()
 {
-	delete Engine::GetDefaultResource<Audio>();
+	auto* audio = Engine::GetDefaultResource<Audio>();
+	audio->Uninitialize();
+	delete audio;
 }
-
-#endif // defined(_WIN32)
