@@ -15,13 +15,14 @@ void Text::Set(String font_, String message_, Vector3 pos_, Bool ui_)
 
 	assert(Engine::Res<Texture>().contains(fmt::format("spritesheets:{}", font_)));
 
-	if (!entities.empty())
-	{
-		registry.destroy(entities.begin(), entities.end());
-		entities.clear();
-	}
+	Clear();
 
-	SInt32 positionX = position.x;
+	SInt32 currentPosition;
+	if (direction == ETextDirection::RIGHT)
+		currentPosition = position.x;
+	else if (direction == ETextDirection::DOWN)
+		currentPosition = position.y;
+	
 	auto& sheets = Engine::Res<SpriteFrame>();
 
 	Map<UInt32, SpriteFrame*> cache;
@@ -29,14 +30,17 @@ void Text::Set(String font_, String message_, Vector3 pos_, Bool ui_)
 	for (char letter : message_)
 	{
 		cache[letter] = sheets[fmt::format("spritesheets:{}:{}", font, (int)letter)];
-		fullStringWidth += cache[letter]->frame.size.x * spacing;
+		if (direction == ETextDirection::RIGHT)
+			fullStringWidth += cache[letter]->frame.size.x * scale.x * spacing;
+		else if (direction == ETextDirection::DOWN)
+			fullStringWidth += cache[letter]->frame.size.y * scale.y * spacing;
 	}
 
-	Float32 xOffsetDueToAlign = 0.0f;
-	if (alignment == ETextAlignment::CENTER)
-		xOffsetDueToAlign = (Float32)fullStringWidth / 2.0f;
-	else if (alignment == ETextAlignment::RIGHT)
-		xOffsetDueToAlign = (Float32)fullStringWidth;
+	Float32 alignOffset = 0.0f;
+	if (alignment == ETextAlignment::MIDDLE)
+		alignOffset = (Float32)fullStringWidth / 2.0f;
+	else if (alignment == ETextAlignment::END)
+		alignOffset = (Float32)fullStringWidth;
 
 	for (char letter : message_)
 	{
@@ -46,10 +50,29 @@ void Text::Set(String font_, String message_, Vector3 pos_, Bool ui_)
 
 		if (ui_)
 			sprite.UseAsUI();
-		sprite.position = {positionX - xOffsetDueToAlign, position.y, position.z};
+		if (direction == ETextDirection::RIGHT)
+			sprite.position = {currentPosition + (spritesheet->frame.size.x * scale.x * spacing / 2.0f) - alignOffset, position.y, position.z};
+		else if (direction == ETextDirection::DOWN)
+			sprite.position = {position.x, currentPosition - (spritesheet->frame.size.x * scale.x * spacing / 2.0f) + alignOffset, position.z};
+		sprite.scale = scale;
 		AssignSprite(sprite, spritesheet);
 
-		positionX += (int)(spritesheet->frame.size.x * spacing);
+		if (direction == ETextDirection::RIGHT)
+			currentPosition += (int)(spritesheet->frame.size.x * scale.x * spacing);
+		else if (direction == ETextDirection::DOWN)
+			currentPosition -= (int)(spritesheet->frame.size.y * scale.y * spacing);
+
 		entities.push_back(entity);
+	}
+}
+
+void Text::Clear()
+{
+	auto& registry = Engine::Registry();
+
+	if (!entities.empty())
+	{
+		registry.destroy(entities.begin(), entities.end());
+		entities.clear();
 	}
 }
