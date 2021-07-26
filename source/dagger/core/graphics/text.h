@@ -2,17 +2,24 @@
 
 #include "core/core.h"
 
+enum struct ETextDirection
+{
+	RIGHT,
+	DOWN
+};
+
 enum struct ETextAlignment
 {
-	LEFT,
-	CENTER,
-	RIGHT
+	START,
+	MIDDLE,
+	END
 };
 
 struct Text
 {
 	String font;
-	ETextAlignment alignment {ETextAlignment::CENTER};
+	ETextDirection direction {ETextDirection::RIGHT};
+	ETextAlignment alignment {ETextAlignment::MIDDLE};
 	Vector2 scale {1.0f, 1.0f};
 	Float32 spacing {1.0f};
 	Sequence<Entity> entities;
