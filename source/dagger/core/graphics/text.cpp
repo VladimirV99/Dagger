@@ -15,11 +15,7 @@ void Text::Set(String font_, String message_, Vector3 pos_, Bool ui_)
 
 	assert(Engine::Res<Texture>().contains(fmt::format("spritesheets:{}", font_)));
 
-	if (!entities.empty())
-	{
-		registry.destroy(entities.begin(), entities.end());
-		entities.clear();
-	}
+	Clear();
 
 	SInt32 positionX = position.x;
 	auto& sheets = Engine::Res<SpriteFrame>();
@@ -52,5 +48,16 @@ void Text::Set(String font_, String message_, Vector3 pos_, Bool ui_)
 
 		positionX += (int)(spritesheet->frame.size.x * scale.x * spacing);
 		entities.push_back(entity);
+	}
+}
+
+void Text::Clear()
+{
+	auto& registry = Engine::Registry();
+
+	if (!entities.empty())
+	{
+		registry.destroy(entities.begin(), entities.end());
+		entities.clear();
 	}
 }

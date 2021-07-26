@@ -20,4 +20,5 @@ struct Text
 	Vector3 position;
 
 	void Set(String font_, String message_, Vector3 pos_ = {0, 0, 0}, Bool ui_ = true);
+	void Clear();
 };
