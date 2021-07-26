@@ -47,6 +47,7 @@ namespace dagger
 	{
 		Texture* image {nullptr};
 		ViewPtr<Shader> shader {Shader::s_FirstLoadedShader};
+		Bool visible {true};
 	};
 
 	struct SpriteFrame

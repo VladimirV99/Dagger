@@ -162,6 +162,8 @@ void SpriteRenderSystem::OnRender()
 {
 	static auto sortSprites = [](const Sprite& a_, const Sprite& b_)
 	{
+		Bool aVisible = a_.visible;
+		Bool bVisible = b_.visible;
 		UInt32 aShader = a_.shader->programId;
 		UInt32 bShader = b_.shader->programId;
 		UInt32 aZ = a_.position.z;
@@ -169,7 +171,15 @@ void SpriteRenderSystem::OnRender()
 		UInt32 aImage = a_.image == nullptr ? 0 : a_.image->TextureId();
 		UInt32 bImage = b_.image == nullptr ? 0 : b_.image->TextureId();
 
-		if (aZ == bZ)
+		if (!aVisible && !bVisible)
+		{
+			return true;
+		}
+		else if (aVisible != bVisible)
+		{
+			return bVisible;
+		}
+		else if (aZ == bZ)
 		{
 			return aShader == bShader ? aImage < bImage : aShader < bShader;
 		}
@@ -191,7 +201,12 @@ void SpriteRenderSystem::OnRender()
 	std::sort(sprites.begin(), sprites.end(), sortSprites);
 	Sequence<SpriteData> currentRender {};
 
-	for (auto ptr = sprites.begin(); ptr != sprites.end();)
+	auto ptr = sprites.begin();
+	while(ptr != sprites.end() && !ptr->visible)
+	{
+		ptr++;
+	}
+	while (ptr != sprites.end())
 	{
 		if (prevShader != ptr->shader)
 		{
