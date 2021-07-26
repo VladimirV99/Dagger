@@ -22,7 +22,7 @@ void Text::Set(String font_, String message_, Vector3 pos_, Bool ui_)
 		currentPosition = position.x;
 	else if (direction == ETextDirection::DOWN)
 		currentPosition = position.y;
-	
+
 	auto& sheets = Engine::Res<SpriteFrame>();
 
 	Map<UInt32, SpriteFrame*> cache;
@@ -51,9 +51,13 @@ void Text::Set(String font_, String message_, Vector3 pos_, Bool ui_)
 		if (ui_)
 			sprite.UseAsUI();
 		if (direction == ETextDirection::RIGHT)
-			sprite.position = {currentPosition + (spritesheet->frame.size.x * scale.x * spacing / 2.0f) - alignOffset, position.y, position.z};
+			sprite.position = {
+				currentPosition + (spritesheet->frame.size.x * scale.x * spacing / 2.0f) - alignOffset, position.y,
+				position.z};
 		else if (direction == ETextDirection::DOWN)
-			sprite.position = {position.x, currentPosition - (spritesheet->frame.size.x * scale.x * spacing / 2.0f) + alignOffset, position.z};
+			sprite.position = {
+				position.x, currentPosition - (spritesheet->frame.size.x * scale.x * spacing / 2.0f) + alignOffset,
+				position.z};
 		sprite.scale = scale;
 		AssignSprite(sprite, spritesheet);
 

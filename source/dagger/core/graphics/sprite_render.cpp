@@ -202,7 +202,7 @@ void SpriteRenderSystem::OnRender()
 	Sequence<SpriteData> currentRender {};
 
 	auto ptr = sprites.begin();
-	while(ptr != sprites.end() && !ptr->visible)
+	while (ptr != sprites.end() && !ptr->visible)
 	{
 		ptr++;
 	}

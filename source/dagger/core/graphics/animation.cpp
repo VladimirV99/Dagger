@@ -4,7 +4,8 @@
 
 void dagger::AnimatorPlayOnce(Animator& animator_, String animationName_)
 {
-	if (animationName_ == animator_.currentAnimation) return;
+	if (animationName_ == animator_.currentAnimation)
+		return;
 
 	animator_.isLooping = false;
 	animator_.currentAnimation = animationName_;
