@@ -29,7 +29,7 @@ void Text::Set(String font_, String message_, Vector3 pos_, Bool ui_)
 	for (char letter : message_)
 	{
 		cache[letter] = sheets[fmt::format("spritesheets:{}:{}", font, (int)letter)];
-		fullStringWidth += cache[letter]->frame.size.x * spacing;
+		fullStringWidth += cache[letter]->frame.size.x * scale.x * spacing;
 	}
 
 	Float32 xOffsetDueToAlign = 0.0f;
@@ -47,9 +47,10 @@ void Text::Set(String font_, String message_, Vector3 pos_, Bool ui_)
 		if (ui_)
 			sprite.UseAsUI();
 		sprite.position = {positionX - xOffsetDueToAlign, position.y, position.z};
+		sprite.scale = scale;
 		AssignSprite(sprite, spritesheet);
 
-		positionX += (int)(spritesheet->frame.size.x * spacing);
+		positionX += (int)(spritesheet->frame.size.x * scale.x * spacing);
 		entities.push_back(entity);
 	}
 }

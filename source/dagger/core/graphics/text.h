@@ -13,6 +13,7 @@ struct Text
 {
 	String font;
 	ETextAlignment alignment {ETextAlignment::CENTER};
+	Vector2 scale {1.0f, 1.0f};
 	Float32 spacing {1.0f};
 	Sequence<Entity> entities;
 
