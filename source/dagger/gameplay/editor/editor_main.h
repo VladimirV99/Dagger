@@ -37,7 +37,7 @@ namespace editor
 
 		String SystemName() const override
 		{
-			return "SaveGame";
+			return "Editor Tool System";
 		}
 
 		void SpinUp() override
@@ -53,7 +53,6 @@ namespace editor
 				auto& sprite = m_Registry.emplace<Sprite>(m_Focus);
 				AssignSprite(sprite, "tools:knob1");
 				sprite.position = Vector3 {0, 0, 0};
-				sprite.UseAsUI();
 			}
 
 			Engine::GetDefaultResource<ToolRenderSystem>()->registry = &m_Registry;
@@ -72,7 +71,7 @@ namespace editor
 		void OnToolMenuRender();
 		void OnRenderGUI();
 
-		void GUIDrawCameraEditor() const;
+		void GUIDrawCameraEditor();
 		void GUIExecuteCreateEntity();
 		void GUIDrawSpriteEditor() const;
 		void GUIDrawTransformEditor() const;

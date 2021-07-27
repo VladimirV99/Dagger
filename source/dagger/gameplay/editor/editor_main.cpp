@@ -198,36 +198,43 @@ void EditorToolSystem::Run()
 	}
 }
 
-void EditorToolSystem::GUIDrawCameraEditor() const
+void EditorToolSystem::GUIDrawCameraEditor()
 {
-	auto& reg = Engine::Registry();
 	auto* camera = Engine::GetDefaultResource<Camera>();
 	static int mode = 0;
 	static const char* modes[] {"Fixed Resoulution", "Show As Much As Possible"};
 
 	if (ImGui::CollapsingHeader("Camera"))
 	{
-		ImGui::Combo("Mode", &mode, modes, 2);
 
-		switch (mode)
+		if (ImGui::Combo("Camera Mode", &mode, modes, 2))
 		{
-		case 0:
-			camera->mode = ECameraMode::FixedResolution;
-			break;
-		case 1:
-			camera->mode = ECameraMode::ShowAsMuchAsPossible;
-			break;
+			switch (mode)
+			{
+			case 0:
+				camera->mode = ECameraMode::FixedResolution;
+				break;
+			case 1:
+				camera->mode = ECameraMode::ShowAsMuchAsPossible;
+				break;
+			}
 		}
 
 		/* Position values */ {
 			float position[] {camera->position.x, camera->position.y};
-			ImGui::DragFloat2("Position", position);
-			camera->position.x = position[0];
-			camera->position.y = position[1];
+			if (ImGui::DragFloat2("Camera Position", position, 10.0f, -FLT_MAX, FLT_MAX))
+			{
+				camera->position.x = position[0];
+				camera->position.y = position[1];
+			}
 		}
 
 		/* Zoom value */ {
-			ImGui::DragFloat("Zoom", &camera->zoom, 0.1f, 0.1f, 10.0f, "%f", 1);
+			if (ImGui::DragFloat("Camera Zoom", &camera->zoom, 0.1f, 0.1f, 10.0f, "%.1f", 1))
+			{
+				auto& knob = m_Registry.get<Sprite>(m_Focus);
+				knob.scale = Vector2{1.0f/camera->zoom};
+			}
 		}
 	}
 }
@@ -239,7 +246,6 @@ void EditorToolSystem::GUIExecuteCreateEntity()
 	reg.emplace<Transform>(newEntity);
 	auto& newSprite = reg.emplace<Sprite>(newEntity);
 	AssignSprite(newSprite, "tools:knob2");
-	newSprite.UseAsUI();
 	reg.emplace<SaveGame<ECommonSaveArchetype>>(newEntity);
 }
 

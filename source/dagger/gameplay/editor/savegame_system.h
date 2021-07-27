@@ -7,7 +7,6 @@
 using namespace dagger;
 namespace editor
 {
-
 	template<typename Archetype>
 	struct SaveGame
 	{
@@ -38,7 +37,7 @@ namespace editor
 
 		String SystemName() const override
 		{
-			return "SaveGame";
+			return "Save Game System";
 		}
 
 		void SpinUp() override
@@ -104,5 +103,4 @@ namespace editor
 	private:
 		SaveLoadProcess<Archetype>* m_Process;
 	};
-
 } // namespace editor
