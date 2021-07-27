@@ -6,8 +6,8 @@
 #include "core/graphics/tool_render.h"
 #include "core/system.h"
 #include "gameplay/editor/savegame_system.h"
-#include "save_archetype.h"
 #include "tools/toolmenu.h"
+#include "save_archetype.h"
 
 using namespace dagger;
 
@@ -32,7 +32,7 @@ namespace editor
 		Registry m_Registry;
 		Entity m_Focus {entt::null};
 		EditorFocusTarget m_Selected {s_NoTarget};
-		String m_Filename;
+		char m_Filename[41];
 		Sequence<EditorFocusTarget> m_Targets;
 
 		String SystemName() const override
@@ -42,7 +42,7 @@ namespace editor
 
 		void SpinUp() override
 		{
-			m_Filename = "default_saved_scene.json";
+			std::strncpy(m_Filename, "default_saved_scene.json", sizeof(m_Filename) - 1);
 			Engine::Dispatcher().sink<KeyboardEvent>().connect<&EditorToolSystem::OnKeyboardEvent>(this);
 			Engine::Dispatcher().sink<ToolMenuRender>().connect<&EditorToolSystem::OnToolMenuRender>(this);
 			Engine::Dispatcher().sink<GUIRender>().connect<&EditorToolSystem::OnRenderGUI>(this);

@@ -471,7 +471,7 @@ void EditorToolSystem::OnRenderGUI()
 
 		ImGui::Begin("Scene Editor");
 
-		ImGui::InputText("Filename", m_Filename.data(), m_Filename.length());
+		ImGui::InputText("Filename", m_Filename, sizeof(m_Filename));
 		ImGui::Separator();
 
 		if (ImGui::Button("Create entity"))
