@@ -6,34 +6,13 @@
 #include "core/graphics/tool_render.h"
 #include "core/system.h"
 #include "gameplay/editor/savegame_system.h"
+#include "save_archetype.h"
 #include "tools/toolmenu.h"
 
 using namespace dagger;
 
 namespace editor
 {
-	enum class ECommonSaveArchetype
-	{
-		None = 0b00000000,
-		Sprite = 0b00000001,
-		Transform = 0b00000010,
-		Animator = 0b00000100,
-		Physics = 0b00001000,
-		// todo: add new values here
-	};
-
-#define IS_ARCHETYPE_SET(in, test) ((in & test) == test)
-
-	inline ECommonSaveArchetype operator|(ECommonSaveArchetype a_, ECommonSaveArchetype b_)
-	{
-		return static_cast<ECommonSaveArchetype>(static_cast<int>(a_) | static_cast<int>(b_));
-	}
-
-	inline ECommonSaveArchetype operator&(ECommonSaveArchetype a_, ECommonSaveArchetype b_)
-	{
-		return static_cast<ECommonSaveArchetype>(static_cast<int>(a_) & static_cast<int>(b_));
-	}
-
 	struct EditorFocus
 	{
 		Bool dirty;
@@ -74,6 +53,7 @@ namespace editor
 				auto& sprite = m_Registry.emplace<Sprite>(m_Focus);
 				AssignSprite(sprite, "tools:knob1");
 				sprite.position = Vector3 {0, 0, 0};
+				sprite.UseAsUI();
 			}
 
 			Engine::GetDefaultResource<ToolRenderSystem>()->registry = &m_Registry;
@@ -92,8 +72,10 @@ namespace editor
 		void OnToolMenuRender();
 		void OnRenderGUI();
 
+		void GUIDrawCameraEditor() const;
 		void GUIExecuteCreateEntity();
 		void GUIDrawSpriteEditor() const;
+		void GUIDrawTransformEditor() const;
 		void GUIDrawAnimationEditor() const;
 		void GUIDrawPhysicsEditor() const;
 		bool GUIDrawEntityFocusSelection(int& selectedItem_);
