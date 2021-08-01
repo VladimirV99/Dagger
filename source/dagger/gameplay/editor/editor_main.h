@@ -34,6 +34,7 @@ namespace editor
 		EditorFocusTarget m_Selected {s_NoTarget};
 		char m_Filename[41];
 		Sequence<EditorFocusTarget> m_Targets;
+		Sequence<const char*> m_AvailableTextures;
 
 		String SystemName() const override
 		{
@@ -54,6 +55,14 @@ namespace editor
 				AssignSprite(sprite, "tools:knob1");
 				sprite.position = Vector3 {0, 0, 0};
 			}
+
+			for (const auto& [k, n] : Engine::Res<Texture>())
+			{
+				m_AvailableTextures.push_back(k.c_str());
+			}
+			std::sort(
+				m_AvailableTextures.begin(), m_AvailableTextures.end(),
+				[](const char* lhs, const char* rhs) { return strcmp(lhs, rhs) < 0; });
 
 			Engine::GetDefaultResource<ToolRenderSystem>()->registry = &m_Registry;
 		}

@@ -265,21 +265,22 @@ void EditorToolSystem::GUIDrawSpriteEditor() const
 		/* Sprite texture */ {
 			static int selectedTexture = 0;
 			Sequence<const char*> textures;
-			int i = 0;
-			int currentSelected = 0;
-			for (const auto& [k, n] : Engine::Res<Texture>())
-			{
-				if (strstr(k.data(), filter.data()) != nullptr)
-					textures.push_back(k.c_str());
 
-				if (k == compSprite.image->Name())
+			int i = 0;
+			for (const auto* textureName : m_AvailableTextures)
+			{
+				if (strstr(textureName, filter.data()) != nullptr)
 				{
-					selectedTexture = i;
+					textures.push_back(textureName);
+					if (textureName == compSprite.image->Name())
+					{
+						selectedTexture = i;
+					}
+					++i;
 				}
-				++i;
 			}
 
-			currentSelected = selectedTexture;
+			int currentSelected = selectedTexture;
 			String title {};
 			title.reserve(100);
 			sprintf(title.data(), "Image (%zu)", textures.size());
