@@ -179,8 +179,15 @@ void EditorToolSystem::Run()
 					const auto right = sprite_.position.x + (sprite_.size.x / 2) * sprite_.scale.x * cam->zoom;
 					const auto bottom = sprite_.position.y + (sprite_.size.y / 2) * sprite_.scale.y * cam->zoom;
 
-					if (knob.position.x >= left && knob.position.y >= top && knob.position.x <= right &&
-						knob.position.y <= bottom)
+					// Rotate the knob position by negative sprite rotation angle around the sprite position
+					// Then check collision as usual
+					const Vector3 knobRelative = knob.position - sprite_.position;
+					const double sine = sin(-sprite_.rotation * M_PI / 180.0f);
+					const double cosine = cos(-sprite_.rotation * M_PI / 180.0f);
+					const auto knobX = sprite_.position.x + knobRelative.x * cosine - knobRelative.y * sine;
+					const auto knobY = sprite_.position.y + knobRelative.x * sine + knobRelative.y * cosine;
+
+					if (knobX >= left && knobY >= top && knobX <= right && knobY <= bottom)
 					{
 						m_Targets.push_back(EditorFocusTarget {entity_, sprite_.image->Name()});
 					}
@@ -417,7 +424,7 @@ void EditorToolSystem::GUIDrawTransformEditor() const
 		if (ImGui::Button("Attach Transform", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
 			auto& compTransform = reg.emplace<Transform>(m_Selected.entity);
-			if(reg.all_of<Sprite>(m_Selected.entity))
+			if (reg.all_of<Sprite>(m_Selected.entity))
 			{
 				auto& compSprite = reg.get<Sprite>(m_Selected.entity);
 				compTransform.position.x = compSprite.position.x;
