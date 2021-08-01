@@ -132,16 +132,14 @@ void EditorToolSystem::Run()
 	if (m_IsInEditor)
 	{
 		auto& knob = m_Registry.get<Sprite>(m_Focus);
-		knob.color.a = 1;
+		knob.visible = true;
 		auto& focus = m_Registry.get<EditorFocus>(m_Focus);
 
 		if (Input::IsInputDown(EDaggerMouse::MouseButton3))
 		{
-			auto camera = Engine::GetDefaultResource<Camera>();
-			auto cam = camera->position;
-			auto cur = Input::CursorPositionInWorld();
-			Vector3 xy {(cur.x - cam.x) * camera->zoom, (cur.y + cam.y) * camera->zoom, 0};
-			knob.position = xy;
+			auto cursorPos = Input::CursorPositionInWorld();
+			knob.position.x = cursorPos.x;
+			knob.position.y = cursorPos.y;
 			focus.dirty = true;
 		}
 
@@ -172,9 +170,6 @@ void EditorToolSystem::Run()
 
 			const auto* cam = Engine::GetDefaultResource<Camera>();
 
-			const auto knobX = (knob.position.x + cam->position.x);
-			const auto knobY = (knob.position.y + cam->position.y);
-
 			Engine::Registry().view<Sprite, SaveGame<ECommonSaveArchetype>>().each(
 				[&](Entity entity_, const Sprite& sprite_, const SaveGame<ECommonSaveArchetype>& save_)
 				{
@@ -184,7 +179,7 @@ void EditorToolSystem::Run()
 					const auto right = sprite_.position.x + (sprite_.size.x / 2) * sprite_.scale.x * cam->zoom;
 					const auto bottom = sprite_.position.y + (sprite_.size.y / 2) * sprite_.scale.y * cam->zoom;
 
-					if (knobX >= left && knobY >= top && knobX <= right && knobY <= bottom)
+					if (knob.position.x >= left && knob.position.y >= top && knob.position.x <= right && knob.position.y <= bottom)
 					{
 						m_Targets.push_back(EditorFocusTarget {entity_, sprite_.image->Name()});
 					}
@@ -194,14 +189,14 @@ void EditorToolSystem::Run()
 	else
 	{
 		auto& knob = m_Registry.get<Sprite>(m_Focus);
-		knob.color.a = 0;
+		knob.visible = false;
 	}
 }
 
 void EditorToolSystem::GUIDrawCameraEditor()
 {
 	auto* camera = Engine::GetDefaultResource<Camera>();
-	static int mode = 0;
+	static int mode = 1;
 	static const char* modes[] {"Fixed Resoulution", "Show As Much As Possible"};
 
 	if (ImGui::CollapsingHeader("Camera"))
@@ -218,11 +213,12 @@ void EditorToolSystem::GUIDrawCameraEditor()
 				camera->mode = ECameraMode::ShowAsMuchAsPossible;
 				break;
 			}
+			camera->Update();
 		}
 
 		/* Position values */ {
 			float position[] {camera->position.x, camera->position.y};
-			if (ImGui::DragFloat2("Camera Position", position, 10.0f, -FLT_MAX, FLT_MAX))
+			if (ImGui::DragFloat2("Camera Position", position, 10.0f, -FLT_MAX, FLT_MAX, "%.2f"))
 			{
 				camera->position.x = position[0];
 				camera->position.y = position[1];
@@ -241,9 +237,13 @@ void EditorToolSystem::GUIDrawCameraEditor()
 
 void EditorToolSystem::GUIExecuteCreateEntity()
 {
+	auto focusPosition = m_Registry.get<Sprite>(m_Focus).position;
+
 	auto& reg = Engine::Registry();
 	auto newEntity = reg.create();
-	reg.emplace<Transform>(newEntity);
+	auto& newTransform = reg.emplace<Transform>(newEntity);
+	newTransform.position.x = focusPosition.x;
+	newTransform.position.y = focusPosition.y;
 	auto& newSprite = reg.emplace<Sprite>(newEntity);
 	AssignSprite(newSprite, "tools:knob2");
 	reg.emplace<SaveGame<ECommonSaveArchetype>>(newEntity);
@@ -293,40 +293,40 @@ void EditorToolSystem::GUIDrawSpriteEditor() const
 
 		/* Size values */ {
 			float size[] {compSprite.size.x, compSprite.size.y};
-			ImGui::SliderFloat2("Pixel Size", size, -10000.0f, 10000.0f, "%f", 1);
+			ImGui::DragFloat2("Pixel Size", size, 1, -2000.0f, 2000.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 			compSprite.size.x = size[0];
 			compSprite.size.y = size[1];
 		}
 
 		/* Position values */ {
 			float pos[] {compSprite.position.x, compSprite.position.y, compSprite.position.z};
-			ImGui::InputFloat3("Position", pos, "%f", 1);
+			ImGui::DragFloat3("Sprite Position", pos, 1, -FLT_MAX, FLT_MAX, "%.2f");
 			compSprite.position.x = pos[0];
 			compSprite.position.y = pos[1];
 			compSprite.position.z = pos[2];
 		}
 
 		/* Rotation value */ {
-			ImGui::SliderFloat("Rotation", &compSprite.rotation, 0, 360, "%f", 1);
+			ImGui::DragFloat("Sprite Rotation", &compSprite.rotation, 0.2f, 0, 360, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 		}
 
 		/* Scale values */ {
 			float size[] {compSprite.scale.x, compSprite.scale.y};
-			ImGui::DragFloat2("Scale", size, 1, -10, 10, "%f", 1);
+			ImGui::DragFloat2("Sprite Scale", size, 0.1f, -10, 10, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 			compSprite.scale.x = size[0];
 			compSprite.scale.y = size[1];
 		}
 
 		/* Pivot values */ {
 			float pivot[] {compSprite.pivot.x, compSprite.pivot.y};
-			ImGui::DragFloat2("Pivot", pivot, 1, -0.5f, 0.5f, "%f", 1);
+			ImGui::DragFloat2("Sprite Pivot", pivot, 0.01f, -0.5f, 0.5f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 			compSprite.pivot.x = pivot[0];
 			compSprite.pivot.y = pivot[1];
 		}
 	}
 	else if (!reg.all_of<Sprite>(m_Selected.entity))
 	{
-		if (ImGui::Button("Attach Sprite"))
+		if (ImGui::Button("Attach Sprite", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
 			reg.emplace<Sprite>(m_Selected.entity);
 		}
@@ -342,7 +342,7 @@ void EditorToolSystem::GUIDrawTransformEditor() const
 		Transform& compTransform = reg.get<Transform>(m_Selected.entity);
 		/* Transform position value */ {
 			float pos[] {compTransform.position.x, compTransform.position.y, compTransform.position.z};
-			ImGui::InputFloat3("Position", pos, "%f", 1);
+			ImGui::DragFloat3("Position", pos, 1, -FLT_MAX, FLT_MAX, "%.2f");
 			compTransform.position.x = pos[0];
 			compTransform.position.y = pos[1];
 			compTransform.position.z = pos[2];
@@ -350,7 +350,7 @@ void EditorToolSystem::GUIDrawTransformEditor() const
 	}
 	else if (!reg.all_of<Transform>(m_Selected.entity))
 	{
-		if (ImGui::Button("Attach Transform"))
+		if (ImGui::Button("Attach Transform", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
 			reg.emplace<Transform>(m_Selected.entity);
 		}
@@ -395,7 +395,7 @@ void EditorToolSystem::GUIDrawAnimationEditor() const
 	}
 	else if (!reg.all_of<Animator>(m_Selected.entity))
 	{
-		if (ImGui::Button("Attach Animator"))
+		if (ImGui::Button("Attach Animator", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
 			reg.emplace<Animator>(m_Selected.entity);
 		}
@@ -412,21 +412,21 @@ void EditorToolSystem::GUIDrawPhysicsEditor() const
 
 		/* Pivot values */ {
 			float pivot[] {compCol.pivot.x, compCol.pivot.y};
-			ImGui::DragFloat2("Pivot", pivot, 1, -0.5f, 0.5f, "%f", 1);
+			ImGui::DragFloat2("Collision Pivot", pivot, 0.01f, -0.5f, 0.5f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 			compCol.pivot.x = pivot[0];
 			compCol.pivot.y = pivot[1];
 		}
 
 		/* Size values */ {
 			float size[] {compCol.size.x, compCol.size.y};
-			ImGui::DragFloat2("Size", size, 1, -0.5f, 0.5f, "%f", 1);
+			ImGui::DragFloat2("Collision Size", size, 1, -2000.0f, 2000.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 			compCol.size.x = size[0];
 			compCol.size.y = size[1];
 		}
 	}
 	else if (!reg.all_of<SimpleCollision>(m_Selected.entity))
 	{
-		if (ImGui::Button("Attach Collision"))
+		if (ImGui::Button("Attach Collision", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
 			reg.emplace<SimpleCollision>(m_Selected.entity);
 		}
@@ -480,13 +480,14 @@ void EditorToolSystem::OnRenderGUI()
 		ImGui::InputText("Filename", m_Filename, sizeof(m_Filename));
 		ImGui::Separator();
 
-		if (ImGui::Button("Create entity"))
+		GUIDrawCameraEditor();
+		ImGui::Separator();
+
+		if (ImGui::Button("Create Entity", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
 			GUIExecuteCreateEntity();
 			m_Registry.get<EditorFocus>(m_Focus).dirty = true;
 		}
-
-		GUIDrawCameraEditor();
 
 		if (GUIDrawEntityFocusSelection(selectedItem))
 		{
