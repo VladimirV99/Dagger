@@ -72,10 +72,13 @@ void ToolRenderSystem::OnRender()
 	static auto sortSprites = [](const Sprite& a_, const Sprite& b_)
 	{
 		// sorting by levels: z-order, shader, then image
+		// first come all invisible sprites so they can be skipped
 		// if the values are equal on z-order level, we go to the next (shader)
 		// if the shaders are also equal, we go to the texture
 		// if the textures are also equal, we give up
 
+		Bool aVisible = a_.visible;
+		Bool bVisible = b_.visible;
 		UInt32 aShader = a_.shader->programId;
 		UInt32 bShader = b_.shader->programId;
 		UInt32 aZ = a_.position.z;
@@ -83,7 +86,15 @@ void ToolRenderSystem::OnRender()
 		UInt32 aImage = a_.image == nullptr ? 0 : a_.image->TextureId();
 		UInt32 bImage = b_.image == nullptr ? 0 : b_.image->TextureId();
 
-		if (aZ == bZ)
+		if (!aVisible && !bVisible)
+		{
+			return true;
+		}
+		else if (aVisible != bVisible)
+		{
+			return bVisible;
+		}
+		else if (aZ == bZ)
 		{
 			return aShader == bShader ? aImage < bImage : aShader < bShader;
 		}
@@ -108,7 +119,14 @@ void ToolRenderSystem::OnRender()
 	std::sort(sprites.begin(), sprites.end(), sortSprites);
 	Sequence<SpriteData> currentRender {};
 
-	for (auto ptr = sprites.begin(); ptr != sprites.end();)
+	auto ptr = sprites.begin();
+	// Skip invisible sprites
+	while (ptr != sprites.end() && !ptr->visible)
+	{
+		ptr++;
+	}
+	// Draw all others
+	while (ptr != sprites.end())
 	{
 		// assert(ptr->image != nullptr);
 		while (ptr != sprites.end() && ptr->image == nullptr)
@@ -144,9 +162,6 @@ void ToolRenderSystem::OnRender()
 		glBindTexture(GL_TEXTURE_2D, prevTexture->TextureId());
 		glDrawArraysInstanced(GL_TRIANGLES, 0, s_VertexCount, (GLsizei)currentRender.size());
 		currentRender.clear();
-
-		if (ptr == sprites.end())
-			break;
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
