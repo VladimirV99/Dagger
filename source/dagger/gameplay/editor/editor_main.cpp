@@ -179,7 +179,8 @@ void EditorToolSystem::Run()
 					const auto right = sprite_.position.x + (sprite_.size.x / 2) * sprite_.scale.x * cam->zoom;
 					const auto bottom = sprite_.position.y + (sprite_.size.y / 2) * sprite_.scale.y * cam->zoom;
 
-					if (knob.position.x >= left && knob.position.y >= top && knob.position.x <= right && knob.position.y <= bottom)
+					if (knob.position.x >= left && knob.position.y >= top && knob.position.x <= right &&
+						knob.position.y <= bottom)
 					{
 						m_Targets.push_back(EditorFocusTarget {entity_, sprite_.image->Name()});
 					}
@@ -229,7 +230,7 @@ void EditorToolSystem::GUIDrawCameraEditor()
 			if (ImGui::DragFloat("Camera Zoom", &camera->zoom, 0.1f, 0.1f, 10.0f, "%.1f", 1))
 			{
 				auto& knob = m_Registry.get<Sprite>(m_Focus);
-				knob.scale = Vector2{1.0f/camera->zoom};
+				knob.scale = Vector2 {1.0f / camera->zoom};
 			}
 		}
 	}
@@ -301,13 +302,24 @@ void EditorToolSystem::GUIDrawSpriteEditor() const
 		/* Position values */ {
 			float pos[] {compSprite.position.x, compSprite.position.y, compSprite.position.z};
 			ImGui::DragFloat3("Sprite Position", pos, 1, -FLT_MAX, FLT_MAX, "%.2f");
-			compSprite.position.x = pos[0];
-			compSprite.position.y = pos[1];
-			compSprite.position.z = pos[2];
+			if (reg.all_of<Transform>(m_Selected.entity))
+			{
+				Transform& compTransform = reg.get<Transform>(m_Selected.entity);
+				compTransform.position.x = pos[0];
+				compTransform.position.y = pos[1];
+				compTransform.position.z = pos[2];
+			}
+			else
+			{
+				compSprite.position.x = pos[0];
+				compSprite.position.y = pos[1];
+				compSprite.position.z = pos[2];
+			}
 		}
 
 		/* Rotation value */ {
-			ImGui::DragFloat("Sprite Rotation", &compSprite.rotation, 0.2f, 0, 360, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+			ImGui::DragFloat(
+				"Sprite Rotation", &compSprite.rotation, 0.2f, 0, 360, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 		}
 
 		/* Scale values */ {

@@ -6,8 +6,8 @@
 #include "core/graphics/tool_render.h"
 #include "core/system.h"
 #include "gameplay/editor/savegame_system.h"
-#include "tools/toolmenu.h"
 #include "save_archetype.h"
+#include "tools/toolmenu.h"
 
 using namespace dagger;
 
