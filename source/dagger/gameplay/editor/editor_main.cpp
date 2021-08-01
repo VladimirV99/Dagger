@@ -402,12 +402,28 @@ void EditorToolSystem::GUIDrawTransformEditor() const
 			compTransform.position.y = pos[1];
 			compTransform.position.z = pos[2];
 		}
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.1f, 0.1f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.1f, 0.1f, 1.0f));
+		if (ImGui::Button("Detach Transform", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
+		{
+			reg.remove<Transform>(m_Selected.entity);
+		}
+		ImGui::PopStyleColor(3);
 	}
 	else if (!reg.all_of<Transform>(m_Selected.entity))
 	{
 		if (ImGui::Button("Attach Transform", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
-			reg.emplace<Transform>(m_Selected.entity);
+			auto& compTransform = reg.emplace<Transform>(m_Selected.entity);
+			if(reg.all_of<Sprite>(m_Selected.entity))
+			{
+				auto& compSprite = reg.get<Sprite>(m_Selected.entity);
+				compTransform.position.x = compSprite.position.x;
+				compTransform.position.y = compSprite.position.y;
+				compTransform.position.z = compSprite.position.z;
+			}
 		}
 	}
 }
@@ -453,6 +469,15 @@ void EditorToolSystem::GUIDrawAnimationEditor() const
 		/* Is Playing */ {
 			ImGui::Checkbox("Is Playing", &compAnim.isPlaying);
 		}
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.1f, 0.1f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.1f, 0.1f, 1.0f));
+		if (ImGui::Button("Detach Animator", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
+		{
+			reg.remove<Animator>(m_Selected.entity);
+		}
+		ImGui::PopStyleColor(3);
 	}
 	else if (!reg.all_of<Animator>(m_Selected.entity))
 	{
@@ -486,6 +511,15 @@ void EditorToolSystem::GUIDrawPhysicsEditor() const
 			compCol.size.x = size[0];
 			compCol.size.y = size[1];
 		}
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.1f, 0.1f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.1f, 0.1f, 1.0f));
+		if (ImGui::Button("Detach Collision", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
+		{
+			reg.remove<SimpleCollision>(m_Selected.entity);
+		}
+		ImGui::PopStyleColor(3);
 	}
 	else if (!reg.all_of<SimpleCollision>(m_Selected.entity))
 	{
