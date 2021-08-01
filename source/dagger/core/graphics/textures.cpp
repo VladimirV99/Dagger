@@ -75,6 +75,8 @@ void TextureSystem::SpinUp()
 		if (entry.path().extension() == ".png")
 			Engine::Dispatcher().trigger<AssetLoadRequest<Texture>>(AssetLoadRequest<Texture> {entry.path().string()});
 	}
+
+	Engine::Dispatcher().trigger<AssetLoadFinished<Texture>>(AssetLoadFinished<Texture> {});
 }
 
 void TextureSystem::WindDown()

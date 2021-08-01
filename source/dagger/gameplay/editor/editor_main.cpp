@@ -194,6 +194,30 @@ void EditorToolSystem::Run()
 	}
 }
 
+void EditorToolSystem::ProcessTextures()
+{
+	m_AvailableTextures.clear();
+	for (const auto& [k, n] : Engine::Res<Texture>())
+	{
+		m_AvailableTextures.push_back(k.c_str());
+	}
+	std::sort(
+		m_AvailableTextures.begin(), m_AvailableTextures.end(),
+		[](const char* lhs, const char* rhs) { return strcmp(lhs, rhs) < 0; });
+}
+
+void EditorToolSystem::ProcessAnimations()
+{
+	m_AvailableAnimations.clear();
+	for (const auto& [k, n] : Engine::Res<Animation>())
+	{
+		m_AvailableAnimations.push_back(k.c_str());
+	}
+	std::sort(
+		m_AvailableAnimations.begin(), m_AvailableAnimations.end(),
+		[](const char* lhs, const char* rhs) { return strcmp(lhs, rhs) < 0; });
+}
+
 void EditorToolSystem::GUIDrawCameraEditor()
 {
 	auto* camera = Engine::GetDefaultResource<Camera>();
@@ -217,7 +241,7 @@ void EditorToolSystem::GUIDrawCameraEditor()
 			camera->Update();
 		}
 
-		/* Position values */ {
+		/* Position */ {
 			float position[] {camera->position.x, camera->position.y};
 			if (ImGui::DragFloat2("Camera Position", position, 10.0f, -FLT_MAX, FLT_MAX, "%.2f"))
 			{
@@ -226,7 +250,7 @@ void EditorToolSystem::GUIDrawCameraEditor()
 			}
 		}
 
-		/* Zoom value */ {
+		/* Zoom */ {
 			if (ImGui::DragFloat("Camera Zoom", &camera->zoom, 0.1f, 0.1f, 10.0f, "%.1f", 1))
 			{
 				auto& knob = m_Registry.get<Sprite>(m_Focus);
@@ -258,11 +282,11 @@ void EditorToolSystem::GUIDrawSpriteEditor() const
 
 	if (reg.all_of<Sprite>(m_Selected.entity) && ImGui::CollapsingHeader("Sprite"))
 	{
-		ImGui::InputText("Filter", filter.data(), 80);
+		ImGui::InputText("Texture Filter", filter.data(), 80);
 
 		Sprite& compSprite = reg.get<Sprite>(m_Selected.entity);
 
-		/* Sprite texture */ {
+		/* Texture */ {
 			static int selectedTexture = 0;
 			Sequence<const char*> textures;
 
@@ -293,14 +317,22 @@ void EditorToolSystem::GUIDrawSpriteEditor() const
 			}
 		}
 
-		/* Size values */ {
+		/* Size */ {
 			float size[] {compSprite.size.x, compSprite.size.y};
 			ImGui::DragFloat2("Pixel Size", size, 1, -2000.0f, 2000.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 			compSprite.size.x = size[0];
 			compSprite.size.y = size[1];
 		}
 
-		/* Position values */ {
+		/* Color */ {
+			float color[] {compSprite.color.r, compSprite.color.g, compSprite.color.b};
+			ImGui::ColorEdit3("Color", color);
+			compSprite.color.r = color[0];
+			compSprite.color.g = color[1];
+			compSprite.color.b = color[2];
+		}
+
+		/* Position */ {
 			float pos[] {compSprite.position.x, compSprite.position.y, compSprite.position.z};
 			ImGui::DragFloat3("Sprite Position", pos, 1, -FLT_MAX, FLT_MAX, "%.2f");
 			if (reg.all_of<Transform>(m_Selected.entity))
@@ -318,23 +350,33 @@ void EditorToolSystem::GUIDrawSpriteEditor() const
 			}
 		}
 
-		/* Rotation value */ {
-			ImGui::DragFloat(
-				"Sprite Rotation", &compSprite.rotation, 0.2f, 0, 360, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+		/* Rotation */ {
+			ImGui::DragFloat("Rotation", &compSprite.rotation, 0.2f, 0, 360, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 		}
 
-		/* Scale values */ {
+		/* Scale */ {
 			float size[] {compSprite.scale.x, compSprite.scale.y};
-			ImGui::DragFloat2("Sprite Scale", size, 0.1f, -10, 10, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+			ImGui::DragFloat2("Scale", size, 0.1f, -10, 10, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 			compSprite.scale.x = size[0];
 			compSprite.scale.y = size[1];
 		}
 
-		/* Pivot values */ {
+		/* Pivot */ {
 			float pivot[] {compSprite.pivot.x, compSprite.pivot.y};
-			ImGui::DragFloat2("Sprite Pivot", pivot, 0.01f, -0.5f, 0.5f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+			ImGui::DragFloat2("Pivot", pivot, 0.01f, -0.5f, 0.5f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 			compSprite.pivot.x = pivot[0];
 			compSprite.pivot.y = pivot[1];
+		}
+
+		/* Is UI */ {
+			bool isUI = compSprite.isUI > 0.5f;
+			if (ImGui::Checkbox("Is UI", &isUI))
+			{
+				if (isUI)
+					compSprite.UseAsUI();
+				else
+					compSprite.UseInWorld();
+			}
 		}
 	}
 	else if (!reg.all_of<Sprite>(m_Selected.entity))
@@ -353,7 +395,7 @@ void EditorToolSystem::GUIDrawTransformEditor() const
 	if (reg.all_of<Transform>(m_Selected.entity) && ImGui::CollapsingHeader("Transform"))
 	{
 		Transform& compTransform = reg.get<Transform>(m_Selected.entity);
-		/* Transform position value */ {
+		/* Position */ {
 			float pos[] {compTransform.position.x, compTransform.position.y, compTransform.position.z};
 			ImGui::DragFloat3("Position", pos, 1, -FLT_MAX, FLT_MAX, "%.2f");
 			compTransform.position.x = pos[0];
@@ -372,27 +414,33 @@ void EditorToolSystem::GUIDrawTransformEditor() const
 
 void EditorToolSystem::GUIDrawAnimationEditor() const
 {
+	static String filter;
+
 	auto& reg = Engine::Registry();
 
 	if (reg.all_of<Animator>(m_Selected.entity) && ImGui::CollapsingHeader("Animator"))
 	{
+		ImGui::InputText("Animation Filter", filter.data(), 80);
+
 		Animator& compAnim = reg.get<Animator>(m_Selected.entity);
 		/* Animation */ {
 			static int selectedAnim = 0;
 			Sequence<const char*> animations;
 			int i = 0;
-			int currentSelected = 0;
-			for (const auto& [k, n] : Engine::Res<Animation>())
+			for (const auto* animationName : m_AvailableAnimations)
 			{
-				animations.push_back(k.c_str());
-				if (k == compAnim.currentAnimation)
+				if (strstr(animationName, filter.data()) != nullptr)
 				{
-					selectedAnim = i;
+					animations.push_back(animationName);
+					if (animationName == compAnim.currentAnimation)
+					{
+						selectedAnim = i;
+					}
+					++i;
 				}
-				++i;
 			}
 
-			currentSelected = selectedAnim;
+			int currentSelected = selectedAnim;
 			if (ImGui::Combo("Animation", &selectedAnim, animations.data(), animations.size()))
 			{
 				if (currentSelected != selectedAnim)
@@ -402,15 +450,17 @@ void EditorToolSystem::GUIDrawAnimationEditor() const
 			}
 		}
 
-		/* Is playing? */ {
-			ImGui::Checkbox("Is playing?", &compAnim.animationPlaying);
+		/* Is Playing */ {
+			ImGui::Checkbox("Is Playing", &compAnim.isPlaying);
 		}
 	}
 	else if (!reg.all_of<Animator>(m_Selected.entity))
 	{
 		if (ImGui::Button("Attach Animator", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
-			reg.emplace<Animator>(m_Selected.entity);
+			auto& compAnim = reg.emplace<Animator>(m_Selected.entity);
+			if (!m_AvailableAnimations.empty())
+				AnimatorPlay(compAnim, m_AvailableAnimations[0]);
 		}
 	}
 }
@@ -423,14 +473,14 @@ void EditorToolSystem::GUIDrawPhysicsEditor() const
 	{
 		SimpleCollision& compCol = reg.get<SimpleCollision>(m_Selected.entity);
 
-		/* Pivot values */ {
+		/* Pivot */ {
 			float pivot[] {compCol.pivot.x, compCol.pivot.y};
 			ImGui::DragFloat2("Collision Pivot", pivot, 0.01f, -0.5f, 0.5f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 			compCol.pivot.x = pivot[0];
 			compCol.pivot.y = pivot[1];
 		}
 
-		/* Size values */ {
+		/* Size */ {
 			float size[] {compCol.size.x, compCol.size.y};
 			ImGui::DragFloat2("Collision Size", size, 1, -2000.0f, 2000.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 			compCol.size.x = size[0];

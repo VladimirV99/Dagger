@@ -92,6 +92,8 @@ void ShaderSystem::SpinUp()
 			Engine::Dispatcher().trigger<AssetLoadRequest<Shader>>(AssetLoadRequest<Shader> {path});
 		}
 	}
+
+	Engine::Dispatcher().trigger<AssetLoadFinished<Shader>>(AssetLoadFinished<Shader> {});
 }
 
 void ShaderSystem::WindDown()

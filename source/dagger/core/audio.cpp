@@ -117,6 +117,8 @@ void AudioSystem::SpinUp()
 				Engine::Dispatcher().trigger<AssetLoadRequest<Sound>>(AssetLoadRequest<Sound> {entry.path().string()});
 		}
 	}
+
+	Engine::Dispatcher().trigger<AssetLoadFinished<Sound>>(AssetLoadFinished<Sound> {});
 }
 
 void AudioSystem::WindDown()

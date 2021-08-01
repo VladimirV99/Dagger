@@ -35,6 +35,7 @@ namespace editor
 		char m_Filename[41];
 		Sequence<EditorFocusTarget> m_Targets;
 		Sequence<const char*> m_AvailableTextures;
+		Sequence<const char*> m_AvailableAnimations;
 
 		String SystemName() const override
 		{
@@ -44,6 +45,9 @@ namespace editor
 		void SpinUp() override
 		{
 			std::strncpy(m_Filename, "default_saved_scene.json", sizeof(m_Filename) - 1);
+			Engine::Dispatcher().sink<AssetLoadFinished<Texture>>().connect<&EditorToolSystem::ProcessTextures>(this);
+			Engine::Dispatcher().sink<AssetLoadFinished<Animation>>().connect<&EditorToolSystem::ProcessAnimations>(
+				this);
 			Engine::Dispatcher().sink<KeyboardEvent>().connect<&EditorToolSystem::OnKeyboardEvent>(this);
 			Engine::Dispatcher().sink<ToolMenuRender>().connect<&EditorToolSystem::OnToolMenuRender>(this);
 			Engine::Dispatcher().sink<GUIRender>().connect<&EditorToolSystem::OnRenderGUI>(this);
@@ -56,25 +60,27 @@ namespace editor
 				sprite.position = Vector3 {0, 0, 0};
 			}
 
-			for (const auto& [k, n] : Engine::Res<Texture>())
-			{
-				m_AvailableTextures.push_back(k.c_str());
-			}
-			std::sort(
-				m_AvailableTextures.begin(), m_AvailableTextures.end(),
-				[](const char* lhs, const char* rhs) { return strcmp(lhs, rhs) < 0; });
+			ProcessTextures();
+			ProcessAnimations();
 
 			Engine::GetDefaultResource<ToolRenderSystem>()->registry = &m_Registry;
 		}
 
 		void WindDown() override
 		{
+			Engine::Dispatcher().sink<AssetLoadFinished<Texture>>().disconnect<&EditorToolSystem::ProcessTextures>(
+				this);
+			Engine::Dispatcher().sink<AssetLoadFinished<Animation>>().disconnect<&EditorToolSystem::ProcessAnimations>(
+				this);
 			Engine::Dispatcher().sink<KeyboardEvent>().disconnect<&EditorToolSystem::OnKeyboardEvent>(this);
 			Engine::Dispatcher().sink<GUIRender>().disconnect<&EditorToolSystem::OnRenderGUI>(this);
 			Engine::Dispatcher().sink<ToolMenuRender>().disconnect<&EditorToolSystem::OnToolMenuRender>(this);
 		}
 
 		void Run() override;
+
+		void ProcessTextures();
+		void ProcessAnimations();
 
 		void OnKeyboardEvent(KeyboardEvent event_);
 		void OnToolMenuRender();

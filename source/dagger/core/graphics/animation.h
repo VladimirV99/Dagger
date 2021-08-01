@@ -27,10 +27,10 @@ namespace dagger
 	struct Animator
 	{
 		String currentAnimation;
-		Bool animationPlaying {false};
+		Bool isPlaying {false};
 		UInt32 currentFrame {0};
 		Float64 currentFrameTime {0};
-		Bool isLooping {true};
+		Bool shouldLoop {true};
 		entt::delegate<void(Entity, ViewPtr<Animation>)> onAnimationEnded;
 	};
 

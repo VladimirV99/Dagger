@@ -281,6 +281,11 @@ struct AssetLoadRequest
 	String path;
 };
 
+template<typename PhantomT>
+struct AssetLoadFinished
+{
+};
+
 struct KeyboardEvent
 {
 	EDaggerKeyboard key;

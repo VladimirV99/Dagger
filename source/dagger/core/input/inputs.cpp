@@ -83,6 +83,8 @@ void InputSystem::LoadDefaultAssets()
 			Engine::Dispatcher().trigger<AssetLoadRequest<InputContext>>(AssetLoadRequest<InputContext> {path});
 		}
 	}
+
+	Engine::Dispatcher().trigger<AssetLoadFinished<InputContext>>(AssetLoadFinished<InputContext> {});
 }
 
 void InputSystem::LoadInputAction(InputCommand& command_, JSON::json& input_)
