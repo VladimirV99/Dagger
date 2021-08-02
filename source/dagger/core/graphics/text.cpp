@@ -50,6 +50,7 @@ void Text::Set(String font_, String message_, Vector3 pos_, Bool ui_)
 
 		if (ui_)
 			sprite.UseAsUI();
+		
 		if (direction == ETextDirection::RIGHT)
 			sprite.position = {
 				currentPosition + (spritesheet->frame.size.x * scale.x * spacing / 2.0f) - alignOffset, position.y,
@@ -58,6 +59,8 @@ void Text::Set(String font_, String message_, Vector3 pos_, Bool ui_)
 			sprite.position = {
 				position.x, currentPosition - (spritesheet->frame.size.x * scale.x * spacing / 2.0f) + alignOffset,
 				position.z};
+		
+		sprite.color = color;
 		sprite.scale = scale;
 		AssignSprite(sprite, spritesheet);
 

@@ -18,6 +18,7 @@ enum struct ETextAlignment
 struct Text
 {
 	String font;
+	Vector4 color {1.0f, 1.0f, 1.0f, 1.0f};
 	ETextDirection direction {ETextDirection::RIGHT};
 	ETextAlignment alignment {ETextAlignment::MIDDLE};
 	Vector2 scale {1.0f, 1.0f};
