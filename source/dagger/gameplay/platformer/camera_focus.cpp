@@ -2,8 +2,8 @@
 
 #include "core/core.h"
 #include "core/engine.h"
+#include "core/graphics/camera.h"
 #include "core/graphics/sprite.h"
-#include "core/graphics/window.h"
 
 using namespace dagger;
 using namespace platformer;

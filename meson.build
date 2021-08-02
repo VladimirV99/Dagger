@@ -34,6 +34,7 @@ sources = [
     'source/dagger/core/game/transforms.cpp',
     'source/dagger/core/graphics/animation.cpp',
     'source/dagger/core/graphics/animations.cpp',
+    'source/dagger/core/graphics/camera.cpp',
     'source/dagger/core/graphics/gui.cpp',
     'source/dagger/core/graphics/shader.cpp',
     'source/dagger/core/graphics/shaders.cpp',

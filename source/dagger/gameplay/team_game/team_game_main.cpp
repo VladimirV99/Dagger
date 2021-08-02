@@ -4,9 +4,9 @@
 #include "core/engine.h"
 #include "core/game/transforms.h"
 #include "core/graphics/animation.h"
+#include "core/graphics/camera.h"
 #include "core/graphics/shaders.h"
 #include "core/graphics/sprite.h"
-#include "core/graphics/window.h"
 #include "core/input/inputs.h"
 #include "gameplay/common/simple_collisions.h"
 
