@@ -140,24 +140,27 @@ void EditorToolSystem::Run()
 			auto cursorPos = Input::CursorPositionInWorld();
 			knob.position.x = cursorPos.x;
 			knob.position.y = cursorPos.y;
-			focus.dirty = true;
+			UpdateTargets();
+			if (!m_Targets.empty())
+			{
+				m_Selected = m_Targets[0].entity;
+			}
 		}
 
 		if (Input::IsInputDown(EDaggerKeyboard::KeyLeftShift))
 		{
 			auto& reg = Engine::Registry();
-			if (reg.valid(m_Selected.entity))
+			if (reg.valid(m_Selected))
 			{
-				if (reg.all_of<Transform>(m_Selected.entity))
+				knob.position = Vector3 {Input::CursorPositionInWorld(), 0};
+				if (reg.all_of<Transform>(m_Selected))
 				{
-					auto& transform = reg.get<Transform>(m_Selected.entity);
-					knob.position = Vector3 {Input::CursorPositionInWorld(), 0};
+					auto& transform = reg.get<Transform>(m_Selected);
 					transform.position = knob.position;
 				}
-				else if (reg.all_of<Sprite>(m_Selected.entity))
+				if (reg.all_of<Sprite>(m_Selected))
 				{
-					auto& sprite = reg.get<Sprite>(m_Selected.entity);
-					knob.position = Vector3 {Input::CursorPositionInWorld(), 0};
+					auto& sprite = reg.get<Sprite>(m_Selected);
 					sprite.position = knob.position;
 				}
 			}
@@ -165,33 +168,8 @@ void EditorToolSystem::Run()
 
 		if (!Input::IsInputDown(EDaggerMouse::MouseButton1) && focus.dirty)
 		{
-			m_Targets.clear();
 			focus.dirty = false;
-
-			const auto* cam = Engine::GetDefaultResource<Camera>();
-
-			Engine::Registry().view<Sprite, SaveGame<ECommonSaveArchetype>>().each(
-				[&](Entity entity_, const Sprite& sprite_, const SaveGame<ECommonSaveArchetype>& save_)
-				{
-					const auto left = sprite_.position.x - (sprite_.size.x / 2) * sprite_.scale.x * cam->zoom;
-					const auto top = sprite_.position.y - (sprite_.size.y / 2) * sprite_.scale.y * cam->zoom;
-
-					const auto right = sprite_.position.x + (sprite_.size.x / 2) * sprite_.scale.x * cam->zoom;
-					const auto bottom = sprite_.position.y + (sprite_.size.y / 2) * sprite_.scale.y * cam->zoom;
-
-					// Rotate the knob position by negative sprite rotation angle around the sprite position
-					// Then check collision as usual
-					const Vector3 knobRelative = knob.position - sprite_.position;
-					const double sine = sin(-sprite_.rotation * M_PI / 180.0f);
-					const double cosine = cos(-sprite_.rotation * M_PI / 180.0f);
-					const auto knobX = sprite_.position.x + knobRelative.x * cosine - knobRelative.y * sine;
-					const auto knobY = sprite_.position.y + knobRelative.x * sine + knobRelative.y * cosine;
-
-					if (knobX >= left && knobY >= top && knobX <= right && knobY <= bottom)
-					{
-						m_Targets.push_back(EditorFocusTarget {entity_, sprite_.image->Name()});
-					}
-				});
+			UpdateTargets();
 		}
 	}
 	else
@@ -223,6 +201,45 @@ void EditorToolSystem::ProcessAnimations()
 	std::sort(
 		m_AvailableAnimations.begin(), m_AvailableAnimations.end(),
 		[](const char* lhs, const char* rhs) { return strcmp(lhs, rhs) < 0; });
+}
+
+void EditorToolSystem::UpdateTargets()
+{
+	auto& knob = m_Registry.get<Sprite>(m_Focus);
+	m_Targets.clear();
+
+	const auto* cam = Engine::GetDefaultResource<Camera>();
+
+	Engine::Registry().view<Sprite, SaveGame<ECommonSaveArchetype>>().each(
+		[&](Entity entity_, const Sprite& sprite_, const SaveGame<ECommonSaveArchetype>& save_)
+		{
+			const auto left = sprite_.position.x - (sprite_.size.x / 2) * sprite_.scale.x * cam->zoom;
+			const auto top = sprite_.position.y - (sprite_.size.y / 2) * sprite_.scale.y * cam->zoom;
+
+			const auto right = sprite_.position.x + (sprite_.size.x / 2) * sprite_.scale.x * cam->zoom;
+			const auto bottom = sprite_.position.y + (sprite_.size.y / 2) * sprite_.scale.y * cam->zoom;
+
+			// Rotate the knob position by negative sprite rotation angle around the sprite position
+			// Then check collision as usual
+			const Vector3 knobRelative = knob.position - sprite_.position;
+			const double sine = sin(-sprite_.rotation * M_PI / 180.0f);
+			const double cosine = cos(-sprite_.rotation * M_PI / 180.0f);
+			const auto knobX = sprite_.position.x + knobRelative.x * cosine - knobRelative.y * sine;
+			const auto knobY = sprite_.position.y + knobRelative.x * sine + knobRelative.y * cosine;
+
+			if (knobX >= left && knobY >= top && knobX <= right && knobY <= bottom)
+			{
+				if (Engine::Registry().all_of<Animator>(entity_))
+				{
+					auto& animator = Engine::Registry().get<Animator>(entity_);
+					m_Targets.push_back(EditorFocusTarget {entity_, animator.currentAnimation});
+				}
+				else
+				{
+					m_Targets.push_back(EditorFocusTarget {entity_, sprite_.image->Name()});
+				}
+			}
+		});
 }
 
 void EditorToolSystem::GUIDrawCameraEditor()
@@ -267,7 +284,7 @@ void EditorToolSystem::GUIDrawCameraEditor()
 	}
 }
 
-void EditorToolSystem::GUIExecuteCreateEntity()
+Entity EditorToolSystem::GUIExecuteCreateEntity()
 {
 	auto focusPosition = m_Registry.get<Sprite>(m_Focus).position;
 
@@ -277,21 +294,25 @@ void EditorToolSystem::GUIExecuteCreateEntity()
 	newTransform.position.x = focusPosition.x;
 	newTransform.position.y = focusPosition.y;
 	auto& newSprite = reg.emplace<Sprite>(newEntity);
+	newSprite.position.x = focusPosition.x;
+	newSprite.position.y = focusPosition.y;
 	AssignSprite(newSprite, "tools:knob2");
 	reg.emplace<SaveGame<ECommonSaveArchetype>>(newEntity);
+
+	return newEntity;
 }
 
-void EditorToolSystem::GUIDrawSpriteEditor() const
+void EditorToolSystem::GUIDrawSpriteEditor()
 {
 	static String filter;
 
 	auto& reg = Engine::Registry();
 
-	if (reg.all_of<Sprite>(m_Selected.entity) && ImGui::CollapsingHeader("Sprite"))
+	if (reg.all_of<Sprite>(m_Selected) && ImGui::CollapsingHeader("Sprite"))
 	{
 		ImGui::InputText("Texture Filter", filter.data(), 80);
 
-		Sprite& compSprite = reg.get<Sprite>(m_Selected.entity);
+		Sprite& compSprite = reg.get<Sprite>(m_Selected);
 
 		/* Texture */ {
 			static int selectedTexture = 0;
@@ -320,6 +341,7 @@ void EditorToolSystem::GUIDrawSpriteEditor() const
 				if (currentSelected != selectedTexture)
 				{
 					AssignSprite(compSprite, textures[selectedTexture]);
+					m_Registry.get<EditorFocus>(m_Focus).dirty = true;
 				}
 			}
 		}
@@ -342,9 +364,9 @@ void EditorToolSystem::GUIDrawSpriteEditor() const
 		/* Position */ {
 			float pos[] {compSprite.position.x, compSprite.position.y, compSprite.position.z};
 			ImGui::DragFloat3("Sprite Position", pos, 1, -FLT_MAX, FLT_MAX, "%.2f");
-			if (reg.all_of<Transform>(m_Selected.entity))
+			if (reg.all_of<Transform>(m_Selected))
 			{
-				Transform& compTransform = reg.get<Transform>(m_Selected.entity);
+				Transform& compTransform = reg.get<Transform>(m_Selected);
 				compTransform.position.x = pos[0];
 				compTransform.position.y = pos[1];
 				compTransform.position.z = pos[2];
@@ -386,22 +408,22 @@ void EditorToolSystem::GUIDrawSpriteEditor() const
 			}
 		}
 	}
-	else if (!reg.all_of<Sprite>(m_Selected.entity))
+	else if (!reg.all_of<Sprite>(m_Selected))
 	{
 		if (ImGui::Button("Attach Sprite", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
-			reg.emplace<Sprite>(m_Selected.entity);
+			reg.emplace<Sprite>(m_Selected);
 		}
 	}
 }
 
-void EditorToolSystem::GUIDrawTransformEditor() const
+void EditorToolSystem::GUIDrawTransformEditor()
 {
 	auto& reg = Engine::Registry();
 
-	if (reg.all_of<Transform>(m_Selected.entity) && ImGui::CollapsingHeader("Transform"))
+	if (reg.all_of<Transform>(m_Selected) && ImGui::CollapsingHeader("Transform"))
 	{
-		Transform& compTransform = reg.get<Transform>(m_Selected.entity);
+		Transform& compTransform = reg.get<Transform>(m_Selected);
 		/* Position */ {
 			float pos[] {compTransform.position.x, compTransform.position.y, compTransform.position.z};
 			ImGui::DragFloat3("Position", pos, 1, -FLT_MAX, FLT_MAX, "%.2f");
@@ -415,18 +437,18 @@ void EditorToolSystem::GUIDrawTransformEditor() const
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.1f, 0.1f, 1.0f));
 		if (ImGui::Button("Detach Transform", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
-			reg.remove<Transform>(m_Selected.entity);
+			reg.remove<Transform>(m_Selected);
 		}
 		ImGui::PopStyleColor(3);
 	}
-	else if (!reg.all_of<Transform>(m_Selected.entity))
+	else if (!reg.all_of<Transform>(m_Selected))
 	{
 		if (ImGui::Button("Attach Transform", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
-			auto& compTransform = reg.emplace<Transform>(m_Selected.entity);
-			if (reg.all_of<Sprite>(m_Selected.entity))
+			auto& compTransform = reg.emplace<Transform>(m_Selected);
+			if (reg.all_of<Sprite>(m_Selected))
 			{
-				auto& compSprite = reg.get<Sprite>(m_Selected.entity);
+				auto& compSprite = reg.get<Sprite>(m_Selected);
 				compTransform.position.x = compSprite.position.x;
 				compTransform.position.y = compSprite.position.y;
 				compTransform.position.z = compSprite.position.z;
@@ -435,17 +457,17 @@ void EditorToolSystem::GUIDrawTransformEditor() const
 	}
 }
 
-void EditorToolSystem::GUIDrawAnimationEditor() const
+void EditorToolSystem::GUIDrawAnimationEditor()
 {
 	static String filter;
 
 	auto& reg = Engine::Registry();
 
-	if (reg.all_of<Animator>(m_Selected.entity) && ImGui::CollapsingHeader("Animator"))
+	if (reg.all_of<Animator>(m_Selected) && ImGui::CollapsingHeader("Animator"))
 	{
 		ImGui::InputText("Animation Filter", filter.data(), 80);
 
-		Animator& compAnim = reg.get<Animator>(m_Selected.entity);
+		Animator& compAnim = reg.get<Animator>(m_Selected);
 		/* Animation */ {
 			static int selectedAnim = 0;
 			Sequence<const char*> animations;
@@ -469,6 +491,7 @@ void EditorToolSystem::GUIDrawAnimationEditor() const
 				if (currentSelected != selectedAnim)
 				{
 					AnimatorPlay(compAnim, animations[selectedAnim]);
+					m_Registry.get<EditorFocus>(m_Focus).dirty = true;
 				}
 			}
 		}
@@ -482,28 +505,30 @@ void EditorToolSystem::GUIDrawAnimationEditor() const
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.1f, 0.1f, 1.0f));
 		if (ImGui::Button("Detach Animator", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
-			reg.remove<Animator>(m_Selected.entity);
+			reg.remove<Animator>(m_Selected);
+			m_Registry.get<EditorFocus>(m_Focus).dirty = true;
 		}
 		ImGui::PopStyleColor(3);
 	}
-	else if (!reg.all_of<Animator>(m_Selected.entity))
+	else if (!reg.all_of<Animator>(m_Selected))
 	{
 		if (ImGui::Button("Attach Animator", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
-			auto& compAnim = reg.emplace<Animator>(m_Selected.entity);
+			auto& compAnim = reg.emplace<Animator>(m_Selected);
 			if (!m_AvailableAnimations.empty())
 				AnimatorPlay(compAnim, m_AvailableAnimations[0]);
+			m_Registry.get<EditorFocus>(m_Focus).dirty = true;
 		}
 	}
 }
 
-void EditorToolSystem::GUIDrawPhysicsEditor() const
+void EditorToolSystem::GUIDrawPhysicsEditor()
 {
 	auto& reg = Engine::Registry();
 
-	if (reg.all_of<SimpleCollision>(m_Selected.entity) && ImGui::CollapsingHeader("Collision"))
+	if (reg.all_of<SimpleCollision>(m_Selected) && ImGui::CollapsingHeader("Collision"))
 	{
-		SimpleCollision& compCol = reg.get<SimpleCollision>(m_Selected.entity);
+		SimpleCollision& compCol = reg.get<SimpleCollision>(m_Selected);
 
 		/* Pivot */ {
 			float pivot[] {compCol.pivot.x, compCol.pivot.y};
@@ -524,45 +549,52 @@ void EditorToolSystem::GUIDrawPhysicsEditor() const
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.1f, 0.1f, 1.0f));
 		if (ImGui::Button("Detach Collision", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
-			reg.remove<SimpleCollision>(m_Selected.entity);
+			reg.remove<SimpleCollision>(m_Selected);
 		}
 		ImGui::PopStyleColor(3);
 	}
-	else if (!reg.all_of<SimpleCollision>(m_Selected.entity))
+	else if (!reg.all_of<SimpleCollision>(m_Selected))
 	{
 		if (ImGui::Button("Attach Collision", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
-			reg.emplace<SimpleCollision>(m_Selected.entity);
+			reg.emplace<SimpleCollision>(m_Selected);
 		}
 	}
 }
 
-bool EditorToolSystem::GUIDrawEntityFocusSelection(int& selectedItem_)
+bool EditorToolSystem::GUIDrawEntityFocusSelection()
 {
 	auto& reg = Engine::Registry();
 
 	Sequence<const char*> items;
 
+	int selectedItem = 0;
+
 	items.push_back("<none>");
+	int i = 1;
 	for (auto& item : m_Targets)
 	{
 		items.push_back(item.name.c_str());
+		if (m_Selected == item.entity)
+		{
+			selectedItem = i;
+		}
+		++i;
 	}
 
-	ImGui::ListBox("In Focus", &selectedItem_, items.data(), items.size(), 10);
+	ImGui::ListBox("In Focus", &selectedItem, items.data(), items.size(), 10);
 
-	if (selectedItem_ - 1 >= m_Targets.size())
+	if (selectedItem == 0 && m_Selected != entt::null)
 	{
-		selectedItem_ = 0;
-		m_Selected.entity = entt::null;
+		m_Selected = entt::null;
 	}
 
-	if (selectedItem_ > 0)
+	if (selectedItem > 0)
 	{
-		const int index = selectedItem_ - 1;
-		m_Selected = m_Targets[index];
+		const int index = selectedItem - 1;
+		m_Selected = m_Targets[index].entity;
 
-		if (!reg.valid(m_Selected.entity))
+		if (!reg.valid(m_Selected))
 		{
 			return false;
 		}
@@ -577,8 +609,6 @@ void EditorToolSystem::OnRenderGUI()
 {
 	if (m_IsInEditor)
 	{
-		static int selectedItem = 0;
-
 		ImGui::Begin("Scene Editor");
 
 		ImGui::InputText("Filename", m_Filename, sizeof(m_Filename));
@@ -589,11 +619,11 @@ void EditorToolSystem::OnRenderGUI()
 
 		if (ImGui::Button("Create Entity", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
 		{
-			GUIExecuteCreateEntity();
-			m_Registry.get<EditorFocus>(m_Focus).dirty = true;
+			m_Selected = GUIExecuteCreateEntity();
+			UpdateTargets();
 		}
 
-		if (GUIDrawEntityFocusSelection(selectedItem))
+		if (GUIDrawEntityFocusSelection())
 		{
 			GUIDrawSpriteEditor();
 			GUIDrawTransformEditor();

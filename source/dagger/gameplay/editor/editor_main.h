@@ -26,12 +26,10 @@ namespace editor
 
 	class EditorToolSystem : public System
 	{
-		static inline EditorFocusTarget s_NoTarget {entt::null, ""};
-
 		Bool m_IsInEditor;
 		Registry m_Registry;
 		Entity m_Focus {entt::null};
-		EditorFocusTarget m_Selected {s_NoTarget};
+		Entity m_Selected {entt::null};
 		char m_Filename[41];
 		Sequence<EditorFocusTarget> m_Targets;
 		Sequence<const char*> m_AvailableTextures;
@@ -82,17 +80,19 @@ namespace editor
 		void ProcessTextures();
 		void ProcessAnimations();
 
+		void UpdateTargets();
+
 		void OnKeyboardEvent(KeyboardEvent event_);
 		void OnToolMenuRender();
 		void OnRenderGUI();
 
 		void GUIDrawCameraEditor();
-		void GUIExecuteCreateEntity();
-		void GUIDrawSpriteEditor() const;
-		void GUIDrawTransformEditor() const;
-		void GUIDrawAnimationEditor() const;
-		void GUIDrawPhysicsEditor() const;
-		bool GUIDrawEntityFocusSelection(int& selectedItem_);
+		Entity GUIExecuteCreateEntity();
+		void GUIDrawSpriteEditor();
+		void GUIDrawTransformEditor();
+		void GUIDrawAnimationEditor();
+		void GUIDrawPhysicsEditor();
+		bool GUIDrawEntityFocusSelection();
 	};
 
 	class EditorTestGame
