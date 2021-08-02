@@ -28,7 +28,7 @@ namespace dagger
 	{
 		String currentAnimation;
 		Bool isPlaying {false};
-		UInt32 currentFrame {0};
+		SInt32 currentFrame {0};
 		Float64 currentFrameTime {0};
 		Bool shouldLoop {true};
 		entt::delegate<void(Entity, ViewPtr<Animation>)> onAnimationEnded;

@@ -9,7 +9,7 @@ void dagger::AnimatorPlayOnce(Animator& animator_, String animationName_)
 
 	animator_.shouldLoop = false;
 	animator_.currentAnimation = animationName_;
-	animator_.currentFrame = 0;
+	animator_.currentFrame = -1;
 	animator_.currentFrameTime = 0;
 	animator_.isPlaying = true;
 }
@@ -21,7 +21,7 @@ void dagger::AnimatorPlay(Animator& animator_, String animationName_)
 
 	animator_.shouldLoop = true;
 	animator_.currentAnimation = animationName_;
-	animator_.currentFrame = 0;
+	animator_.currentFrame = -1;
 	animator_.currentFrameTime = 0;
 	animator_.isPlaying = true;
 }

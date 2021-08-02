@@ -29,6 +29,15 @@ void AnimationSystem::Run()
 			if (animator_.isPlaying && animator_.currentAnimation != "")
 			{
 				const auto currentAnimation = AnimationSystem::Get(animator_.currentAnimation);
+
+				// Manually set the first frame
+				if (animator_.currentFrame < 0)
+				{
+					animator_.currentFrame = 0;
+					AssignSprite(sprite_, currentAnimation->frames[animator_.currentFrame].textureName);
+					return;
+				}
+
 				const auto& frame = currentAnimation->frames[animator_.currentFrame];
 
 				animator_.currentFrameTime += Engine::DeltaTime();
