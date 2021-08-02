@@ -636,6 +636,16 @@ void EditorToolSystem::OnRenderGUI()
 			//  - de/serialiazation in savegame.h/cpp
 			//  - changing the savegame enum in save_archetype.h
 			//  - changing the editor GUI in editor_main.h/cpp
+
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.1f, 0.1f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.1f, 0.1f, 1.0f));
+			if (ImGui::Button("Delete Entity", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f)))
+			{
+				Engine::Registry().destroy(m_Selected);
+				m_Registry.get<EditorFocus>(m_Focus).dirty = true;
+			}
+			ImGui::PopStyleColor(3);
 		}
 
 		ImGui::End();
