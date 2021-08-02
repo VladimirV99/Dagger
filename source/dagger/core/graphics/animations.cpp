@@ -26,7 +26,7 @@ void AnimationSystem::Run()
 	entities.each(
 		[](const auto entity_, Animator& animator_, Sprite& sprite_)
 		{
-			if (animator_.animationPlaying && animator_.currentAnimation != "")
+			if (animator_.isPlaying && animator_.currentAnimation != "")
 			{
 				const auto currentAnimation = AnimationSystem::Get(animator_.currentAnimation);
 				const auto& frame = currentAnimation->frames[animator_.currentFrame];
@@ -44,9 +44,9 @@ void AnimationSystem::Run()
 							animator_.onAnimationEnded(entity_, currentAnimation);
 						}
 
-						if (!animator_.isLooping)
+						if (!animator_.shouldLoop)
 						{
-							animator_.animationPlaying = false;
+							animator_.isPlaying = false;
 							animator_.currentAnimation = "";
 							return;
 						}
@@ -101,13 +101,13 @@ void AnimationSystem::RenderToolMenu()
 		if (ImGui::MenuItem("Stop All"))
 		{
 			const auto& entities = Engine::Registry().view<Animator>();
-			entities.each([](Animator& anim_) { anim_.animationPlaying = false; });
+			entities.each([](Animator& anim_) { anim_.isPlaying = false; });
 		}
 
 		if (ImGui::MenuItem("Play All"))
 		{
 			const auto& entities = Engine::Registry().view<Animator>();
-			entities.each([](Animator& anim_) { anim_.animationPlaying = true; });
+			entities.each([](Animator& anim_) { anim_.isPlaying = true; });
 		}
 
 		ImGui::EndMenu();
@@ -244,4 +244,6 @@ void AnimationSystem::LoadDefaultAssets()
 			Engine::Dispatcher().trigger<AssetLoadRequest<Animation>>(AssetLoadRequest<Animation> {path});
 		}
 	}
+
+	Engine::Dispatcher().trigger<AssetLoadFinished<Animation>>(AssetLoadFinished<Animation> {});
 }

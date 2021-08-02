@@ -47,6 +47,7 @@ sources = [
     'source/dagger/core/audio.cpp',
     'source/dagger/core/engine.cpp',
     'source/dagger/core/game.cpp',
+    'source/dagger/core/savegame.cpp',
     'source/dagger/gameplay/common/aiming_system.cpp',
     'source/dagger/gameplay/common/jiggle.cpp',
     'source/dagger/gameplay/common/particles.cpp',

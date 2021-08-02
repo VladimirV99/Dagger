@@ -162,6 +162,12 @@ void SpriteRenderSystem::OnRender()
 {
 	static auto sortSprites = [](const Sprite& a_, const Sprite& b_)
 	{
+		// sorting by levels: visibility, z-order, shader, then image
+		// first come all invisible sprites so they can be skipped
+		// if the values are equal on z-order level, we go to the next (shader)
+		// if the shaders are also equal, we go to the texture
+		// if the textures are also equal, we give up
+
 		Bool aVisible = a_.visible;
 		Bool bVisible = b_.visible;
 		UInt32 aShader = a_.shader->programId;
@@ -202,10 +208,12 @@ void SpriteRenderSystem::OnRender()
 	Sequence<SpriteData> currentRender {};
 
 	auto ptr = sprites.begin();
+	// Skip invisible sprites
 	while (ptr != sprites.end() && !ptr->visible)
 	{
 		ptr++;
 	}
+	// Draw all others
 	while (ptr != sprites.end())
 	{
 		if (prevShader != ptr->shader)
@@ -242,9 +250,6 @@ void SpriteRenderSystem::OnRender()
 		glBindTexture(GL_TEXTURE_2D, prevTexture->TextureId());
 		glDrawArraysInstanced(GL_TRIANGLES, 0, s_VertexCount, (GLsizei)currentRender.size());
 		currentRender.clear();
-
-		if (ptr == sprites.end())
-			break;
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

@@ -6,34 +6,13 @@
 #include "core/graphics/tool_render.h"
 #include "core/system.h"
 #include "gameplay/editor/savegame_system.h"
+#include "save_archetype.h"
 #include "tools/toolmenu.h"
 
 using namespace dagger;
 
 namespace editor
 {
-	enum class ECommonSaveArchetype
-	{
-		None = 0b00000000,
-		Sprite = 0b00000001,
-		Transform = 0b00000010,
-		Animator = 0b00000100,
-		Physics = 0b00001000,
-		// todo: add new values here
-	};
-
-#define IS_ARCHETYPE_SET(in, test) ((in & test) == test)
-
-	inline ECommonSaveArchetype operator|(ECommonSaveArchetype a_, ECommonSaveArchetype b_)
-	{
-		return static_cast<ECommonSaveArchetype>(static_cast<int>(a_) | static_cast<int>(b_));
-	}
-
-	inline ECommonSaveArchetype operator&(ECommonSaveArchetype a_, ECommonSaveArchetype b_)
-	{
-		return static_cast<ECommonSaveArchetype>(static_cast<int>(a_) & static_cast<int>(b_));
-	}
-
 	struct EditorFocus
 	{
 		Bool dirty;
@@ -47,23 +26,26 @@ namespace editor
 
 	class EditorToolSystem : public System
 	{
-		static inline EditorFocusTarget s_NoTarget {entt::null, ""};
-
 		Bool m_IsInEditor;
 		Registry m_Registry;
 		Entity m_Focus {entt::null};
-		EditorFocusTarget m_Selected {s_NoTarget};
-		String m_Filename;
+		Entity m_Selected {entt::null};
+		char m_Filename[41];
 		Sequence<EditorFocusTarget> m_Targets;
+		Sequence<const char*> m_AvailableTextures;
+		Sequence<const char*> m_AvailableAnimations;
 
 		String SystemName() const override
 		{
-			return "SaveGame";
+			return "Editor Tool System";
 		}
 
 		void SpinUp() override
 		{
-			m_Filename = "default_saved_scene.json";
+			std::strncpy(m_Filename, "default_saved_scene.json", sizeof(m_Filename) - 1);
+			Engine::Dispatcher().sink<AssetLoadFinished<Texture>>().connect<&EditorToolSystem::ProcessTextures>(this);
+			Engine::Dispatcher().sink<AssetLoadFinished<Animation>>().connect<&EditorToolSystem::ProcessAnimations>(
+				this);
 			Engine::Dispatcher().sink<KeyboardEvent>().connect<&EditorToolSystem::OnKeyboardEvent>(this);
 			Engine::Dispatcher().sink<ToolMenuRender>().connect<&EditorToolSystem::OnToolMenuRender>(this);
 			Engine::Dispatcher().sink<GUIRender>().connect<&EditorToolSystem::OnRenderGUI>(this);
@@ -76,11 +58,18 @@ namespace editor
 				sprite.position = Vector3 {0, 0, 0};
 			}
 
+			ProcessTextures();
+			ProcessAnimations();
+
 			Engine::GetDefaultResource<ToolRenderSystem>()->registry = &m_Registry;
 		}
 
 		void WindDown() override
 		{
+			Engine::Dispatcher().sink<AssetLoadFinished<Texture>>().disconnect<&EditorToolSystem::ProcessTextures>(
+				this);
+			Engine::Dispatcher().sink<AssetLoadFinished<Animation>>().disconnect<&EditorToolSystem::ProcessAnimations>(
+				this);
 			Engine::Dispatcher().sink<KeyboardEvent>().disconnect<&EditorToolSystem::OnKeyboardEvent>(this);
 			Engine::Dispatcher().sink<GUIRender>().disconnect<&EditorToolSystem::OnRenderGUI>(this);
 			Engine::Dispatcher().sink<ToolMenuRender>().disconnect<&EditorToolSystem::OnToolMenuRender>(this);
@@ -88,15 +77,22 @@ namespace editor
 
 		void Run() override;
 
+		void ProcessTextures();
+		void ProcessAnimations();
+
+		void UpdateTargets();
+
 		void OnKeyboardEvent(KeyboardEvent event_);
 		void OnToolMenuRender();
 		void OnRenderGUI();
 
-		void GUIExecuteCreateEntity();
-		void GUIDrawSpriteEditor() const;
-		void GUIDrawAnimationEditor() const;
-		void GUIDrawPhysicsEditor() const;
-		bool GUIDrawEntityFocusSelection(int& selectedItem_);
+		void GUIDrawCameraEditor();
+		Entity GUIExecuteCreateEntity();
+		void GUIDrawSpriteEditor();
+		void GUIDrawTransformEditor();
+		void GUIDrawAnimationEditor();
+		void GUIDrawPhysicsEditor();
+		bool GUIDrawEntityFocusSelection();
 	};
 
 	class EditorTestGame

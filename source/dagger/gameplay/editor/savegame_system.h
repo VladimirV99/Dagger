@@ -1,92 +1,106 @@
 #pragma once
 
 #include "core/core.h"
+#include "core/savegame.h"
+#include "save_archetype.h"
 
-template<typename Archetype>
-struct SaveGame
+using namespace dagger;
+namespace editor
 {
-	Archetype archetype;
-};
-
-template<typename Archetype>
-struct LoadGame
-{
-	Archetype archetype;
-};
-
-template<typename Archetype>
-struct SaveLoadProcess
-{
-	virtual ~SaveLoadProcess() = default;
-	virtual Archetype Save(Entity entity_, JSON::json& saveTo_) = 0;
-	virtual void Load(Archetype archetype_, Entity entity_, JSON::json& loadFrom_) = 0;
-};
-
-template<typename Archetype>
-struct SaveGameSystem : public dagger::System
-{
-	using SaveRequest = AssetLoadRequest<SaveGame<Archetype>>;
-	using LoadRequest = AssetLoadRequest<LoadGame<Archetype>>;
-
-	SaveGameSystem(SaveLoadProcess<Archetype>* process) : m_Process {process} { }
-
-	String SystemName() const override
+	template<typename Archetype>
+	struct SaveGame
 	{
-		return "SaveGame";
-	}
+		Archetype archetype;
+	};
 
-	void SpinUp() override
+	template<typename Archetype>
+	struct LoadGame
 	{
-		Engine::Dispatcher().sink<SaveRequest>().template connect<&SaveGameSystem::OnSaveRequested>(this);
-		Engine::Dispatcher().sink<LoadRequest>().template connect<&SaveGameSystem::OnLoadRequested>(this);
-	}
+		Archetype archetype;
+	};
 
-	void WindDown() override
+	template<typename Archetype>
+	struct SaveLoadProcess
 	{
-		Engine::Dispatcher().sink<LoadRequest>().template disconnect<&SaveGameSystem::OnLoadRequested>(this);
-		Engine::Dispatcher().sink<SaveRequest>().template disconnect<&SaveGameSystem::OnSaveRequested>(this);
-	}
+		virtual ~SaveLoadProcess() = default;
+		virtual Archetype Save(Entity entity_, JSON::json& saveTo_) = 0;
+		virtual void Load(Archetype archetype_, Entity entity_, JSON::json& loadFrom_) = 0;
+	};
 
-	void OnSaveRequested(SaveRequest request_)
+	template<typename Archetype>
+	struct SaveGameSystem : public dagger::System
 	{
-		auto& engine = Engine::Instance();
-		auto& registry = engine.Registry();
+		using SaveRequest = AssetLoadRequest<SaveGame<Archetype>>;
+		using LoadRequest = AssetLoadRequest<LoadGame<Archetype>>;
 
-		JSON::json save {};
+		SaveGameSystem(SaveLoadProcess<Archetype>* process) : m_Process {process} { }
 
-		registry.view<SaveGame<Archetype>>().each(
-			[&](Entity entity_, SaveGame<Archetype>& save_)
-			{
+		String SystemName() const override
+		{
+			return "Save Game System";
+		}
+
+		void SpinUp() override
+		{
+			Engine::Dispatcher().sink<SaveRequest>().template connect<&SaveGameSystem::OnSaveRequested>(this);
+			Engine::Dispatcher().sink<LoadRequest>().template connect<&SaveGameSystem::OnLoadRequested>(this);
+		}
+
+		void WindDown() override
+		{
+			Engine::Dispatcher().sink<LoadRequest>().template disconnect<&SaveGameSystem::OnLoadRequested>(this);
+			Engine::Dispatcher().sink<SaveRequest>().template disconnect<&SaveGameSystem::OnSaveRequested>(this);
+		}
+
+		void OnSaveRequested(SaveRequest request_)
+		{
+			auto& engine = Engine::Instance();
+			auto& registry = engine.Registry();
+
+			JSON::json save {};
+
+			/* Camera */ {
 				JSON::json item {};
 
-				item["metadata"] = (SInt32)this->m_Process->Save(entity_, item);
+				item["camera"] = SerializeComponent<Camera>(*Engine::GetDefaultResource<Camera>());
+				item["metadata"] = (SInt32)ECommonSaveArchetype::Camera;
 				save.push_back(item);
-			});
+			}
 
-		std::ofstream file {request_.path.c_str()};
-		file << save;
-		file.close();
-	}
+			registry.view<SaveGame<Archetype>>().each(
+				[&](Entity entity_, SaveGame<Archetype>& save_)
+				{
+					JSON::json item {};
 
-	void OnLoadRequested(LoadRequest request_)
-	{
-		auto& engine = Engine::Instance();
-		auto& registry = engine.Registry();
+					item["metadata"] = (SInt32)this->m_Process->Save(entity_, item);
+					save.push_back(item);
+				});
 
-		JSON::json load {};
-		std::ifstream file {request_.path.c_str()};
-		file >> load;
-		file.close();
-
-		for (auto item : load)
-		{
-			Entity entity = registry.create();
-			SaveGame<Archetype>& meta = registry.emplace<SaveGame<Archetype>>(entity);
-			meta.archetype = (Archetype)item["metadata"];
-			this->m_Process->Load(meta.archetype, entity, item);
+			std::ofstream file {request_.path.c_str()};
+			file << save;
+			file.close();
 		}
-	}
 
-private:
-	SaveLoadProcess<Archetype>* m_Process;
-};
+		void OnLoadRequested(LoadRequest request_)
+		{
+			auto& engine = Engine::Instance();
+			auto& registry = engine.Registry();
+
+			JSON::json load {};
+			std::ifstream file {request_.path.c_str()};
+			file >> load;
+			file.close();
+
+			for (auto item : load)
+			{
+				Entity entity = registry.create();
+				SaveGame<Archetype>& meta = registry.emplace<SaveGame<Archetype>>(entity);
+				meta.archetype = (Archetype)item["metadata"];
+				this->m_Process->Load(meta.archetype, entity, item);
+			}
+		}
+
+	private:
+		SaveLoadProcess<Archetype>* m_Process;
+	};
+} // namespace editor
