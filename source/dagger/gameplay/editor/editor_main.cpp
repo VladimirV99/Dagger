@@ -362,20 +362,22 @@ void EditorToolSystem::GUIDrawSpriteEditor()
 		}
 
 		/* Position */ {
-			float pos[] {compSprite.position.x, compSprite.position.y, compSprite.position.z};
-			ImGui::DragFloat3("Sprite Position", pos, 1, -FLT_MAX, FLT_MAX, "%.2f");
+			float posXY[] {compSprite.position.x, compSprite.position.y};
+			float posZ = compSprite.position.z;
+			ImGui::DragFloat2("Sprite Position", posXY, 1, -FLT_MAX, FLT_MAX, "%.2f");
+			ImGui::DragFloat("Z Order", &posZ, 1, 0, FLT_MAX, "%.2f");
 			if (reg.all_of<Transform>(m_Selected))
 			{
 				Transform& compTransform = reg.get<Transform>(m_Selected);
-				compTransform.position.x = pos[0];
-				compTransform.position.y = pos[1];
-				compTransform.position.z = pos[2];
+				compTransform.position.x = posXY[0];
+				compTransform.position.y = posXY[1];
+				compTransform.position.z = posZ;
 			}
 			else
 			{
-				compSprite.position.x = pos[0];
-				compSprite.position.y = pos[1];
-				compSprite.position.z = pos[2];
+				compSprite.position.x = posXY[0];
+				compSprite.position.y = posXY[1];
+				compSprite.position.y = posZ;
 			}
 		}
 
@@ -425,11 +427,13 @@ void EditorToolSystem::GUIDrawTransformEditor()
 	{
 		Transform& compTransform = reg.get<Transform>(m_Selected);
 		/* Position */ {
-			float pos[] {compTransform.position.x, compTransform.position.y, compTransform.position.z};
-			ImGui::DragFloat3("Position", pos, 1, -FLT_MAX, FLT_MAX, "%.2f");
-			compTransform.position.x = pos[0];
-			compTransform.position.y = pos[1];
-			compTransform.position.z = pos[2];
+			float posXY[] {compTransform.position.x, compTransform.position.y};
+			float posZ = compTransform.position.z;
+			ImGui::DragFloat2("Position", posXY, 1, -FLT_MAX, FLT_MAX, "%.2f");
+			ImGui::DragFloat("Z Order", &posZ, 1, 0, FLT_MAX, "%.2f");
+			compTransform.position.x = posXY[0];
+			compTransform.position.y = posXY[1];
+			compTransform.position.z = posZ;
 		}
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
