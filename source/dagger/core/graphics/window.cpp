@@ -9,6 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
+#include <stb/stb_image.h>
 
 #include <cstring>
 
@@ -193,6 +194,13 @@ void WindowSystem::SpinUp()
 	{
 		glfwSwapInterval(0);
 	}
+
+	GLFWimage images[2];
+	images[0].pixels = stbi_load("textures/logos/icon64.png", &images[0].width, &images[0].height, 0, 4);
+	images[1].pixels = stbi_load("textures/logos/icon128.png", &images[1].width, &images[1].height, 0, 4);
+	glfwSetWindowIcon(window, 2, images);
+	stbi_image_free(images[0].pixels);
+	stbi_image_free(images[1].pixels);
 
 	// NOLINTNEXTLINE
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
