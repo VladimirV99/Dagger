@@ -6,9 +6,7 @@
 #include "textures.h"
 
 #include <algorithm>
-#include <chrono>
 #include <cstdint>
-#include <execution>
 #include <limits>
 #include <regex>
 

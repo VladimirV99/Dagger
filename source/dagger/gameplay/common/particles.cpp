@@ -4,9 +4,6 @@
 #include "core/game/transforms.h"
 #include "core/graphics/sprite.h"
 
-#include <algorithm>
-#include <execution>
-
 using namespace dagger;
 using namespace common_res;
 
