@@ -16,6 +16,7 @@ endif
 
 includes = [
     include_directories('source/dagger'),
+    include_directories('libs/asio/asio/include'),
     include_directories('libs/entt/single_include'),
     include_directories('libs/glad/include'),
     include_directories('libs/glm/include'),

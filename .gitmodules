@@ -31,3 +31,6 @@
 [submodule "libs/soloud"]
 	path = libs/soloud
 	url = https://github.com/VladimirV99/soloud.git
+[submodule "libs/asio"]
+	path = libs/asio
+	url = https://github.com/chriskohlhoff/asio.git

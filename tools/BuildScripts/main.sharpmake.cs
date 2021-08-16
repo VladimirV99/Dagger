@@ -64,6 +64,7 @@ public class MainProject : Project
 		config.IncludePaths.Add(Path.Combine(m_RootDirectory, @"libs", @"soloud", @"include"));
 		config.IncludePaths.Add(Path.Combine(m_RootDirectory, @"libs", @"soloud", @"src", @"audiosource", @"wav"));
 		config.IncludePaths.Add(Path.Combine(m_RootDirectory, @"libs", @"soloud", @"src", @"backend", @"miniaudio"));
+        config.IncludePaths.Add(Path.Combine(m_RootDirectory, @"libs", @"asio", @"asio", @"include"));
 
         // Add libs
         config.LibraryPaths.Add(Path.Combine(m_RootDirectory, @"libs", "glfw3-lib"));
