@@ -62,7 +62,7 @@ struct Message
         message.body.resize(i);
 
         // Update header size
-        message.header.size = message.size();
+        message.header.size = message.body.size();
 
         return message;
     }

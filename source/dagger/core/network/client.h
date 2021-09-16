@@ -4,13 +4,17 @@
 
 #include "core/core.h"
 #include "core/engine.h"
+#include "core/system.h"
+
 #include "message.h"
 #include "concurrent_queue.h"
+
+#include <thread>
 
 using namespace dagger;
 
 template <typename Archetype>
-class NetworkClient
+class NetworkClientSystem : public System
 {
 private:
     class Connection
@@ -235,22 +239,23 @@ private:
     };
 
 public:
-    NetworkClient()
+    NetworkClientSystem(const String& host_, const UInt16 port_)
+        : m_host(host_), m_port(port_)
     {
 
     }
 
-    virtual ~NetworkClient()
+    virtual ~NetworkClientSystem()
     {
-        Disconnect();
+        
     }
 
-    bool Connect(const String& host_, const UInt16 port_)
+    bool Connect()
     {
         try
         {
             asio::ip::tcp::resolver resolver(m_context);
-            auto endpoints = resolver.resolve(host_, std::to_string(port_));
+            auto endpoints = resolver.resolve(m_host, std::to_string(m_port));
 
             m_connection = std::make_unique<Connection>(
                 m_context,
@@ -301,7 +306,47 @@ public:
         return m_messageInput;
     }
 
+    inline String SystemName() const override
+	{
+		return "Network Client System";
+	}
+
+    void SpinUp() override
+    {
+        Connect();
+    }
+
+    void Run() override
+    {
+        if (!IsConnected())
+        {
+            Logger::error("Disconnected from server");
+            // TODO shutdown
+            return;
+        }
+
+        unsigned processedMessages = 0;
+        while (!Incoming().Empty())
+        {
+            if(processedMessages >= MAX_CLIENT_PROCESS_MESSAGE)
+                break;
+
+            auto message = Incoming().Pop();
+            Engine::Dispatcher().trigger<Message<Archetype>>(message);
+
+            processedMessages++;
+        }
+    }
+
+    void WindDown() override
+    {
+        Disconnect();
+    }
+
 private:
+    String m_host;
+    UInt16 m_port;
+
     asio::io_context m_context;
     std::thread m_contextThread;
     std::unique_ptr<Connection> m_connection;
