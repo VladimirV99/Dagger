@@ -74,20 +74,20 @@ protected:
     private:
         /* async */ void ReadHeader()
         {
-            asio::async_read(m_socket, asio::buffer(&m_tempMessageIn.header, sizeof(MessageHeader<Archetype>)),
+            asio::async_read(m_socket, asio::buffer(&m_tempMessageIn.header, sizeof(typename Message<Archetype>::Header)),
             [this](std::error_code error, std::size_t length){
                 if(!error)
                 {
-                    if(m_tempMessageIn.header.size > 0)
+                    if(m_tempMessageIn.header.Size() > 0)
                     {
-                        if (m_tempMessageIn.header.size > MAX_MESSAGE_SIZE)
+                        if (m_tempMessageIn.header.Size() > MAX_MESSAGE_SIZE)
                         {
                             Logger::error("Message Too Large. Closing Connection");
                             m_socket.close();
                         }
                         else
                         {
-                            m_tempMessageIn.body.resize(m_tempMessageIn.header.size);
+                            m_tempMessageIn.body.resize(m_tempMessageIn.header.Size());
                             ReadBody();
                         }
                     }
@@ -124,7 +124,7 @@ protected:
 
         /* async */ void WriteHeader()
         {
-            if (m_messageOutput.Front().header.size > MAX_MESSAGE_SIZE)
+            if (m_messageOutput.Front().header.Size() > MAX_MESSAGE_SIZE)
             {
                 Logger::warn("Message Too Large. Skipping");
                 m_messageOutput.Pop();
@@ -133,7 +133,7 @@ protected:
                     WriteHeader();
                 }
             }
-            asio::async_write(m_socket, asio::buffer(&m_messageOutput.Front().header, sizeof(MessageHeader<Archetype>)),
+            asio::async_write(m_socket, asio::buffer(&m_messageOutput.Front().header, sizeof(typename Message<Archetype>::Header)),
             [this](std::error_code error, std::size_t length)
             {
                 if(!error)
@@ -402,8 +402,7 @@ protected:
 
     }
 
-    // TODO Use events (add to core.h)
-    // Use ViewPtr?
+    // TODO Use events
     virtual void OnMessage(std::shared_ptr<Connection> client, Message<Archetype>& message)
     {
 

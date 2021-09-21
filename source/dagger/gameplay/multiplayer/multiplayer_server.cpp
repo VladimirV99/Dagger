@@ -41,8 +41,7 @@ void MultiplayerServer::OnMessage(std::shared_ptr<Connection> client_, Message<E
             Broadcast(message_, client_);
             for (const auto& player : m_playerData)
             {
-                Message<EMultiplayerMessage> message;
-                message.header.id = EMultiplayerMessage::AddPlayer;
+                Message<EMultiplayerMessage> message (EMultiplayerMessage::AddPlayer);
                 message << player.second.position;
                 message << player.second.color;
                 message << player.first;
@@ -73,8 +72,7 @@ void MultiplayerServer::OnMessage(std::shared_ptr<Connection> client_, Message<E
 
 void MultiplayerServer::OnClientValidated(std::shared_ptr<Connection> client)
 {
-    Message<EMultiplayerMessage> message;
-    message.header.id = EMultiplayerMessage::AcceptClient;
+    Message<EMultiplayerMessage> message (EMultiplayerMessage::AcceptClient);
     message << client->GetId();
     Send(client, message);
 }

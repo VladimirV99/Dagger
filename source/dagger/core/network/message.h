@@ -10,21 +10,61 @@
 using namespace dagger;
 
 template <typename Archetype>
-struct MessageHeader
-{
-    Archetype id {}; // Message Type ID
-    UInt32 size = 0; // Size of the body
-};
-
-template <typename Archetype>
 struct Message
 {
-    MessageHeader<Archetype> header;
+    struct Header
+    {
+        Archetype id {}; // Message Type ID
+    private:
+        UInt32 m_size = 0; // Size of the body
+
+    public:
+        Header() = default;
+
+        Header(Archetype id_)
+        : id(id_)
+        {
+
+        }
+
+        Header(const Header& other_)
+        : id(other_.id), m_size(other_.m_size)
+        {
+
+        }
+
+        UInt32 Size() const
+        {
+            return m_size;
+        }
+
+        template <typename Datatype>
+        friend Message<Archetype>& operator << (Message<Archetype>& message, const Datatype& data);
+        
+        template <typename Datatype>
+        friend Message<Archetype>& operator >> (Message<Archetype>& message, Datatype& data);
+    };
+
+    Header header;
     Sequence<UInt8> body;
 
-    size_t size() const
+    Message() = default;
+
+    Message(Archetype id_)
+    : header(id_)
     {
-        return sizeof(MessageHeader<Archetype>) + body.size();
+
+    }
+
+    Message(const Message<Archetype>& other_)
+    : header(other_.header), body(other_.body)
+    {
+
+    }
+
+    size_t Size() const
+    {
+        return sizeof(Header) + body.size();
     }
 
     friend std::ostream& operator <<(std::ostream& os, const Message<Archetype>& message)
@@ -45,7 +85,7 @@ struct Message
         std::memcpy(message.body.data() + i, &data, sizeof(Datatype));
 
         // Update header size
-        message.header.size = message.body.size();
+        message.header.m_size = message.body.size();
 
         return message;
     }
@@ -56,13 +96,19 @@ struct Message
         // Check is type deserializable
         static_assert(std::is_standard_layout<Datatype>::value, "Value can't be deserialized");
 
+        if (message.body.size() < sizeof(Datatype))
+        {
+            Logger::error("Error extracting type from message. Insufficient message size");
+            return message;
+        }
+
         // Copy the data
         size_t i = message.body.size() - sizeof(Datatype);
         std::memcpy(&data, message.body.data() + i, sizeof(Datatype));
         message.body.resize(i);
 
         // Update header size
-        message.header.size = message.body.size();
+        message.header.m_size = message.body.size();
 
         return message;
     }

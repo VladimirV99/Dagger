@@ -54,8 +54,7 @@ void ClientEventSystem::Run()
 	{
 		m_elapsedTime = 0;
 		auto *client = Engine::GetDefaultResource<NetworkClientSystem<EMultiplayerMessage>>();
-		Message<EMultiplayerMessage> message;
-		message.header.id = EMultiplayerMessage::UpdatePlayer;
+		Message<EMultiplayerMessage> message (EMultiplayerMessage::UpdatePlayer);
 		message << transform.position;
 		message << m_playerId;
 		client->Send(message);
@@ -89,8 +88,7 @@ void ClientEventSystem::OnNetworkMessage(Message<EMultiplayerMessage> message_)
 			AssignSprite(playerSprite, "PingPong:ball");
 			playerSprite.size = {50.0f, 50.0f};
 
-			Message<EMultiplayerMessage> message;
-			message.header.id = EMultiplayerMessage::AddPlayer;
+			Message<EMultiplayerMessage> message (EMultiplayerMessage::AddPlayer);
 			message << playerTransform.position;
 			message << playerSprite.color;
 			message << m_playerId;

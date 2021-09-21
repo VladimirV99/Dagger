@@ -78,20 +78,20 @@ private:
 
         /* async */ void ReadHeader()
         {
-            asio::async_read(m_socket, asio::buffer(&m_tempMessageIn.header, sizeof(MessageHeader<Archetype>)),
+            asio::async_read(m_socket, asio::buffer(&m_tempMessageIn.header, sizeof(typename Message<Archetype>::Header)),
             [this](std::error_code error, std::size_t length){
                 if(!error)
                 {
-                    if(m_tempMessageIn.header.size > 0)
+                    if(m_tempMessageIn.header.Size() > 0)
                     {
-                        if (m_tempMessageIn.header.size > MAX_MESSAGE_SIZE)
+                        if (m_tempMessageIn.header.Size() > MAX_MESSAGE_SIZE)
                         {
                             Logger::error("Message Too Large. Closing Connection");
                             m_socket.close();
                         }
                         else
                         {
-                            m_tempMessageIn.body.resize(m_tempMessageIn.header.size);
+                            m_tempMessageIn.body.resize(m_tempMessageIn.header.Size());
                             ReadBody();
                         }
                     }
@@ -128,7 +128,7 @@ private:
 
         /* async */ void WriteHeader()
         {
-            if (m_messageOutput.Front().header.size > MAX_MESSAGE_SIZE)
+            if (m_messageOutput.Front().header.Size() > MAX_MESSAGE_SIZE)
             {
                 Logger::warn("Message Too Large. Skipping");
                 m_messageOutput.Pop();
@@ -137,7 +137,7 @@ private:
                     WriteHeader();
                 }
             }
-            asio::async_write(m_socket, asio::buffer(&m_messageOutput.Front().header, sizeof(MessageHeader<Archetype>)),
+            asio::async_write(m_socket, asio::buffer(&m_messageOutput.Front().header, sizeof(typename Message<Archetype>::Header)),
             [this](std::error_code error, std::size_t length)
             {
                 if(!error)
