@@ -12,12 +12,12 @@ void MultiplayerServer::Run()
     }
 }
 
-bool MultiplayerServer::OnClientConnect(std::shared_ptr<Connection> client)
+bool MultiplayerServer::CanClientConnect(asio::ip::tcp::endpoint endpoint_)
 {
     return true;
 }
 
-void MultiplayerServer::OnClientDisconnect(std::shared_ptr<Connection> client)
+void MultiplayerServer::OnClientDisconnect(UInt32 clientId_)
 {
     // TODO Handle disconnecting. Messages can't be sent from this function
     // if (client && m_playerData.find(client->GetId()) != m_playerData.end())
@@ -30,7 +30,7 @@ void MultiplayerServer::OnClientDisconnect(std::shared_ptr<Connection> client)
     // }
 }
 
-void MultiplayerServer::OnMessage(std::shared_ptr<Connection> client_, Message<EMultiplayerMessage>& message_)
+void MultiplayerServer::OnMessage(UInt32 clientId_, Message<EMultiplayerMessage>& message_)
 {
     switch(message_.header.id)
     {
@@ -38,41 +38,41 @@ void MultiplayerServer::OnMessage(std::shared_ptr<Connection> client_, Message<E
             break;
         case EMultiplayerMessage::AddPlayer:
         {
-            Broadcast(message_, client_);
+            Broadcast(message_, clientId_);
             for (const auto& player : m_playerData)
             {
                 Message<EMultiplayerMessage> message (EMultiplayerMessage::AddPlayer);
                 message << player.second.position;
                 message << player.second.color;
                 message << player.first;
-                Send(client_, message);
+                Send(clientId_, message);
             }
             PlayerData data;
             UInt32 id;
             message_ >> id >> data.color >> data.position;
-            m_playerData[client_->GetId()] = data;
+            m_playerData[clientId_] = data;
             Logger::info("Added new player");
             break;
         }
         case EMultiplayerMessage::UpdatePlayer:
         {
-            Broadcast(message_, client_);
+            Broadcast(message_, clientId_);
             UInt32 id;
-            message_ >> id >> m_playerData[client_->GetId()].position;
+            message_ >> id >> m_playerData[clientId_].position;
             break;
         }
         case EMultiplayerMessage::RemovePlayer:
         {
-            Broadcast(message_, client_);
+            Broadcast(message_, clientId_);
             Logger::info("Removed player");
             break;
         }
     }
 }
 
-void MultiplayerServer::OnClientValidated(std::shared_ptr<Connection> client)
+void MultiplayerServer::OnClientValidated(UInt32 clientId_)
 {
     Message<EMultiplayerMessage> message (EMultiplayerMessage::AcceptClient);
-    message << client->GetId();
-    Send(client, message);
+    message << clientId_;
+    Send(clientId_, message);
 }

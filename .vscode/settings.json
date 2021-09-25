@@ -78,6 +78,7 @@
     "numbers": "cpp",
     "semaphore": "cpp",
     "thread": "cpp",
-    "typeindex": "cpp"
+    "typeindex": "cpp",
+    "shared_mutex": "cpp"
   }
 }

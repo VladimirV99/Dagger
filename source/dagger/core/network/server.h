@@ -19,9 +19,19 @@ template <typename Archetype>
 class NetworkServer
 {
 protected:
-    struct OwnedMessage;
-    //TODO remove enable_shared_from_this
-    class Connection : public std::enable_shared_from_this<Connection>
+    struct OwnedMessage
+    {
+        UInt32 remote;
+        Message<Archetype> message;
+
+        friend std::ostream& operator<<(std::ostream& os, const OwnedMessage& message)
+        {
+            os << message.message;
+            return os;
+        }
+    };
+    
+    class Connection
     {
     public:
         Connection(asio::io_context& context_, asio::ip::tcp::socket socket_, ConcurrentQueue<OwnedMessage>& messageIn_) 
@@ -40,7 +50,7 @@ protected:
             return m_id;
         }
 
-        void ConnectToClient(NetworkServer<Archetype>* server_, UInt32 id_ = 0)
+        void AuthenticateClient(NetworkServer<Archetype>* server_, UInt32 id_ = 0)
         {
             if (IsConnected())
             {
@@ -93,7 +103,7 @@ protected:
                     }
                     else
                     {
-                        m_messageInput.Push({this->shared_from_this(), m_tempMessageIn});
+                        m_messageInput.Push({this->GetId(), m_tempMessageIn});
                         ReadHeader();
                     }
                 }
@@ -111,7 +121,7 @@ protected:
             [this](std::error_code error, std::size_t length){
                 if(!error)
                 {
-                    m_messageInput.Push({this->shared_from_this(), m_tempMessageIn});
+                    m_messageInput.Push({this->GetId(), m_tempMessageIn});
                     ReadHeader();
                 }
                 else
@@ -214,7 +224,7 @@ protected:
                     {
                         Logger::info("Connection Validation Approved: {}", m_id);
                         // TODO ?
-                        server_->OnClientValidated(this->shared_from_this());
+                        server_->OnClientValidated(this->GetId());
 
                         ReadHeader();
                     }
@@ -245,18 +255,6 @@ protected:
         UInt64 m_handshakeOut = 0;
         UInt64 m_handshakeIn = 0;
         UInt64 m_handshakeCheck = 0;
-    };
-
-    struct OwnedMessage
-    {
-        std::shared_ptr<Connection> remote;
-        Message<Archetype> message;
-
-        friend std::ostream& operator<<(std::ostream& os, const OwnedMessage& message)
-        {
-            os << message.message;
-            return os;
-        }
     };
 
 public:
@@ -299,7 +297,6 @@ public:
 
         Logger::info("Server Stopped");
     }
-
     
     /* async */ void WaitForConnection()
     {
@@ -310,18 +307,20 @@ public:
                 {
                     Logger::debug("New Connection: {}:{}", socket.remote_endpoint().address().to_string(), socket.remote_endpoint().port());
 
-                    std::shared_ptr<Connection> newConnection = std::make_shared<Connection>( 
-                    m_context, std::move(socket), m_messageIn);
-
-                    if(OnClientConnect(newConnection))
+                    if(CanClientConnect(socket.remote_endpoint()))
                     {
+                        std::unique_ptr<Connection> newConnection = std::make_unique<Connection>( 
+                        m_context, std::move(socket), m_messageIn);
+
                         // TODO remove 'this' param
-                        newConnection->ConnectToClient(this, m_idCounter++);
+                        newConnection->AuthenticateClient(this, m_idCounter++);
                         Logger::debug("Connection Approved: {}", newConnection->GetId());
 
                         // TODO Thread safety
-                        m_connections.push_back(std::move(newConnection));
-                        // m_connections.insert(std::move(newConnection));
+                        m_connections.insert(std::make_pair<UInt32, std::unique_ptr<Connection>>(
+                            newConnection->GetId(),
+                            std::move(newConnection))
+                        );
                     }
                     else
                     {
@@ -337,41 +336,40 @@ public:
             });
     }
 
-    void Send(std::shared_ptr<Connection> client, const Message<Archetype>& message)
+    void Send(UInt32 clientId_, const Message<Archetype>& message_)
     {
+        auto& client = m_connections[clientId_];
         if (client && client->IsConnected())
         {
-            client->Send(message);
+            client->Send(message_);
         }
         else
         {
-            OnClientDisconnect(client);
+            OnClientDisconnect(clientId_);
             client.reset();
 
-            m_connections.erase(std::remove(m_connections.begin(), m_connections.end(), client), m_connections.end());
+            m_connections.erase(clientId_);
         }
     }
 
-    void Broadcast(const Message<Archetype>& message, std::shared_ptr<Connection> ignore = nullptr) 
+    void Broadcast(const Message<Archetype>& message_, UInt32 ignore_ = nullptr) 
     {
-        bool hasInvalidClient = false;
-        for (auto& client : m_connections)
+        for (auto it = m_connections.begin(); it != m_connections.end();)
         {
+            auto& client = it->second;
             if (client && client->IsConnected())
             {
-                if (client != ignore)
-                    client->Send(message);
+                if (it->first != ignore_)
+                    client->Send(message_);
+                ++it;
             }
             else
             {
-                OnClientDisconnect(client);
+                OnClientDisconnect(it->first);
                 client.reset();
-                hasInvalidClient = true;
+                it = m_connections.erase(it);
             }
         }
-
-        if (hasInvalidClient)
-            m_connections.erase(std::remove(m_connections.begin(), m_connections.end(), nullptr), m_connections.end());
     }
 
     void Update(UInt16 maxMessages_ = -1, bool wait_ = false)
@@ -392,23 +390,29 @@ public:
 protected:
     // Return whether the client should be allowed to connect
     // Used to implement client banning
-    virtual bool OnClientConnect(std::shared_ptr<Connection> client)
+    virtual bool CanClientConnect(asio::ip::tcp::endpoint endpoint_)
     {
         return true;
     }
 
-    virtual void OnClientDisconnect(std::shared_ptr<Connection> client)
+    // TODO
+    // virtual void OnClientConnect(UInt32 client_)
+    // {
+        
+    // }
+
+    virtual void OnClientDisconnect(UInt32 clientId_)
     {
 
     }
 
     // TODO Use events
-    virtual void OnMessage(std::shared_ptr<Connection> client, Message<Archetype>& message)
+    virtual void OnMessage(UInt32 clientId_, Message<Archetype>& message_)
     {
 
     }
 
-    virtual void OnClientValidated(std::shared_ptr<Connection> client)
+    virtual void OnClientValidated(UInt32 clientId_)
     {
 
     }
@@ -416,10 +420,7 @@ protected:
 private:
     ConcurrentQueue<OwnedMessage> m_messageIn;
 
-    // TODO
-    // std::unordered_map<UInt32, std::shared_ptr<Connection>> m_connections;
-    // std::unordered_set
-    std::deque<std::shared_ptr<Connection>> m_connections;
+    std::unordered_map<UInt32, std::unique_ptr<Connection>> m_connections;
 
     asio::io_context m_context;
     std::thread m_contextThread;

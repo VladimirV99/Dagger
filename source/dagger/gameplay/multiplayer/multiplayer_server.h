@@ -30,10 +30,10 @@ namespace multiplayer
         void Run();
 
     protected:
-        bool OnClientConnect(std::shared_ptr<Connection> client) override;
-        void OnClientDisconnect(std::shared_ptr<Connection> client) override;
-        void OnMessage(std::shared_ptr<Connection> client, Message<EMultiplayerMessage>& message) override;
-        void OnClientValidated(std::shared_ptr<Connection> client) override;
+        bool CanClientConnect(asio::ip::tcp::endpoint endpoint_) override;
+        void OnClientDisconnect(UInt32 clientId_) override;
+        void OnMessage(UInt32 clientId_, Message<EMultiplayerMessage>& message_) override;
+        void OnClientValidated(UInt32 clientId_) override;
 
     private:
         std::unordered_map<UInt32, PlayerData> m_playerData;
