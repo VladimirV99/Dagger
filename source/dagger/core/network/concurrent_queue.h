@@ -36,9 +36,6 @@ public:
     {
         std::scoped_lock lock(m_queueMutex);
         m_queue.emplace(std::move(element_));
-
-        std::unique_lock<std::mutex> ul(m_blockingMutex);
-        m_blocking.notify_one();
     }
 
     T Pop()
@@ -68,19 +65,7 @@ public:
             m_queue.pop();
     }
 
-    void wait()
-    {
-        while(Empty())
-        {
-            std::unique_lock<std::mutex> ul(m_blockingMutex);
-            m_blocking.wait(ul);
-        }
-    }
-
 private:
     std::mutex m_queueMutex;
     std::queue<T> m_queue;
-
-    std::condition_variable m_blocking;
-    std::mutex m_blockingMutex;
 };
