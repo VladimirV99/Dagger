@@ -8,34 +8,64 @@
 #include "concurrent_queue.h"
 
 #include <thread>
+#include <mutex>
 #include <chrono>
-#include <deque>
-#include <unordered_set>
-// #include <unordered_map>
+#include <unordered_map>
 
 using namespace dagger;
+
+enum class EConnectionEvent
+{
+    CONNECTED,
+    VALIDATED,
+    DISCONNECTED
+};
 
 template <typename Archetype>
 class NetworkServer
 {
 protected:
-    struct OwnedMessage
+    struct Input
     {
-        UInt32 remote;
-        Message<Archetype> message;
+        Input() = default;
+        Input(const Input& other_) = delete;
 
-        friend std::ostream& operator<<(std::ostream& os, const OwnedMessage& message)
+        void QueueMessage(UInt32 clientId_, const Message<Archetype>& message_)
         {
-            os << message.message;
-            return os;
+            messageQueue.Push({clientId_, message_});
+            std::unique_lock<std::mutex> ul(m_waitingMutex);
+            m_waiting.notify_one();
         }
-    };
-    
+
+        void QueueEvent(UInt32 clientId_, const EConnectionEvent& event_)
+        {
+            eventQueue.Push({clientId_, event_});
+            std::unique_lock<std::mutex> ul(m_waitingMutex);
+            m_waiting.notify_one();
+        }
+
+        void Wait()
+        {
+            while(eventQueue.Empty() && messageQueue.Empty())
+            {
+                std::unique_lock<std::mutex> ul(m_waitingMutex);
+                m_waiting.wait(ul);
+            }
+        }
+
+        ConcurrentQueue<std::pair<UInt32, EConnectionEvent>> eventQueue;
+        ConcurrentQueue<OwnedMessage<Archetype>> messageQueue;
+
+    private:    
+        std::condition_variable m_waiting;
+        std::mutex m_waitingMutex;
+    };   
+
     class Connection
     {
     public:
-        Connection(asio::io_context& context_, asio::ip::tcp::socket socket_, ConcurrentQueue<OwnedMessage>& messageIn_) 
-            : m_context(context_), m_socket(std::move(socket_)), m_messageInput(messageIn_)
+        Connection(asio::io_context& context_, asio::ip::tcp::socket socket_, Input& input_) 
+            : m_context(context_), m_socket(std::move(socket_)), m_input(input_)
         {
             m_handshakeOut = UInt64(std::chrono::system_clock::now().time_since_epoch().count());
             m_handshakeCheck = scramble(m_handshakeOut);
@@ -50,20 +80,23 @@ protected:
             return m_id;
         }
 
-        void AuthenticateClient(NetworkServer<Archetype>* server_, UInt32 id_ = 0)
+        // TODO isAutheticated field
+        void AuthenticateClient(UInt32 id_ = 0)
         {
             if (IsConnected())
             {
                 m_id = id_;
 
-                WriteValidation(server_);
+                WriteValidation();
             }
         }
 
         void Disconnect()
         {
             if(IsConnected())
+            {
                 asio::post(m_context, [this](){m_socket.close();});
+            }
         }
 
         bool IsConnected() const
@@ -82,6 +115,12 @@ protected:
         }
 
     private:
+        void CloseConnection()
+        {
+            m_socket.close();
+            m_input.QueueEvent(GetId(), EConnectionEvent::DISCONNECTED);
+        }
+
         /* async */ void ReadHeader()
         {
             asio::async_read(m_socket, asio::buffer(&m_tempMessageIn.header, sizeof(typename Message<Archetype>::Header)),
@@ -93,7 +132,7 @@ protected:
                         if (m_tempMessageIn.header.Size() > MAX_MESSAGE_SIZE)
                         {
                             Logger::error("Message Too Large. Closing Connection");
-                            m_socket.close();
+                            CloseConnection();
                         }
                         else
                         {
@@ -103,14 +142,14 @@ protected:
                     }
                     else
                     {
-                        m_messageInput.Push({this->GetId(), m_tempMessageIn});
+                        m_input.QueueMessage(GetId(), m_tempMessageIn);
                         ReadHeader();
                     }
                 }
                 else
                 {
-                    Logger::error("Failed Reading Message Header: {}", m_id);
-                    m_socket.close();
+                    Logger::debug("Failed Reading Message Header: {}", m_id);
+                    CloseConnection();
                 }
             });
         }
@@ -121,13 +160,13 @@ protected:
             [this](std::error_code error, std::size_t length){
                 if(!error)
                 {
-                    m_messageInput.Push({this->GetId(), m_tempMessageIn});
+                    m_input.QueueMessage(GetId(), m_tempMessageIn);
                     ReadHeader();
                 }
                 else
                 {
-                    Logger::error("Failed Reading Message Body: {}", m_id);
-                    m_socket.close();
+                    Logger::debug("Failed Reading Message Body: {}", m_id);
+                    CloseConnection();
                 }
             });
         }
@@ -163,8 +202,8 @@ protected:
                 }
                 else
                 {
-                    Logger::error("Failed Writing Message Header: {}", m_id);
-                    m_socket.close();
+                    Logger::debug("Failed Writing Message Header: {}", m_id);
+                    CloseConnection();
                 }
             });
         }
@@ -184,8 +223,8 @@ protected:
                 }
                 else
                 {
-                    Logger::error("Failed Writing Message Body: {}", m_id);
-                    m_socket.close();
+                    Logger::debug("Failed Writing Message Body: {}", m_id);
+                    CloseConnection();
                 }
             });
         }
@@ -197,47 +236,44 @@ protected:
             return out ^ 0xFEDCBA9876543210;
         }
 
-        /* async */ void WriteValidation(NetworkServer<Archetype>* server_)
+        /* async */ void WriteValidation()
         {
             asio::async_write(m_socket, asio::buffer(&m_handshakeOut, sizeof(UInt64)),
-            [this, server_](std::error_code error, std::size_t length){
+            [this](std::error_code error, std::size_t length){
                 if(!error)
                 {
-                    ReadValidation(server_);
+                    ReadValidation();
                 }
                 else
                 {
-                    Logger::error("Failed Writing Validation Message: {}", m_id);
-                    m_socket.close();
+                    Logger::debug("Failed Writing Validation Message: {}", m_id);
+                    CloseConnection();
                 }
             });
         }
 
-        // TODO rm param ?
-        /* async */ void ReadValidation(NetworkServer<Archetype>* server_)
+        /* async */ void ReadValidation()
         {
             asio::async_read(m_socket, asio::buffer(&m_handshakeIn, sizeof(UInt64)),
-            [this, server_](std::error_code error, std::size_t length){
+            [this](std::error_code error, std::size_t length){
                 if(!error)
                 {
                     if (m_handshakeIn == m_handshakeCheck)
                     {
-                        Logger::info("Connection Validation Approved: {}", m_id);
-                        // TODO ?
-                        server_->OnClientValidated(this->GetId());
+                        m_input.QueueEvent(GetId(), EConnectionEvent::VALIDATED);
 
                         ReadHeader();
                     }
                     else
                     {
-                        Logger::error("Failed Writing Validation Message: {}", m_id);
-                        m_socket.close();
+                        Logger::debug("Failed Writing Validation Message: {}", m_id);
+                        CloseConnection();
                     }
                 }
                 else
                 {
-                    Logger::error("Connection Validation Failed: {}", m_id);
-                    m_socket.close();
+                    Logger::debug("Connection Validation Failed: {}", m_id);
+                    CloseConnection();
                 }
             });
         }
@@ -249,7 +285,7 @@ protected:
         asio::ip::tcp::socket m_socket;
 
         ConcurrentQueue<Message<Archetype>> m_messageOutput;
-        ConcurrentQueue<OwnedMessage>& m_messageInput;
+        Input& m_input;
         Message<Archetype> m_tempMessageIn;
 
         UInt64 m_handshakeOut = 0;
@@ -310,11 +346,11 @@ public:
                     if(CanClientConnect(socket.remote_endpoint()))
                     {
                         std::unique_ptr<Connection> newConnection = std::make_unique<Connection>( 
-                        m_context, std::move(socket), m_messageIn);
+                            m_context, std::move(socket), m_input
+                        );
+                        newConnection->AuthenticateClient(m_idCounter++);
 
-                        // TODO remove 'this' param
-                        newConnection->AuthenticateClient(this, m_idCounter++);
-                        Logger::debug("Connection Approved: {}", newConnection->GetId());
+                        m_input.QueueEvent(newConnection->GetId(), EConnectionEvent::CONNECTED);
 
                         // TODO Thread safety
                         m_connections.insert(std::make_pair<UInt32, std::unique_ptr<Connection>>(
@@ -338,17 +374,14 @@ public:
 
     void Send(UInt32 clientId_, const Message<Archetype>& message_)
     {
-        auto& client = m_connections[clientId_];
-        if (client && client->IsConnected())
+        auto it = m_connections.find(clientId_);
+        if (it != m_connections.end())
         {
-            client->Send(message_);
-        }
-        else
-        {
-            OnClientDisconnect(clientId_);
-            client.reset();
-
-            m_connections.erase(clientId_);
+            auto& client = it->second;
+            if (client && client->IsConnected())
+            {
+                client->Send(message_);
+            }
         }
     }
 
@@ -363,12 +396,6 @@ public:
                     client->Send(message_);
                 ++it;
             }
-            else
-            {
-                OnClientDisconnect(it->first);
-                client.reset();
-                it = m_connections.erase(it);
-            }
         }
     }
 
@@ -376,12 +403,40 @@ public:
     {
         // Block until a message is received
         if(wait_)
-            m_messageIn.wait();
+        {
+            m_input.Wait();
+        }
+
+        while(!m_input.eventQueue.Empty())
+        {
+            auto event = m_input.eventQueue.Pop();
+            switch(event.second)
+            {
+            case EConnectionEvent::CONNECTED:
+                Logger::info("Client Connected: {}", event.first);
+                OnClientConnected(event.first);
+                break;
+            case EConnectionEvent::VALIDATED:
+                Logger::info("Client Validated: {}", event.first);
+                OnClientValidated(event.first);
+                break;
+            case EConnectionEvent::DISCONNECTED:
+                auto it = m_connections.find(event.first);
+                if (it != m_connections.end())
+                {
+                    Logger::info("Client Disconnected: {}", event.first);
+                    it->second.reset();
+                    m_connections.erase(it);
+                    OnClientDisconnected(event.first);
+                }
+                break;
+            }
+        }
 
         UInt16 messageCount = 0;
-        while(messageCount < maxMessages_ && !m_messageIn.Empty())
+        while(messageCount < maxMessages_ && !m_input.messageQueue.Empty())
         {
-            auto message = m_messageIn.Pop();
+            auto message = m_input.messageQueue.Pop();
             OnMessage(message.remote, message.message);
             messageCount++;
         }
@@ -395,13 +450,17 @@ protected:
         return true;
     }
 
-    // TODO
-    // virtual void OnClientConnect(UInt32 client_)
-    // {
+    virtual void OnClientConnected(UInt32 clientId_)
+    {
         
-    // }
+    }
 
-    virtual void OnClientDisconnect(UInt32 clientId_)
+    virtual void OnClientValidated(UInt32 clientId_)
+    {
+
+    }
+
+    virtual void OnClientDisconnected(UInt32 clientId_)
     {
 
     }
@@ -412,13 +471,8 @@ protected:
 
     }
 
-    virtual void OnClientValidated(UInt32 clientId_)
-    {
-
-    }
-
 private:
-    ConcurrentQueue<OwnedMessage> m_messageIn;
+    Input m_input;
 
     std::unordered_map<UInt32, std::unique_ptr<Connection>> m_connections;
 

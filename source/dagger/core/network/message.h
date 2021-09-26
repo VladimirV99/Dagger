@@ -113,3 +113,16 @@ struct Message
         return message;
     }
 };
+
+template <typename Archetype>
+struct OwnedMessage
+{
+    UInt32 remote;
+    Message<Archetype> message;
+
+    friend std::ostream& operator<<(std::ostream& os, const OwnedMessage& message)
+    {
+        os << message.message;
+        return os;
+    }
+};

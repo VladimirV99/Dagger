@@ -31,9 +31,10 @@ namespace multiplayer
 
     protected:
         bool CanClientConnect(asio::ip::tcp::endpoint endpoint_) override;
-        void OnClientDisconnect(UInt32 clientId_) override;
-        void OnMessage(UInt32 clientId_, Message<EMultiplayerMessage>& message_) override;
+        void OnClientConnected(UInt32 clientId_) override;
         void OnClientValidated(UInt32 clientId_) override;
+        void OnClientDisconnected(UInt32 clientId_) override;
+        void OnMessage(UInt32 clientId_, Message<EMultiplayerMessage>& message_) override;
 
     private:
         std::unordered_map<UInt32, PlayerData> m_playerData;

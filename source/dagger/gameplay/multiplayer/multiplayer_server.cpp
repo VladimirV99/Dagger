@@ -17,17 +17,29 @@ bool MultiplayerServer::CanClientConnect(asio::ip::tcp::endpoint endpoint_)
     return true;
 }
 
-void MultiplayerServer::OnClientDisconnect(UInt32 clientId_)
+void MultiplayerServer::OnClientConnected(UInt32 clientId_)
+{
+
+}
+
+void MultiplayerServer::OnClientValidated(UInt32 clientId_)
+{
+    Message<EMultiplayerMessage> message (EMultiplayerMessage::AcceptClient);
+    message << clientId_;
+    Send(clientId_, message);
+}
+
+void MultiplayerServer::OnClientDisconnected(UInt32 clientId_)
 {
     // TODO Handle disconnecting. Messages can't be sent from this function
-    // if (client && m_playerData.find(client->GetId()) != m_playerData.end())
-    // {
-    //     Message<EMultiplayerMessage> message;
-    //     message.header.id = EMultiplayerMessage::RemovePlayer;
-    //     message << client->GetId();
-    //     Broadcast(message, client);
-    //     m_playerData.erase(client->GetId());
-    // }
+    if (m_playerData.find(clientId_) != m_playerData.end())
+    {
+        Message<EMultiplayerMessage> message;
+        message.header.id = EMultiplayerMessage::RemovePlayer;
+        message << clientId_;
+        Broadcast(message, clientId_);
+        m_playerData.erase(clientId_);
+    }
 }
 
 void MultiplayerServer::OnMessage(UInt32 clientId_, Message<EMultiplayerMessage>& message_)
@@ -68,11 +80,4 @@ void MultiplayerServer::OnMessage(UInt32 clientId_, Message<EMultiplayerMessage>
             break;
         }
     }
-}
-
-void MultiplayerServer::OnClientValidated(UInt32 clientId_)
-{
-    Message<EMultiplayerMessage> message (EMultiplayerMessage::AcceptClient);
-    message << clientId_;
-    Send(clientId_, message);
 }
