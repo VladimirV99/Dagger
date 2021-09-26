@@ -321,7 +321,7 @@ public:
         if (!IsConnected())
         {
             Logger::error("Disconnected from server");
-            // TODO shutdown
+            Engine::Dispatcher().trigger<Exit>();
             return;
         }
 
