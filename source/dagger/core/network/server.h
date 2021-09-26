@@ -80,10 +80,9 @@ protected:
             return m_id;
         }
 
-        // TODO isAutheticated field
         void AuthenticateClient(UInt32 id_ = 0)
         {
-            if (IsConnected())
+            if (!m_isAuthenticated && IsConnected())
             {
                 m_id = id_;
 
@@ -106,6 +105,11 @@ protected:
 
         void Send(const Message<Archetype>& message)
         {
+            if(!m_isAuthenticated)
+            {
+                Logger::warn("Error sending message. Client not authenticated: {}", m_id);
+                return;
+            }
             asio::post(m_context, [this, message](){
                 bool isWritingMessage = !m_messageOutput.Empty();
                 m_messageOutput.Push(message);
@@ -119,6 +123,7 @@ protected:
         {
             m_socket.close();
             m_input.QueueEvent(GetId(), EConnectionEvent::DISCONNECTED);
+            m_isAuthenticated = false;
         }
 
         /* async */ void ReadHeader()
@@ -260,6 +265,7 @@ protected:
                 {
                     if (m_handshakeIn == m_handshakeCheck)
                     {
+                        m_isAuthenticated = true;
                         m_input.QueueEvent(GetId(), EConnectionEvent::VALIDATED);
 
                         ReadHeader();
@@ -288,9 +294,10 @@ protected:
         Input& m_input;
         Message<Archetype> m_tempMessageIn;
 
-        UInt64 m_handshakeOut = 0;
-        UInt64 m_handshakeIn = 0;
-        UInt64 m_handshakeCheck = 0;
+        bool m_isAuthenticated { false };
+        UInt64 m_handshakeOut { 0 };
+        UInt64 m_handshakeIn { 0 };
+        UInt64 m_handshakeCheck { 0 };
     };
 
 public:

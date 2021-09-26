@@ -31,7 +31,6 @@ void MultiplayerServer::OnClientValidated(UInt32 clientId_)
 
 void MultiplayerServer::OnClientDisconnected(UInt32 clientId_)
 {
-    // TODO Handle disconnecting. Messages can't be sent from this function
     if (m_playerData.find(clientId_) != m_playerData.end())
     {
         Message<EMultiplayerMessage> message;
