@@ -25,7 +25,6 @@ void MultiplayerServer::OnClientConnected(UInt32 clientId_)
 void MultiplayerServer::OnClientValidated(UInt32 clientId_)
 {
     Message<EMultiplayerMessage> message (EMultiplayerMessage::AcceptClient);
-    message << clientId_;
     Send(clientId_, message);
 }
 
@@ -33,9 +32,8 @@ void MultiplayerServer::OnClientDisconnected(UInt32 clientId_)
 {
     if (m_playerData.find(clientId_) != m_playerData.end())
     {
-        Message<EMultiplayerMessage> message;
-        message.header.id = EMultiplayerMessage::RemovePlayer;
-        message << clientId_;
+		Message<EMultiplayerMessage> message {EMultiplayerMessage::RemovePlayer};
+		message.header.sender = clientId_;
         Broadcast(message, clientId_);
         m_playerData.erase(clientId_);
     }
@@ -43,7 +41,7 @@ void MultiplayerServer::OnClientDisconnected(UInt32 clientId_)
 
 void MultiplayerServer::OnMessage(UInt32 clientId_, Message<EMultiplayerMessage>& message_)
 {
-    switch(message_.header.id)
+    switch(message_.header.type)
     {
         case EMultiplayerMessage::AcceptClient:
             break;
@@ -53,23 +51,21 @@ void MultiplayerServer::OnMessage(UInt32 clientId_, Message<EMultiplayerMessage>
             for (const auto& player : m_playerData)
             {
                 Message<EMultiplayerMessage> message (EMultiplayerMessage::AddPlayer);
+				message.header.sender = player.first;
                 message << player.second.position;
                 message << player.second.color;
-                message << player.first;
                 Send(clientId_, message);
             }
             PlayerData data;
-            UInt32 id;
-            message_ >> id >> data.color >> data.position;
-            m_playerData[clientId_] = data;
+            message_ >> data.color >> data.position;
+            m_playerData[message_.header.sender] = data;
             Logger::info("Added new player");
             break;
         }
         case EMultiplayerMessage::UpdatePlayer:
         {
             Broadcast(message_, clientId_);
-            UInt32 id;
-            message_ >> id >> m_playerData[clientId_].position;
+            message_ >> m_playerData[message_.header.sender].position;
             break;
         }
         case EMultiplayerMessage::RemovePlayer:

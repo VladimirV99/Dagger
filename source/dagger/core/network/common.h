@@ -10,3 +10,20 @@
 
 #define MAX_MESSAGE_SIZE 1024
 #define MAX_CLIENT_PROCESS_MESSAGE 10
+
+using namespace dagger;
+
+enum class ENetworkEventType
+{
+	Connected,
+	Validated,
+	Disconnected
+};
+
+struct NetworkEvent
+{
+	ENetworkEventType type;
+	UInt32 clientId;
+	String host;
+	UInt16 port;
+};

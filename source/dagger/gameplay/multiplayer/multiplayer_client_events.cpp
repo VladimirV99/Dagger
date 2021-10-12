@@ -1,7 +1,5 @@
 #include "multiplayer_client_events.h"
 
-#include "core/network/client.h"
-
 #include "core/game/transforms.h"
 #include "core/graphics/sprite.h"
 #include "core/input/inputs.h"
@@ -12,12 +10,14 @@ using namespace multiplayer;
 void ClientEventSystem::SpinUp()
 {
     Engine::Dispatcher().sink<KeyboardEvent>().connect<&ClientEventSystem::OnKeyboardEvent>(this);
+	Engine::Dispatcher().sink<NetworkEvent>().connect<&ClientEventSystem::OnNetworkEvent>(this);
     Engine::Dispatcher().sink<Message<EMultiplayerMessage>>().connect<&ClientEventSystem::OnNetworkMessage>(this);
 }
 
 void ClientEventSystem::WindDown()
 {
     Engine::Dispatcher().sink<KeyboardEvent>().disconnect<&ClientEventSystem::OnKeyboardEvent>(this);
+	Engine::Dispatcher().sink<NetworkEvent>().disconnect<&ClientEventSystem::OnNetworkEvent>(this);
     Engine::Dispatcher().sink<Message<EMultiplayerMessage>>().disconnect<&ClientEventSystem::OnNetworkMessage>(this);
 }
 
@@ -56,9 +56,15 @@ void ClientEventSystem::Run()
 		auto *client = Engine::GetDefaultResource<NetworkClientSystem<EMultiplayerMessage>>();
 		Message<EMultiplayerMessage> message (EMultiplayerMessage::UpdatePlayer);
 		message << transform.position;
-		message << m_playerId;
 		client->Send(message);
 	}
+
+	Engine::Registry().view<Transform, RemotePlayerTarget>().each(
+		[](auto& transform_, auto& target_) 
+		{
+			Duration dt = Engine::CurrentTime() - target_.startTime;
+			transform_.position = target_.startPosition + (target_.endPosition - target_.startPosition) * dt.count() * 40.0f;
+		});
 }
 
 void ClientEventSystem::OnKeyboardEvent(KeyboardEvent kEvent_)
@@ -66,17 +72,31 @@ void ClientEventSystem::OnKeyboardEvent(KeyboardEvent kEvent_)
 	
 }
 
+void ClientEventSystem::OnNetworkEvent(NetworkEvent event_) {
+	switch (event_.type)
+	{
+	case EConnectionEvent::Connected:
+		Logger::info("connected");
+		break;
+	case EConnectionEvent::Validated:
+		Logger::info("validated");
+		m_playerId = event_.clientId;
+		break;
+	case EConnectionEvent::Disconnected:
+		Logger::info("disconnected");
+		break;
+	}
+}
+
 void ClientEventSystem::OnNetworkMessage(Message<EMultiplayerMessage> message_)
 {
 	auto &reg = Engine::Registry();
 	auto *client = Engine::GetDefaultResource<NetworkClientSystem<EMultiplayerMessage>>();
 
-    switch(message_.header.id)
+    switch(message_.header.type)
     {
 		case EMultiplayerMessage::AcceptClient:
 		{
-			message_ >> m_playerId;
-
 			auto player = reg.create();
 			m_players[m_playerId] = player;
 
@@ -91,22 +111,26 @@ void ClientEventSystem::OnNetworkMessage(Message<EMultiplayerMessage> message_)
 			Message<EMultiplayerMessage> message (EMultiplayerMessage::AddPlayer);
 			message << playerTransform.position;
 			message << playerSprite.color;
-			message << m_playerId;
+
 			client->Send(message);
 			break;
 		}
         case EMultiplayerMessage::AddPlayer:
 		{
-			UInt32 id;
 			Vector3 position;
 			Vector4 color;
-			message_ >> id >> color >> position;
+			message_ >> color >> position;
 
 			auto newPlayer = reg.create();
-			m_players[id] = newPlayer;
+			m_players[message_.header.sender] = newPlayer;
 
 			auto &playerTransform = reg.emplace<Transform>(newPlayer);
 			playerTransform.position = position;
+
+			auto& playerTarget = reg.emplace<RemotePlayerTarget>(newPlayer);
+			playerTarget.startPosition = position;
+			playerTarget.endPosition = position;
+			playerTarget.startTime = Engine::CurrentTime();
 
 			auto &playerSprite = reg.emplace<Sprite>(newPlayer);
 			playerSprite.color = color;
@@ -117,21 +141,30 @@ void ClientEventSystem::OnNetworkMessage(Message<EMultiplayerMessage> message_)
 		}
         case EMultiplayerMessage::UpdatePlayer:
 		{
-			UInt32 id;
-			Vector3 position;
-			message_ >> id >> position;
+			auto it = m_players.find(message_.header.sender);
+			if (it == m_players.end()) 
+				return;
 
-			auto &playerTransform = reg.get<Transform>(m_players[id]);
-			playerTransform.position = position;
+			Vector3 position;
+			message_ >> position;
+
+			auto& playerTransform = reg.get<Transform>(it->second);
+
+			auto &playerTarget = reg.get<RemotePlayerTarget>(it->second);
+			playerTarget.startPosition = playerTransform.position;
+			playerTarget.endPosition = position;
+			playerTarget.startTime = Engine::CurrentTime();
 
             break;
 		}
         case EMultiplayerMessage::RemovePlayer:
 		{
-			UInt32 id;
-			message_ >> id;
-			reg.destroy(m_players[id]);
-			m_players.erase(id);
+			auto it = m_players.find(message_.header.sender);
+			if (it == m_players.end())
+				return;
+
+			reg.destroy(it->second);
+			m_players.erase(message_.header.sender);
             break;
 		}
     }
