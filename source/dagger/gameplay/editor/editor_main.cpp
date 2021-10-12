@@ -222,8 +222,8 @@ void EditorToolSystem::UpdateTargets()
 			// Rotate the knob position by negative sprite rotation angle around the sprite position
 			// Then check collision as usual
 			const Vector3 knobRelative = knob.position - sprite_.position;
-			const double sine = sin(-sprite_.rotation * M_PI / 180.0f);
-			const double cosine = cos(-sprite_.rotation * M_PI / 180.0f);
+			const double sine = sin(-sprite_.rotation * PI / 180.0f);
+			const double cosine = cos(-sprite_.rotation * PI / 180.0f);
 			const auto knobX = sprite_.position.x + knobRelative.x * cosine - knobRelative.y * sine;
 			const auto knobY = sprite_.position.y + knobRelative.x * sine + knobRelative.y * cosine;
 

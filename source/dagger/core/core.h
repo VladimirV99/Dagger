@@ -39,6 +39,8 @@ using Entity = entt::entity;
 #define EPSILON_ZERO(a)			EPSILON_EQUAL(a, 0.0f)
 #define EPSILON_NOT_ZERO(a)		EPSILON_NOT_EQUAL(a, 0.0f)
 
+#define PI						3.14159265358979323846
+
 // OwningPtr<T>: the pointer is owned and destroyed by whoever holds this instance.
 template<typename Archetype>
 using OwningPtr = std::unique_ptr<Archetype>;
