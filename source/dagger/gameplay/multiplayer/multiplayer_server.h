@@ -13,30 +13,30 @@ using namespace dagger;
 
 namespace multiplayer
 {
-    struct PlayerData
-    {
-        Vector3 position;
-        Vector4 color;
-    };
+	struct PlayerData
+	{
+		Vector3 position;
+		Vector4 color;
+	};
 
-    class MultiplayerServer : public NetworkServer<EMultiplayerMessage>
-    {
-    public:
-        MultiplayerServer(UInt16 port_) : NetworkServer<EMultiplayerMessage>(port_) 
-        {
+	class MultiplayerServer : public NetworkServer<EMultiplayerMessage>
+	{
+	public:
+		MultiplayerServer(UInt16 port_) : NetworkServer<EMultiplayerMessage>(port_) 
+		{
 
-        };
+		};
 
-        void Run();
+		void Run();
 
-    protected:
-        bool CanClientConnect(asio::ip::tcp::endpoint endpoint_) override;
-        void OnClientConnected(UInt32 clientId_) override;
-        void OnClientValidated(UInt32 clientId_) override;
-        void OnClientDisconnected(UInt32 clientId_) override;
-        void OnMessage(UInt32 clientId_, Message<EMultiplayerMessage>& message_) override;
+	protected:
+		bool CanClientConnect(asio::ip::tcp::endpoint endpoint_) override;
+		void OnClientConnected(UInt32 clientId_) override;
+		void OnClientValidated(UInt32 clientId_) override;
+		void OnClientDisconnected(UInt32 clientId_) override;
+		void OnMessage(UInt32 clientId_, Message<EMultiplayerMessage>& message_) override;
 
-    private:
-        std::unordered_map<UInt32, PlayerData> m_playerData;
-    };
+	private:
+		std::unordered_map<UInt32, PlayerData> m_playerData;
+	};
 } // namespace multiplayer

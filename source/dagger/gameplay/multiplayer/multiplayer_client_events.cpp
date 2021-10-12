@@ -9,16 +9,16 @@ using namespace multiplayer;
 
 void ClientEventSystem::SpinUp()
 {
-    Engine::Dispatcher().sink<KeyboardEvent>().connect<&ClientEventSystem::OnKeyboardEvent>(this);
+	Engine::Dispatcher().sink<KeyboardEvent>().connect<&ClientEventSystem::OnKeyboardEvent>(this);
 	Engine::Dispatcher().sink<NetworkEvent>().connect<&ClientEventSystem::OnNetworkEvent>(this);
-    Engine::Dispatcher().sink<Message<EMultiplayerMessage>>().connect<&ClientEventSystem::OnNetworkMessage>(this);
+	Engine::Dispatcher().sink<Message<EMultiplayerMessage>>().connect<&ClientEventSystem::OnNetworkMessage>(this);
 }
 
 void ClientEventSystem::WindDown()
 {
-    Engine::Dispatcher().sink<KeyboardEvent>().disconnect<&ClientEventSystem::OnKeyboardEvent>(this);
+	Engine::Dispatcher().sink<KeyboardEvent>().disconnect<&ClientEventSystem::OnKeyboardEvent>(this);
 	Engine::Dispatcher().sink<NetworkEvent>().disconnect<&ClientEventSystem::OnNetworkEvent>(this);
-    Engine::Dispatcher().sink<Message<EMultiplayerMessage>>().disconnect<&ClientEventSystem::OnNetworkMessage>(this);
+	Engine::Dispatcher().sink<Message<EMultiplayerMessage>>().disconnect<&ClientEventSystem::OnNetworkMessage>(this);
 }
 
 void ClientEventSystem::Run()
@@ -75,14 +75,14 @@ void ClientEventSystem::OnKeyboardEvent(KeyboardEvent kEvent_)
 void ClientEventSystem::OnNetworkEvent(NetworkEvent event_) {
 	switch (event_.type)
 	{
-	case EConnectionEvent::Connected:
+	case ENetworkEventType::Connected:
 		Logger::info("connected");
 		break;
-	case EConnectionEvent::Validated:
+	case ENetworkEventType::Validated:
 		Logger::info("validated");
 		m_playerId = event_.clientId;
 		break;
-	case EConnectionEvent::Disconnected:
+	case ENetworkEventType::Disconnected:
 		Logger::info("disconnected");
 		break;
 	}
@@ -93,8 +93,8 @@ void ClientEventSystem::OnNetworkMessage(Message<EMultiplayerMessage> message_)
 	auto &reg = Engine::Registry();
 	auto *client = Engine::GetDefaultResource<NetworkClientSystem<EMultiplayerMessage>>();
 
-    switch(message_.header.type)
-    {
+	switch(message_.header.type)
+	{
 		case EMultiplayerMessage::AcceptClient:
 		{
 			auto player = reg.create();
@@ -115,7 +115,7 @@ void ClientEventSystem::OnNetworkMessage(Message<EMultiplayerMessage> message_)
 			client->Send(message);
 			break;
 		}
-        case EMultiplayerMessage::AddPlayer:
+		case EMultiplayerMessage::AddPlayer:
 		{
 			Vector3 position;
 			Vector4 color;
@@ -137,9 +137,9 @@ void ClientEventSystem::OnNetworkMessage(Message<EMultiplayerMessage> message_)
 			AssignSprite(playerSprite, "PingPong:ball");
 			playerSprite.size = {50.0f, 50.0f};
 
-            break;
+			break;
 		}
-        case EMultiplayerMessage::UpdatePlayer:
+		case EMultiplayerMessage::UpdatePlayer:
 		{
 			auto it = m_players.find(message_.header.sender);
 			if (it == m_players.end()) 
@@ -155,9 +155,9 @@ void ClientEventSystem::OnNetworkMessage(Message<EMultiplayerMessage> message_)
 			playerTarget.endPosition = position;
 			playerTarget.startTime = Engine::CurrentTime();
 
-            break;
+			break;
 		}
-        case EMultiplayerMessage::RemovePlayer:
+		case EMultiplayerMessage::RemovePlayer:
 		{
 			auto it = m_players.find(message_.header.sender);
 			if (it == m_players.end())
@@ -165,7 +165,7 @@ void ClientEventSystem::OnNetworkMessage(Message<EMultiplayerMessage> message_)
 
 			reg.destroy(it->second);
 			m_players.erase(message_.header.sender);
-            break;
+			break;
 		}
-    }
+	}
 }

@@ -14,32 +14,32 @@ using namespace dagger;
 
 namespace multiplayer
 {
-    struct RemotePlayerTarget
+	struct RemotePlayerTarget
 	{
 		Vector3 startPosition;
 		Vector3 endPosition;
 		TimePoint startTime;
-    };
+	};
 
-    class ClientEventSystem : public System
+	class ClientEventSystem : public System
 	{
-    public:
-        inline String SystemName() const override
+	public:
+		inline String SystemName() const override
 		{
 			return "Client Event System";
 		}
 
-        void SpinUp() override;
-        void WindDown() override;
-        void Run() override;
+		void SpinUp() override;
+		void WindDown() override;
+		void Run() override;
 
-        void OnKeyboardEvent(KeyboardEvent kEvent_);
+		void OnKeyboardEvent(KeyboardEvent kEvent_);
 		void OnNetworkEvent(NetworkEvent event_);
-        void OnNetworkMessage(Message<EMultiplayerMessage> message_);
+		void OnNetworkMessage(Message<EMultiplayerMessage> message_);
 
-    private:
-        UInt32 m_playerId;
-        std::unordered_map<UInt32, Entity> m_players;
-        Float32 m_elapsedTime = 0.0f;
-    };
+	private:
+		UInt32 m_playerId;
+		std::unordered_map<UInt32, Entity> m_players;
+		Float32 m_elapsedTime = 0.0f;
+	};
 } // namespace multiplayer

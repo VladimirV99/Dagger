@@ -8,7 +8,7 @@ using namespace dagger;
 
 namespace multiplayer
 {
-    class MultiplayerGame : public Game
+	class MultiplayerGame : public Game
 	{
 		inline String GetIniFile() const override
 		{

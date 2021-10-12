@@ -12,60 +12,60 @@ template <typename T>
 class ConcurrentQueue
 {
 public:
-    ConcurrentQueue() = default;
-    ConcurrentQueue(const ConcurrentQueue<T>&) = delete;
+	ConcurrentQueue() = default;
+	ConcurrentQueue(const ConcurrentQueue<T>&) = delete;
 
-    virtual ~ConcurrentQueue()
-    {
-        Clear();
-    }
+	virtual ~ConcurrentQueue()
+	{
+		Clear();
+	}
 
-    const T& Front()
-    {
-        std::scoped_lock lock(m_queueMutex);
-        return m_queue.front();
-    }
+	const T& Front()
+	{
+		std::scoped_lock lock(m_queueMutex);
+		return m_queue.front();
+	}
 
-    const T& Back()
-    {
-        std::scoped_lock lock(m_queueMutex);
-        return m_queue.back();
-    }
+	const T& Back()
+	{
+		std::scoped_lock lock(m_queueMutex);
+		return m_queue.back();
+	}
 
-    void Push(const T& element_)
-    {
-        std::scoped_lock lock(m_queueMutex);
-        m_queue.emplace(std::move(element_));
-    }
+	void Push(const T& element_)
+	{
+		std::scoped_lock lock(m_queueMutex);
+		m_queue.emplace(std::move(element_));
+	}
 
-    T Pop()
-    {
-        std::scoped_lock lock(m_queueMutex);
-        auto e = std::move(m_queue.front());
-        m_queue.pop();
-        return e;
-    }
+	T Pop()
+	{
+		std::scoped_lock lock(m_queueMutex);
+		auto e = std::move(m_queue.front());
+		m_queue.pop();
+		return e;
+	}
 
-    bool Empty()
-    {
-        std::scoped_lock lock(m_queueMutex);
-        return m_queue.empty();
-    }
+	bool Empty()
+	{
+		std::scoped_lock lock(m_queueMutex);
+		return m_queue.empty();
+	}
 
-    size_t Size()
-    {
-        std::scoped_lock lock(m_queueMutex);
-        return m_queue.size();
-    }
+	size_t Size()
+	{
+		std::scoped_lock lock(m_queueMutex);
+		return m_queue.size();
+	}
 
-    void Clear()
-    {
-        std::scoped_lock lock(m_queueMutex);
-        while(!m_queue.empty())
-            m_queue.pop();
-    }
+	void Clear()
+	{
+		std::scoped_lock lock(m_queueMutex);
+		while(!m_queue.empty())
+			m_queue.pop();
+	}
 
 private:
-    std::mutex m_queueMutex;
-    std::queue<T> m_queue;
+	std::mutex m_queueMutex;
+	std::queue<T> m_queue;
 };

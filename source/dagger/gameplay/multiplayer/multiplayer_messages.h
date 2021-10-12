@@ -2,8 +2,8 @@
 
 enum class EMultiplayerMessage
 {
-    AcceptClient,
-    AddPlayer,
-    UpdatePlayer,
-    RemovePlayer
+	AcceptClient,
+	AddPlayer,
+	UpdatePlayer,
+	RemovePlayer
 };

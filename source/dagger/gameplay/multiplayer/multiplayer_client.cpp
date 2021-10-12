@@ -13,7 +13,7 @@ void MultiplayerGame::GameplaySystemsSetup()
 	auto& engine = Engine::Instance();
 
 	engine.AddSystem<NetworkClientSystem<EMultiplayerMessage>>("127.0.0.1", 5000);
-    engine.AddSystem<ClientEventSystem>();
+	engine.AddSystem<ClientEventSystem>();
 }
 
 void MultiplayerGame::WorldSetup()
