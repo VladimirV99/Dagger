@@ -155,6 +155,9 @@ public class MainProject : Project
 		// Define soloud backend
 		config.Defines.Add("WITH_MINIAUDIO");
 
+		// Remove winsock conflict with ASIO
+		config.Defines.Add("WIN32_LEAN_AND_MEAN");
+
         // Define flags
         if (target.Optimization == Optimization.Debug)
         {
