@@ -1,37 +1,33 @@
 using Sharpmake;
-using System;
-using System.Collections.Generic;
 using System.IO;
 
 [Generate]
 public class MainProject : Project
 {
-    private string m_Root;
     private string m_RootDirectory;
     private const string mc_ProjectName = "dagger";
 
     public MainProject()
     {
         // Eval paths
-        m_Root = Path.Combine(@"[project.SharpmakeCsPath]", @"..\..\");
         m_RootDirectory = Path.Combine(this.SharpmakeCsPath, @"..\..");
 
         Name = mc_ProjectName;
-        SourceRootPath = Path.Combine(m_Root, @"source", mc_ProjectName);
+        SourceRootPath = Path.Combine(m_RootDirectory, @"source", mc_ProjectName);
 
         SourceFilesExtensions.Add(".shader");
         SourceFilesExtensions.Add(".glsl");
-        AdditionalSourceRootPaths.Add(Path.Combine(m_Root, @"data"));
+        AdditionalSourceRootPaths.Add(Path.Combine(m_RootDirectory, @"data"));
 
         AddTargets(
             new Target(
                 Platform.win64,
-                DevEnv.vs2017,
+                DevEnv.vs2019,
                 Optimization.Debug | Optimization.Release
             ),
             new Target(
                 Platform.win64,
-                DevEnv.vs2019,
+                DevEnv.vs2022,
                 Optimization.Debug | Optimization.Release
             )
         );
@@ -44,7 +40,7 @@ public class MainProject : Project
         config.ProjectPath = Path.Combine(m_RootDirectory, @"projects", mc_ProjectName);
 
         config.VcxprojUserFile = new Configuration.VcxprojUserFileSettings();
-        config.VcxprojUserFile.LocalDebuggerWorkingDirectory = Path.Combine(m_Root, @"data");
+        config.VcxprojUserFile.LocalDebuggerWorkingDirectory = Path.Combine(m_RootDirectory, @"data");
 
         // Additional includes
         config.IncludePaths.Add(Path.Combine(m_RootDirectory, @"source", mc_ProjectName));
@@ -70,11 +66,6 @@ public class MainProject : Project
         config.LibraryFiles.Add("glfw3.lib");
         config.LibraryFiles.Add("glu32.lib");
         config.LibraryFiles.Add("opengl32.lib");
-
-        if (target.GetPlatform() == Platform.win32 || target.GetPlatform() == Platform.win64)
-        {
-            config.LibraryFiles.Add("winmm.lib");
-        }
 
         // For external CPP files
         string external = Path.Combine(m_RootDirectory, @"source", mc_ProjectName, @"external");
@@ -145,14 +136,17 @@ public class MainProject : Project
         File.Copy(Path.Combine(soloudRoot, @"core", @"soloud.cpp"), Path.Combine(soloudDest, @"soloud.cpp"), true);
 
         // Setup additional compiler options
-        config.TargetPath = Path.Combine(m_Root, @"bin", config.Platform.ToString());
+        config.TargetPath = Path.Combine(m_RootDirectory, @"bin", config.Platform.ToString());
 
         config.Options.Add(Options.Vc.General.WindowsTargetPlatformVersion.Latest);
         config.Options.Add(Options.Vc.Compiler.CppLanguageStandard.CPP17);
         config.Options.Add(Options.Vc.Compiler.RuntimeLibrary.MultiThreadedDebugDLL);
 
-		// Define soloud backend
-		config.Defines.Add("WITH_MINIAUDIO");
+        // Define math constants
+        config.Defines.Add("_USE_MATH_DEFINES");
+
+        // Define soloud backend
+        config.Defines.Add("WITH_MINIAUDIO");
 
         // Define flags
         if (target.Optimization == Optimization.Debug)
@@ -176,7 +170,7 @@ public class MainProject : Project
 public class MainSolution : Solution
 {
     private const string mc_SolutionName = "Dagger";
-    private string m_Root = Path.Combine(@"[solution.SharpmakeCsPath]", @"\..\..");
+    private string m_RootDirectory = Path.Combine(@"[solution.SharpmakeCsPath]", @"\..\..");
 
     public MainSolution()
     {
@@ -185,12 +179,12 @@ public class MainSolution : Solution
         AddTargets(
             new Target(
                 Platform.win64,
-                DevEnv.vs2017,
+                DevEnv.vs2019,
                 Optimization.Debug | Optimization.Release
             ),
             new Target(
                 Platform.win64,
-                DevEnv.vs2019,
+                DevEnv.vs2022,
                 Optimization.Debug | Optimization.Release
             )
         );
@@ -199,7 +193,7 @@ public class MainSolution : Solution
     [Configure]
     public void ConfigureAll(Solution.Configuration config, Target target)
     {
-        config.SolutionPath = Path.Combine(m_Root, "projects");
+        config.SolutionPath = Path.Combine(m_RootDirectory, "projects");
         config.SolutionFileName = @"[solution.Name].[target.DevEnv]";
         config.Options.Add(Options.Vc.General.WindowsTargetPlatformVersion.Latest);
 
@@ -212,8 +206,6 @@ public static class Main
     [Sharpmake.Main]
     public static void SharpmakeMain(Arguments sharpmakeArgs)
     {
-        //KitsRootPaths.SetUseKitsRootForDevEnv(DevEnv.vs2019, KitsRootEnum.KitsRoot81, Options.Vc.General.WindowsTargetPlatformVersion.Latest);
-
         sharpmakeArgs.Generate<MainSolution>();
     }
 }
