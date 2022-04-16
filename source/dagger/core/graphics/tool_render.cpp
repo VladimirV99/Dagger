@@ -113,7 +113,7 @@ void ToolRenderSystem::OnRender()
 	ViewPtr<Shader> prevShader {nullptr};
 
 	const auto& view = registry->view<Sprite>();
-	Sequence<Sprite> sprites {view.raw(), view.raw() + view.size()};
+	Sequence<Sprite> sprites {view.storage().begin(), view.storage().end()};
 	std::sort(sprites.begin(), sprites.end(), sortSprites);
 	Sequence<SpriteData> currentRender {};
 
