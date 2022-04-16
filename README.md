@@ -1,5 +1,9 @@
 # Dagger
 
+![Ubisoft](https://img.shields.io/badge/Ubisoft-000000?style=for-the-badge&logo=ubisoft&logoColor=white)
+![C++](https://img.shields.io/badge/C%2B%2B-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)
+![CI](https://img.shields.io/github/workflow/status/VladimirV99/Dagger/CI/main?style=for-the-badge)
+
 A fully-featured, modern game engine made for educational purposes.
 
 ## Features
